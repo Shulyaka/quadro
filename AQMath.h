@@ -405,99 +405,99 @@ int fss(long long **a, long long *res)
 
 float f1(float p[3][3], float *g)
 {
-  float tx=(200+g[0])*(200+g[0]);
-  float ty=(200+g[1])*(200+g[1]);
-  float tz=(200+g[2])*(200+g[2]);
-  return -(p[0][0]*tx+p[0][1]*ty+p[0][2]*tz)*(p[0][1]*ty+p[0][2]*tz)*20000/(tx*tx) + p[1][0]*tx*(p[1][0]*tx+p[1][1]*ty+p[1][2]*tz)*20000/(ty*ty) + p[2][0]*tx*(p[2][0]*tx+p[2][1]*ty*p[2][2]*tz)*20000/(tz*tz);
+  float tx=(1+g[0])*(1+g[0]);
+  float ty=(1+g[1])*(1+g[1]);
+  float tz=(1+g[2])*(1+g[2]);
+  return -(p[0][0]*tx+p[0][1]*ty+p[0][2]*tz)*(p[0][1]*ty+p[0][2]*tz)/(tx*tx) + p[1][0]*tx*(p[1][0]*tx+p[1][1]*ty+p[1][2]*tz)/(ty*ty) + p[2][0]*tx*(p[2][0]*tx+p[2][1]*ty+p[2][2]*tz)/(tz*tz);
 }
 
 float f2(float p[3][3], float *g)
 {
-  float tx=(200+g[0])*(200+g[0]);
-  float ty=(200+g[1])*(200+g[1]);
-  float tz=(200+g[2])*(200+g[2]);
-  return p[0][1]*ty*(p[0][0]*tx+p[0][1]*ty+p[0][2]*tz)*20000/(tx*tx) - (p[1][0]*tx+p[1][1]*ty+p[1][2]*tz)*(p[1][0]*tx+p[1][2]*tz)*20000/(ty*ty) + p[2][1]*ty*(p[2][0]*tx+p[2][1]*ty*p[2][2]*tz)*20000/(tz*tz);
+  float tx=(1+g[0])*(1+g[0]);
+  float ty=(1+g[1])*(1+g[1]);
+  float tz=(1+g[2])*(1+g[2]);
+  return p[0][1]*ty*(p[0][0]*tx+p[0][1]*ty+p[0][2]*tz)/(tx*tx) - (p[1][0]*tx+p[1][1]*ty+p[1][2]*tz)*(p[1][0]*tx+p[1][2]*tz)/(ty*ty) + p[2][1]*ty*(p[2][0]*tx+p[2][1]*ty+p[2][2]*tz)/(tz*tz);
 }
 
 float f3(float p[3][3], float *g, float *a, float one_g)
 {
-  long long tx=(200+g[0])*(200+g[0]);
-  long long ty=(200+g[1])*(200+g[1]);
-  long long tz=(200+g[2])*(200+g[2]);
-  return (p[0][0]*tx+p[0][1]*ty+p[0][2]*tz)*(p[0][0]*tx+p[0][1]*ty+p[0][2]*tz)/(tx*2) + (p[1][0]*tx+p[1][1]*ty+p[1][2]*tz)*(p[1][0]*tx+p[1][1]*ty+p[1][2]*tz)/(ty*2) + (p[2][0]*tx+p[2][1]*ty+p[2][2]*tz)*(p[2][0]*tx+p[2][1]*ty+p[2][2]*tz)/(tz*2) \
-         - (p[0][0]*tx+p[0][1]*ty+p[0][2]*tz)*a[0] - (p[1][0]*tx+p[1][1]*ty+p[1][2]*tz)*a[1] - (p[2][0]*tx+p[2][1]*ty+p[2][2]*tz)*a[2] + (tx*a[0]*a[0] + ty*a[1]*a[1] + tz*a[2]*a[2] - one_g*one_g)*80000;
+  long long tx=(1+g[0])*(1+g[0]);
+  long long ty=(1+g[1])*(1+g[1]);
+  long long tz=(1+g[2])*(1+g[2]);
+  return (p[0][0]*tx+p[0][1]*ty+p[0][2]*tz)*(p[0][0]*tx+p[0][1]*ty+p[0][2]*tz)/(tx*4) + (p[1][0]*tx+p[1][1]*ty+p[1][2]*tz)*(p[1][0]*tx+p[1][1]*ty+p[1][2]*tz)/(ty*4) + (p[2][0]*tx+p[2][1]*ty+p[2][2]*tz)*(p[2][0]*tx+p[2][1]*ty+p[2][2]*tz)/(tz*4) \
+         - (p[0][0]*tx+p[0][1]*ty+p[0][2]*tz)*a[0]/2 - (p[1][0]*tx+p[1][1]*ty+p[1][2]*tz)*a[1]/2 - (p[2][0]*tx+p[2][1]*ty+p[2][2]*tz)*a[2]/2 + tx*a[0]*a[0] + ty*a[1]*a[1] + tz*a[2]*a[2] - one_g*one_g;
 }
 
 float f1d1(float p[3][3], float *g)
 {
-  float tx=(200+g[0])*(200+g[0]);
-  float ty=(200+g[1])*(200+g[1]);
-  float tz=(200+g[2])*(200+g[2]);
-  return ((p[0][1]*ty+p[0][2]*tz)*(p[0][0]*tx+2*p[0][1]*ty+2*p[0][2]*tz)*40000/(tx*tx*tx) + p[1][0]*(2*p[1][0]*tx+p[1][1]*ty+p[1][2]*tz)*40000/(ty*ty) + p[2][0]*(2*p[2][0]*tx+p[2][1]*ty+p[2][2]*tz)*40000/(tz*tz))*(200+g[0]);
+  float tx=(1+g[0])*(1+g[0]);
+  float ty=(1+g[1])*(1+g[1]);
+  float tz=(1+g[2])*(1+g[2]);
+  return ((p[0][1]*ty+p[0][2]*tz)*(p[0][0]*tx+2*p[0][1]*ty+2*p[0][2]*tz)/(tx*tx*tx) + p[1][0]*(2*p[1][0]*tx+p[1][1]*ty+p[1][2]*tz)/(ty*ty) + p[2][0]*(2*p[2][0]*tx+p[2][1]*ty+p[2][2]*tz)/(tz*tz))*(1+g[0])*2;
 }
 
 float f1d2(float p[3][3], float *g)
 {
-  float tx=(200+g[0])*(200+g[0]);
-  float ty=(200+g[1])*(200+g[1]);
-  float tz=(200+g[2])*(200+g[2]);
-  return (-p[0][1]*(p[0][0]*tx+2*p[0][1]*ty+2*p[0][2]*tz)*40000/(tx*tx) - p[1][0]*tx*(p[1][0]*tx+2*p[1][1]*ty+p[1][2]*tz)*40000/(ty*ty*ty) + p[2][0]*p[2][1]*tx*40000/(tz*tz))*(200+g[1]);
+  float tx=(1+g[0])*(1+g[0]);
+  float ty=(1+g[1])*(1+g[1]);
+  float tz=(1+g[2])*(1+g[2]);
+  return (-p[0][1]*(p[0][0]*tx+2*p[0][1]*ty+2*p[0][2]*tz)/(tx*tx) - p[1][0]*tx*(p[1][0]*tx+2*p[1][1]*ty+p[1][2]*tz)/(ty*ty*ty) + p[2][0]*p[2][1]*tx/(tz*tz))*(1+g[1])*2;
 }
 
 float f1d3(float p[3][3], float *g)
 {
-  float tx=(200+g[0])*(200+g[0]);
-  float ty=(200+g[1])*(200+g[1]);
-  float tz=(200+g[2])*(200+g[2]);
-  return (-p[0][2]*(p[0][0]*tx+2*p[0][1]*ty+2*p[0][2]*tz)*40000/(tx*tx) + p[1][0]*p[1][2]*tx*40000/(ty*ty) - p[2][0]*tx*(p[2][0]*tx+2*p[2][1]*ty+p[2][2]*tz)*40000/(tz*tz*tz))*(200+g[2]);
+  float tx=(1+g[0])*(1+g[0]);
+  float ty=(1+g[1])*(1+g[1]);
+  float tz=(1+g[2])*(1+g[2]);
+  return (-p[0][2]*(p[0][0]*tx+2*p[0][1]*ty+2*p[0][2]*tz)/(tx*tx) + p[1][0]*p[1][2]*tx/(ty*ty) - p[2][0]*tx*(p[2][0]*tx+2*p[2][1]*ty+p[2][2]*tz)/(tz*tz*tz))*(1+g[2])*2;
 }
 
 float f2d1(float p[3][3], float *g)
 {
-  float tx=(200+g[0])*(200+g[0]);
-  float ty=(200+g[1])*(200+g[1]);
-  float tz=(200+g[2])*(200+g[2]);
-  return (-p[0][1]*(p[0][0]*tx+2*p[0][1]*ty+2*p[0][2]*tz)*40000/(tx*tx*tx) - p[1][0]*(2*p[1][0]*tx+p[1][1]*ty+2*p[1][2]*tz)*40000/(ty*ty) + p[2][0]*p[2][1]*ty*40000/(tz*tz))*(200+g[0]);
+  float tx=(1+g[0])*(1+g[0]);
+  float ty=(1+g[1])*(1+g[1]);
+  float tz=(1+g[2])*(1+g[2]);
+  return (-p[0][1]*(p[0][0]*tx+2*p[0][1]*ty+2*p[0][2]*tz)/(tx*tx*tx) - p[1][0]*(2*p[1][0]*tx+p[1][1]*ty+2*p[1][2]*tz)/(ty*ty) + p[2][0]*p[2][1]*ty/(tz*tz))*(1+g[0])*2;
 }
 
 float f2d2(float p[3][3], float *g)
 {
-  float tx=(200+g[0])*(200+g[0]);
-  float ty=(200+g[1])*(200+g[1]);
-  float tz=(200+g[2])*(200+g[2]);
-  return (p[0][1]*(p[0][0]*tx+2*p[0][1]*ty+p[0][2]*tz)*40000/(tx*tx) + (2*p[1][0]*tx+p[1][1]*ty+2*p[1][2]*tz)*(p[1][0]*tx+p[1][2]*tz)*40000/(ty*ty*ty) + p[2][1]*(p[2][0]*tx+2*p[2][1]*ty+p[2][2]*tz)*40000/(tz*tz))*(200+g[1]);
+  float tx=(1+g[0])*(1+g[0]);
+  float ty=(1+g[1])*(1+g[1]);
+  float tz=(1+g[2])*(1+g[2]);
+  return (p[0][1]*(p[0][0]*tx+2*p[0][1]*ty+p[0][2]*tz)/(tx*tx) + (2*p[1][0]*tx+p[1][1]*ty+2*p[1][2]*tz)*(p[1][0]*tx+p[1][2]*tz)/(ty*ty*ty) + p[2][1]*(p[2][0]*tx+2*p[2][1]*ty+p[2][2]*tz)/(tz*tz))*(1+g[1])*2;
 }
 
 float f2d3(float p[3][3], float *g)
 {
-  float tx=(200+g[0])*(200+g[0]);
-  float ty=(200+g[1])*(200+g[1]);
-  float tz=(200+g[2])*(200+g[2]);
-  return (p[0][1]*p[0][2]*ty*40000/(tx*tx) - p[1][2]*(2*p[1][0]*tx+p[1][1]*ty+p[1][2]*tz)*40000/(ty*ty) - p[2][1]*ty*(2*p[2][0]*tx+2*p[2][1]*ty+p[2][2]*tz)*40000/(tz*tz*tz))*(200+g[2]);
+  float tx=(1+g[0])*(1+g[0]);
+  float ty=(1+g[1])*(1+g[1]);
+  float tz=(1+g[2])*(1+g[2]);
+  return (p[0][1]*p[0][2]*ty/(tx*tx) - p[1][2]*(2*p[1][0]*tx+p[1][1]*ty+p[1][2]*tz)/(ty*ty) - p[2][1]*ty*(2*p[2][0]*tx+2*p[2][1]*ty+p[2][2]*tz)/(tz*tz*tz))*(1+g[2])*2;
 }
 
 float f3d1(float p[3][3], float *g, float *a)
 {
-  float tx=(200+g[0])*(200+g[0]);
-  float ty=(200+g[1])*(200+g[1]);
-  float tz=(200+g[2])*(200+g[2]);
-  return (-(p[0][0]*tx*p[0][1]*ty+p[0][2]*tz)*(p[0][0]*tx*p[0][1]*ty+p[0][2]*tz)/(tx*tx) + p[0][0]*(p[0][0]*tx*p[0][1]*ty+p[0][2]*tz)*2/tx + p[1][0]*(p[1][0]*tx*p[1][1]*ty+p[1][2]*tz)*2/ty + p[2][0]*(p[2][0]*tx*p[2][1]*ty+p[2][2]*tz)*2/tz - (p[0][0]*a[0]+p[1][0]*a[1]+p[2][0]*a[2])*2 + a[0]*a[0]*2)*(200+g[0]);
+  float tx=(1+g[0])*(1+g[0]);
+  float ty=(1+g[1])*(1+g[1]);
+  float tz=(1+g[2])*(1+g[2]);
+  return (-(p[0][0]*tx+p[0][1]*ty+p[0][2]*tz)*(p[0][0]*tx+p[0][1]*ty+p[0][2]*tz)/(4*tx*tx) + p[0][0]*(p[0][0]*tx+p[0][1]*ty+p[0][2]*tz)/(2*tx) + p[1][0]*(p[1][0]*tx+p[1][1]*ty+p[1][2]*tz)/(2*ty) + p[2][0]*(p[2][0]*tx+p[2][1]*ty+p[2][2]*tz)/(2*tz) - (p[0][0]*a[0]+p[1][0]*a[1]+p[2][0]*a[2])/2 + a[0]*a[0])*(1+g[0])*2;
 }
 
 float f3d2(float p[3][3], float *g, float *a)
 {
-  float tx=(200+g[0])*(200+g[0]);
-  float ty=(200+g[1])*(200+g[1]);
-  float tz=(200+g[2])*(200+g[2]);
-  return (-(p[1][0]*tx*p[1][1]*ty+p[1][2]*tz)*(p[1][0]*tx*p[1][1]*ty+p[1][2]*tz)/(ty*ty) + p[0][1]*(p[0][0]*tx*p[0][1]*ty+p[0][2]*tz)*2/tx + p[1][1]*(p[1][0]*tx*p[1][1]*ty+p[1][2]*tz)*2/ty + p[2][1]*(p[2][0]*tx*p[2][1]*ty+p[2][2]*tz)*2/tz - (p[0][1]*a[0]+p[1][1]*a[1]+p[2][1]*a[2])*2 + a[1]*a[1]*2)*(200+g[1]);
+  float tx=(1+g[0])*(1+g[0]);
+  float ty=(1+g[1])*(1+g[1]);
+  float tz=(1+g[2])*(1+g[2]);
+  return (-(p[1][0]*tx+p[1][1]*ty+p[1][2]*tz)*(p[1][0]*tx+p[1][1]*ty+p[1][2]*tz)/(4*ty*ty) + p[0][1]*(p[0][0]*tx+p[0][1]*ty+p[0][2]*tz)/(2*tx) + p[1][1]*(p[1][0]*tx+p[1][1]*ty+p[1][2]*tz)/(2*ty) + p[2][1]*(p[2][0]*tx+p[2][1]*ty+p[2][2]*tz)/(2*tz) - (p[0][1]*a[0]+p[1][1]*a[1]+p[2][1]*a[2])/2 + a[1]*a[1])*(1+g[1])*2;
 }
 
 float f3d3(float p[3][3], float *g, float *a)
 {
-  float tx=(200+g[0])*(200+g[0]);
-  float ty=(200+g[1])*(200+g[1]);
-  float tz=(200+g[2])*(200+g[2]);
-  return (-(p[2][0]*tx*p[2][1]*ty+p[2][2]*tz)*(p[2][0]*tx*p[2][1]*ty+p[2][2]*tz)/(ty*ty) + p[0][2]*(p[0][0]*tx*p[0][1]*ty+p[0][2]*tz)*2/tx + p[1][2]*(p[1][0]*tx*p[1][1]*ty+p[1][2]*tz)*2/ty + p[2][2]*(p[2][0]*tx*p[2][1]*ty+p[2][2]*tz)*2/tz - (p[0][2]*a[0]+p[1][2]*a[1]+p[2][2]*a[2])*2 + a[2]*a[2]*2)*(200+g[2]);
+  float tx=(1+g[0])*(1+g[0]);
+  float ty=(1+g[1])*(1+g[1]);
+  float tz=(1+g[2])*(1+g[2]);
+  return (-(p[2][0]*tx+p[2][1]*ty+p[2][2]*tz)*(p[2][0]*tx+p[2][1]*ty+p[2][2]*tz)/(4*ty*ty) + p[0][2]*(p[0][0]*tx+p[0][1]*ty+p[0][2]*tz)/(2*tx) + p[1][2]*(p[1][0]*tx+p[1][1]*ty+p[1][2]*tz)/(2*ty) + p[2][2]*(p[2][0]*tx+p[2][1]*ty+p[2][2]*tz)/(2*tz) - (p[0][2]*a[0]+p[1][2]*a[1]+p[2][2]*a[2])/2 + a[2]*a[2])*(1+g[2])*2;
 }
 
 int findGain(long *a, long *b, long *c, long *d, long *e, long *x, long one_g) //please contact me on shulyaka at gmail if you are interested in the math behind it. I'm going to publish a documentation with all the equations some day...
@@ -547,9 +547,9 @@ int findGain(long *a, long *b, long *c, long *d, long *e, long *x, long one_g) /
     m[0][0]=f1d1(p, res); m[0][1]=f1d2(p, res); m[0][2]=f1d3(p, res);
     m[1][0]=f2d1(p, res); m[1][1]=f2d2(p, res); m[1][2]=f2d3(p, res);
     m[2][0]=f3d1(p1, res, at); m[2][1]=f3d2(p1, res, at); m[2][2]=f3d3(p1, res, at);
-    r[0]=m[0][0]*res[0]+m[0][1]*res[1]+m[0][2]*res[2]-(f1(p, res));
-    r[1]=m[1][0]*res[0]+m[1][1]*res[1]+m[1][2]*res[2]-(f2(p, res));
-    r[2]=m[2][0]*res[0]+m[2][1]*res[1]+m[2][2]*res[2]-(f3(p1, res, at, one_g));
+    r[0]=m[0][0]*res[0]+m[0][1]*res[1]+m[0][2]*res[2]-f1(p, res);
+    r[1]=m[1][0]*res[0]+m[1][1]*res[1]+m[1][2]*res[2]-f2(p, res);
+    r[2]=m[2][0]*res[0]+m[2][1]*res[1]+m[2][2]*res[2]-f3(p1, res, at, one_g);
   
     printMatrix(m, "m:");
     printRow(r, "r:");

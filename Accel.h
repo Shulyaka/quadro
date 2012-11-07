@@ -223,7 +223,7 @@ void accel_calibrate() //manual accel calibration
   Serial.println("Done. Thanks. Now calculating...");
 */
 
-point[0][0]=-4096;
+point[0][0]=-2048;
 point[0][1]=0;
 point[0][2]=0;
 
@@ -233,13 +233,13 @@ point[1][2]=0;
 
 point[2][0]=0;
 point[2][1]=0;
-point[2][2]=4096;
+point[2][2]=2048;
 
 point[3][0]=0;
 point[3][1]=-2048;
 point[3][2]=0;
 
-point[4][0]=4096;
+point[4][0]=2048;
 point[4][1]=0;
 point[4][2]=0;
 
