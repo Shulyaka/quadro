@@ -5,6 +5,27 @@ typedef int angle;
 void printMatrix(long long a[3][3]);
 void printRow(long long a[3]);
 
+void printFloat(float x)
+{
+  if(isinf(x))
+    {
+      Serial.print("inf");
+      return;
+    }
+    if(isnan(x))
+    {
+      Serial.print("NaN");
+      return;
+    }
+  Serial.print(x);
+}
+
+void printlnFloat(float x)
+{
+  printFloat(x);
+  Serial.println("");
+}
+
 int findMedian(int *data, int arraySize)
 {
   int temp;
@@ -115,9 +136,9 @@ int lcheck(long long a[3][3], long long r[3], long x[3])
 int lcheck(float a[3][3], float r[3], float x[3])
 {
   Serial.println("Check:");
-  Serial.println(a[0][0]*x[0]+a[0][1]*x[1]+a[0][2]*x[2]-r[0]);
-  Serial.println(a[1][0]*x[0]+a[1][1]*x[1]+a[1][2]*x[2]-r[1]);
-  Serial.println(a[2][0]*x[0]+a[2][1]*x[1]+a[2][2]*x[2]-r[2]);
+  printlnFloat(a[0][0]*x[0]+a[0][1]*x[1]+a[0][2]*x[2]-r[0]);
+  printlnFloat(a[1][0]*x[0]+a[1][1]*x[1]+a[1][2]*x[2]-r[1]);
+  printlnFloat(a[2][0]*x[0]+a[2][1]*x[1]+a[2][2]*x[2]-r[2]);
 }
 
 int findCenter(long *a, long *b, long *c, long *d, long *x)
@@ -224,9 +245,9 @@ void printMatrix(long long a[3][3])
 
 void printMatrix(float a[3][3])
 {
-  Serial.print(a[0][0]); Serial.print(", "); Serial.print(a[0][1]); Serial.print(", ");  Serial.println(a[0][2]);
-  Serial.print(a[1][0]); Serial.print(", "); Serial.print(a[1][1]); Serial.print(", ");  Serial.println(a[1][2]);
-  Serial.print(a[2][0]); Serial.print(", "); Serial.print(a[2][1]); Serial.print(", ");  Serial.println(a[2][2]);
+  printFloat(a[0][0]); Serial.print(", "); printFloat(a[0][1]); Serial.print(", ");  printlnFloat(a[0][2]);
+  printFloat(a[1][0]); Serial.print(", "); printFloat(a[1][1]); Serial.print(", ");  printlnFloat(a[1][2]);
+  printFloat(a[2][0]); Serial.print(", "); printFloat(a[2][1]); Serial.print(", ");  printlnFloat(a[2][2]);
 }
 
 void printMatrix(long long a[3][3], char *str)
@@ -248,7 +269,7 @@ void printRow(long long a[3])
 
 void printRow(float a[3])
 {
-  Serial.print(a[0]); Serial.print(", "); Serial.print(a[1]); Serial.print(", ");  Serial.println(a[2]);
+  printFloat(a[0]); Serial.print(", "); printFloat(a[1]); Serial.print(", ");  printFloat(a[2]);
 }
 
 void printRow(long long a[3], char *str)
@@ -272,6 +293,17 @@ void printRow(long a[3], char *str)
 {
   Serial.print(str); Serial.print(" ");
   printRow(a);
+}
+
+void printValue(float x)
+{
+  printlnFloat(x);
+}
+
+void printValue(float x, char *str)
+{
+  Serial.print(str); Serial.print(" ");
+  printValue(x);
 }
 
 int fss(long long **a, long long *res)
@@ -512,6 +544,7 @@ int findGain(long *a, long *b, long *c, long *d, long *e, long *x, long one_g) /
   float dene;
   float res[3]={0,0,0};
   float at[3]={a[0],a[1],a[2]};
+  char string[10]={0};
   //long long Ax, Ay, Az, Bx, By, Bz, Cx, Cy, Cz;
 //  long long k=1;
 
@@ -550,10 +583,12 @@ int findGain(long *a, long *b, long *c, long *d, long *e, long *x, long one_g) /
     r[0]=m[0][0]*res[0]+m[0][1]*res[1]+m[0][2]*res[2]-f1(p, res);
     r[1]=m[1][0]*res[0]+m[1][1]*res[1]+m[1][2]*res[2]-f2(p, res);
     r[2]=m[2][0]*res[0]+m[2][1]*res[1]+m[2][2]*res[2]-f3(p1, res, at, one_g);
-  
+    
+    printValue(f3(p1, res, at, one_g), "f3:");
     printMatrix(m, "m:");
     printRow(r, "r:");
-    Serial.println(lsolve(m, r, res));
+    if(lsolve(m, r, res)!=0)
+      return 1;
     printRow(res, "res:");
   }
 

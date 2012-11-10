@@ -223,27 +223,27 @@ void accel_calibrate() //manual accel calibration
   Serial.println("Done. Thanks. Now calculating...");
 */
 
-point[0][0]=-2048;
+point[0][0]=-4096;
 point[0][1]=0;
 point[0][2]=0;
 
 point[1][0]=0;
-point[1][1]=2048;
+point[1][1]=4198;
 point[1][2]=0;
 
 point[2][0]=0;
 point[2][1]=0;
-point[2][2]=2048;
+point[2][2]=4096;
 
 point[3][0]=0;
-point[3][1]=-2048;
+point[3][1]=-4198;
 point[3][2]=0;
 
-point[4][0]=2048;
-point[4][1]=0;
-point[4][2]=0;
+point[4][0]=2364;
+point[4][1]=2423;
+point[4][2]=-2365;
 
-  if(findGain(point[0], point[1], point[2], point[3], point[4], x, 4096)) // find gain to be applied for the 4 points to be on a sphere
+  if(findGain(point[0], point[1], point[2], point[3], point[4], x, 4096)) // find gain to be applied for the 5 points to be on a sphere
     {Serial.println("Error: Non-singular matrix. Possible reasons: programmer was drunk. Please try again.");
     return;
     }
