@@ -4,6 +4,7 @@ class fixed
   fixed(void);
   fixed(long);
   long value;
+  bool isone; //not used currently
 };
 
 class lfixed
@@ -15,10 +16,16 @@ class lfixed
 };
 
 fixed::fixed(void)
-{}
+{
+  fixed::value=0;
+  bool isone=0;
+}
 
 fixed::fixed(long x)
-{fixed::value=x;}
+{
+  fixed::value=x;
+  bool isone=0;
+}
 
 lfixed::lfixed(void)
 {}

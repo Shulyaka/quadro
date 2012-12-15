@@ -1,4 +1,5 @@
 #include "fplib.h"
+#include "quaternionlib.h"
 
 typedef int angle;
 

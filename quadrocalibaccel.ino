@@ -29,7 +29,7 @@ volatile unsigned long int accel_time=0;
 #include "quadro.h"
 #include "Accel.h"
 #include "Gyro.h"
-#include "State.h"
+#include "Imu.h"
 
 //static int mysin[1293];
 //int mycos[1293];
