@@ -11,12 +11,14 @@ int gyro_interrupted=0;
 void gyro_int(void);
 void gyro_clear_int(void);
 void state_updateOrientation(int a, int b, int c);
+void state_init_gyro(void);
 
 void gyro_init(void)
 {
     int x;
     // Check if gyro is connected
     disable_sensor_interrupts();
+    gyro_time=0;
     if (readWhoI2C(gyroAddress) != gyroAddress)
       Serial.println("Gyro not found!");
 
@@ -26,14 +28,12 @@ void gyro_init(void)
     updateRegisterI2C(gyroAddress, 0x16, 0x1D); // 10Hz low pass filter
     updateRegisterI2C(gyroAddress, 0x17, 0x31); // enable raw data ready interrupt
     updateRegisterI2C(gyroAddress, 0x3E, 0x02); // use Y gyro oscillator
-
-    enable_sensor_interrupts();
     
     delay(100); //waiting for gyro to stabilize
+
     gyro_clear_int();
     attachInterrupt(5, gyro_calibrate, RISING);
-    while(gyro_time==0)
-      continue;
+    enable_sensor_interrupts();
 }
 
 void gyro_measure(void) //warning: you must call disable_sensor_interrupts() and interrupts() before attempting to call this function
@@ -96,6 +96,7 @@ void gyro_calibrate(void) // finds gyroZero in background, sets gyro_time to non
   }
 
   detachInterrupt(5);
+  //attachInterrupt(5, gyro_int, RISING);
 
   gyroZero[0] = gyroBuf[0]/FINDZERO-((1<<GYROCNTP)>>1);
   gyroZero[1] = gyroBuf[1]/FINDZERO-((1<<GYROCNTP)>>1);
@@ -105,10 +106,14 @@ void gyro_calibrate(void) // finds gyroZero in background, sets gyro_time to non
   for (byte i=0; i<3; i++)
     gyroBuf[i]=0;
 
-  cstep=0;
+  cstep=-2;
   gyro_icnt=0;
 //  Serial.println("Gyro calibration complete");
+  state_init_gyro();
+  disable_sensor_interrupts();
   attachInterrupt(5, gyro_int, RISING);
+  gyro_clear_int();
+  enable_sensor_interrupts();
   digitalWrite(4, 0);
 }
 

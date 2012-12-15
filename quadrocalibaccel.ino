@@ -1,5 +1,3 @@
-// This is the current version
-
 #include <Wire.h>
 
 void clear_cmdBuf(void);
@@ -26,6 +24,7 @@ void clear_spdBuf(void);
 
 //#include "mysin.h"
 volatile unsigned long int gyro_time=0;
+volatile unsigned long int accel_time=0;
 #include "AQMath.h"
 #include "quadro.h"
 #include "Accel.h"
@@ -100,7 +99,7 @@ void setup(void)
 //Serial.println((long)res[1]);
 //Serial.println((long)res[2]);
 
-accel_calibrate();
+//accel_calibrate_manual();
 /*  disable_sensor_interrupts();
   
   updateRegisterI2C(accelAddress, 0x22, 0x03, 0x03);
@@ -122,6 +121,8 @@ accel_calibrate();
 
   enable_sensor_interrupts();
   */
+  while(gyro_time==0 || accel_time==0)
+    continue;
 }
 
 unsigned int i=0;
@@ -134,7 +135,7 @@ void loop(void)
   long x;
   //long long p;
   int z;
-  fixed ta,tb,sa,sb,sc,ca,cb,cc,sf,cf,sp,cp,st,ct,t1,t2,t3;
+  fixed ta,tb,sa,sb,sc,ca,cb,cc,sf,cf,sp,cp,st,ct,t1,t2,t3,t4,t5;
   fixed ax, ay, az;
   lfixed tm;
   angle f,p,t;
@@ -222,6 +223,8 @@ void loop(void)
     t1=state.tmp1;
     t2=state.tmp2;
     t3=state.tmp3;
+    t4=state.tmp4;
+    t5=state.tmp5;
     tm=state.tmp;
     //p=acos(cp);
     p=getangle(sp,cp);
@@ -239,19 +242,25 @@ void loop(void)
 
 if(cp==0&&cf==0&&sp==0) Serial.println(" "); //Just making sure cos are calculated
 
-//    Serial.println("----------------");
+    Serial.println("----------------");
     print(" p",p);
-//    print("cp",cp);
-//    print("sp",sp);
+    print("cp",cp);
+    print("sp",sp);
     print(" f",f);
-//    print("cf",cf);
-//    print("sf",sf);
+    print("cf",cf);
+    print("sf",sf);
     print(" t",t);
-//    print("ct",ct);
-//    print("st",st);
-//    print("t1",t1);
-//    print("t2",t2);
-//    print("t3",t3);
+    print("ct",ct);
+    print("st",st);
+    print("t1",t1);
+    print("t2",t2);
+    print("t3",t3);
+    print("t4",t4);
+    print("t5",t5);
+    print("n1",cp*cf);
+    print("n2",cp*sf);
+    print("n3",sp);
+    
 //    print(" s",t1%t1+t2%t2+t3%t3);
 //    print("ss",lsqrt(t1%t1+t2%t2+t3%t3));
 //    print("v1",lvectlen(t1,t2,t3));
@@ -267,16 +276,16 @@ if(cp==0&&cf==0&&sp==0) Serial.println(" "); //Just making sure cos are calculat
 //  print("y1",state.y1);
 //  print("y2",state.y2);
 //  print("y3",state.y3);
-  print("ax",ax);
-  print("ay",ay);
-  print("az",az);
-  print("vx",state.vx);
-  print("vy",state.vy);
-  print("vz",state.vz);
-  print(" x",state.x);
-  print(" y",state.y);
-  print(" z",state.z);
-  cmd_accel();
+//  print("ax",ax);
+//  print("ay",ay);
+//  print("az",az);
+//  print("vx",state.vx);
+//  print("vy",state.vy);
+//  print("vz",state.vz);
+//  print(" x",state.x);
+//  print(" y",state.y);
+//  print(" z",state.z);
+  cmd_gyro();
   Serial.println(accel_time);
   }
 }

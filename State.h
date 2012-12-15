@@ -10,7 +10,7 @@ typedef struct State {
   fixed cosf, sinf;
   fixed cost, sint;
   lfixed lcost, lsint;
-  fixed tmp1, tmp2, tmp3;
+  fixed tmp1, tmp2, tmp3, tmp4, tmp5;
   lfixed tmp;
 };
 
@@ -30,21 +30,12 @@ void state_updateOrientation(int alpha, int beta, int gamma)
   fixed nm1,nm2,nm3;
   lfixed nm;
 //  unsigned fixed ggg;
-//  int alpha,beta,gamma;
   unsigned long dn;
-/*  
-  state.sina=hsin(gyroADC[0]);
-  state.cosa=hcos(gyroADC[0]);
-  state.tana=htan(gyroADC[0]);
-  state.sinb=hsin(gyroADC[1]);
-  state.cosb=hcos(gyroADC[1]);
-  state.tanb=htan(gyroADC[1]);
-*/
 
-/*  alpha=gyroalpha; //uncomment for gyro simulation
+  alpha=gyroalpha; //uncomment for gyro simulation
   beta=gyrobeta;
   gamma=gyrogamma;
-*/
+
 
   state.sina=hsin(alpha);
   state.cosa=hcos(alpha);
@@ -70,27 +61,28 @@ state.sint=-250032;//sin((angle)0*115);
   norm=(t3+t3*(t1+t2+t2+t2));
 
   t4=state.sinp*norm;
-  t1=state.sinf*t4;
-  t2=state.cosf*t4; //inversed
+  t1=-state.sinf*t4;
+  t2=state.cosf*t4;
   t3=state.cosp*norm;
 
   nm1=t1+t3*state.tanb;
-  nm2=t2+t3*state.tana; //inversed
-  nm3=tofixed(t1%state.tana-t2%state.tanb);
+  nm2=t2-t3*state.tana;
+  nm3=tofixed(t1%state.tana+t2%state.tanb);
   nm=lvectlen(nm1,nm2,nm3);
   nm1=nm1%one/nm;
-  nm2=nm2%one/nm; //inversed
+  nm2=nm2%one/nm;
   nm3=nm3%one/nm;
-//  state.tmp1=nm1;
-//  state.tmp2=nm2;
-//  state.tmp3=nm3;
-
+//
+  state.tmp1=nm1;
+  state.tmp2=nm2;
+  state.tmp3=nm3;
+//
   if (state.cosp > sinpi4) //0-45 dg, sin is more accurate here
     {sinpn=tofixed(nm);
     cospn=sinbycos(sinpn);
     }
   else if (state.cosp > -sinpi4) //45-135 dg, using cos
-    {cospn=t3-tofixed(t2%state.tana+t1%state.tanb);
+    {cospn=t3-tofixed(-t2%state.tana+t1%state.tanb);
     sinpn=sinbycos(cospn);
     }
   else //135-180 dg, using sin
@@ -98,21 +90,22 @@ state.sint=-250032;//sin((angle)0*115);
     cospn=-sinbycos(sinpn);
     }
 
-  if(nm!=0)
+  if(nm!=0) // here be dragons!
     {
     t1=state.tanb*norm*state.sina;
     t2=tofixed(state.tana*norm%state.sina+state.cosa%norm); //inversed
     t3=state.tanb*norm*state.cosa; //inversed
     
-    cosfn=tofixed(nm1%t1+nm2%t2-nm3%t3);
-    sinfn=tofixed(nm1%state.cosa+nm3%state.sina);
+    cosfn=tofixed(-nm1%t1+nm2%t2+nm3%t3);
+    sinfn=tofixed(-nm1%state.cosa-nm3%state.sina);
 
-    t1=state.cosp*state.cosf; //inversed
-    t2=state.cosp*state.sinf; //inversed
+    t1=state.cosp*state.cosf;
+    t2=state.cosp*state.sinf;
     t3=state.sinp;
     
-    costn=tofixed(nm1%state.sinf+nm2%state.cosf);
-    sintn=tofixed(nm2%t2+nm3%t3-nm1%t1);
+    costn=tofixed(-nm1%state.sinf+nm2%state.cosf);
+    sintn=tofixed(nm1%t1+nm2%t2+nm3%t3);
+    
     }
   else // undefined
     {cosfn=state.cosf;
@@ -122,11 +115,11 @@ state.sint=-250032;//sin((angle)0*115);
     sintn=state.sinc;
     }
 
-//state.tmp1=sintn;
-//state.tmp2=costn;
+state.tmp4=sintn;
+state.tmp5=costn;
 //state.tmp3=0;
 
-t1=tofixed(state.cost%costn+state.sint%sintn);
+t1=tofixed(state.cost%costn-state.sint%sintn);
 //t2=tofixed(state.sint%costn-state.cost%sintn);
 //lt1=state.lcost*costn+state.lsint*sintn;
 //lt2=state.lsint*costn-state.lcost*sintn;
@@ -188,8 +181,10 @@ void state_init(void)
   attachInterrupt(5, dummy_int, RISING);
   accel_init();
   gyro_init();
-  //state.ax=6589.01463*atan((float)accelADC[0]/(float)accelADC[2]); //115LBS/° //to be rewritten (I hate floats!)
-  //state.ay=6589.01463*atan((float)accelADC[1]/(float)accelADC[2]);
+}
+
+void state_init_accel(void)
+{
   state.ax=0;
   state.ay=0;
   state.az=0;
@@ -199,10 +194,35 @@ void state_init(void)
   state.x=0;
   state.y=0;
   state.z=0;
-  state.cosp=hcos(0); //to be rewritten based on accel estimations
-  state.cosf=hcos(0);
-  state.cost=hcos(0);
-  state.sinp=hsin(0);
-  state.sinf=hsin(0);
-  state.sint=hsin(0);
 }
+
+void state_init_gyro(void)
+{
+  fixed x,y,z;
+  while(accel_time==0)
+    continue;
+
+  disable_sensor_interrupts();
+
+  x=(long)accelADC[1]<<18;
+  y=-(long)accelADC[0]<<18;
+  z=(long)accelADC[2]<<18;
+  
+  state.cosp=tolfixed(z)/vectlen(x,y,z);
+  state.sinp=sinbycos(state.cosp);
+  
+  state.cosf=tolfixed(x)/vectlen(x,y);
+  state.sinf=tolfixed(y)/vectlen(x,y);
+  state.cost=state.cosf; //to be rewritten based on magneto estimations
+  state.sint=state.sinf;
+
+/*  state.cosp=hcos(0);
+  state.sinp=hsin(0);
+  state.cosf=hcos(0);
+  state.sinf=hsin(0);
+  state.cost=hcos(0);
+  state.sint=hsin(0);
+*/
+  enable_sensor_interrupts();
+}
+

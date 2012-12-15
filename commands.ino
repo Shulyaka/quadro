@@ -21,7 +21,6 @@ void cmd_accel(void)
   Serial.print(accelADC[1]);
   Serial.print("     ");
   Serial.println(accelADC[2]);
-//  accel_measure();
 }
 
 void cmd_lamp(int state)
@@ -89,7 +88,6 @@ void cmd_seta(int a)
   Serial.print("Gyro alpha is ");
   Serial.print(a);
   Serial.print(".\n");
-  disable_sensor_interrupts();
 }
 
 void cmd_setb(int b)
@@ -98,7 +96,6 @@ void cmd_setb(int b)
   Serial.print("Gyro beta is ");
   Serial.print(b);
   Serial.print(".\n");
-  enable_sensor_interrupts();
 }
 
 void cmd_setc(int c)

@@ -60,18 +60,6 @@ byte readWhoI2C(int deviceAddress) {
   return readByteI2C(deviceAddress);
 }
 
-void updateRegisterI2C(int deviceAddress, byte dataAddress, byte dataValue) {
-  Wire.beginTransmission(deviceAddress);
-  Wire.write(dataAddress);
-  Wire.write(dataValue);
-  Wire.endTransmission();
-}  
-
-void updateRegisterI2C(int deviceAddress, byte dataAddress, byte dataValue, byte dataMask) {
-  sendByteI2C(deviceAddress, dataAddress);
-  updateRegisterI2C(deviceAddress, dataAddress, (readByteI2C(deviceAddress) & (~dataMask)) | (dataValue & dataMask) );
-}
-
 byte readRegisterI2C(int deviceAddress, byte dataAddress) {
   sendByteI2C(deviceAddress, dataAddress);
   return readByteI2C(deviceAddress);
@@ -80,3 +68,17 @@ byte readRegisterI2C(int deviceAddress, byte dataAddress) {
 byte readRegisterI2C(int deviceAddress, byte dataAddress, byte dataMask) {
   return readRegisterI2C(deviceAddress, dataAddress) & dataMask;
 }
+
+void updateRegisterI2C(int deviceAddress, byte dataAddress, byte dataValue) {
+  Wire.beginTransmission(deviceAddress);
+  Wire.write(dataAddress);
+  Wire.write(dataValue);
+  Wire.endTransmission();
+}  
+
+void updateRegisterI2C(int deviceAddress, byte dataAddress, byte dataValue, byte dataMask) {
+//  sendByteI2C(deviceAddress, dataAddress);
+  updateRegisterI2C(deviceAddress, dataAddress, readRegisterI2C(deviceAddress, dataAddress, ~dataMask) | (dataValue & dataMask) );
+                                            //  (readByteI2C(deviceAddress) & (~dataMask))
+}
+

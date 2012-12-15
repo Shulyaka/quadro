@@ -17,6 +17,8 @@ void printFloat(float x)
       Serial.print("NaN");
       return;
     }
+  if(x==INFINITY || x==-INFINITY)
+    Serial.println("   ERROR!");
   Serial.print(x);
 }
 
@@ -109,7 +111,7 @@ int lsolve(long long a[3][3], long long *r, long *x)
   x[0]=(det(r[0],    r[1],    r[2],    a[0][1], a[1][1], a[2][1], a[0][2], a[1][2], a[2][2])+(den>>1))/den;
   x[1]=(det(a[0][0], a[1][0], a[2][0], r[0],    r[1],    r[2],    a[0][2], a[1][2], a[2][2])+(den>>1))/den;
   x[2]=(det(a[0][0], a[1][0], a[2][0], a[0][1], a[1][1], a[2][1], r[0],    r[1],    r[2]   )+(den>>1))/den;
-  lcheck(a, r, x);
+  //lcheck(a, r, x);
   return 0;
 }
 
@@ -121,7 +123,7 @@ int lsolve(float a[3][3], float *r, float *x)
   x[0]=det(r[0],    r[1],    r[2],    a[0][1], a[1][1], a[2][1], a[0][2], a[1][2], a[2][2])/den;
   x[1]=det(a[0][0], a[1][0], a[2][0], r[0],    r[1],    r[2],    a[0][2], a[1][2], a[2][2])/den;
   x[2]=det(a[0][0], a[1][0], a[2][0], a[0][1], a[1][1], a[2][1], r[0],    r[1],    r[2]   )/den;
-  lcheck(a, r, x);
+  //lcheck(a, r, x);
   return 0;
 }
 
@@ -269,7 +271,7 @@ void printRow(long long a[3])
 
 void printRow(float a[3])
 {
-  printFloat(a[0]); Serial.print(", "); printFloat(a[1]); Serial.print(", ");  printFloat(a[2]);
+  printFloat(a[0]); Serial.print(", "); printFloat(a[1]); Serial.print(", ");  printlnFloat(a[2]);
 }
 
 void printRow(long long a[3], char *str)
@@ -311,7 +313,7 @@ int fss(long long **a, long long *res)
   byte k=3;
   long long t[3];
   long long m,m0,m1;
-  for(byte i=2;i!=255;i--) //find a row starting on a non-zero elemint
+  for(byte i=2;i!=255;i--) //find a row starting on a non-zero element
     if(a[i][0]!=0)
       k=i;
   if(k==3) //if not found,
@@ -435,167 +437,198 @@ int fss(long long **a, long long *res)
   return 0;
 }
 
-float f1(float p[3][3], float *g)
+float f1(float p[3][3], float *t)
 {
-  float tx=(1+g[0])*(1+g[0]);
-  float ty=(1+g[1])*(1+g[1]);
-  float tz=(1+g[2])*(1+g[2]);
-  return -(p[0][0]*tx+p[0][1]*ty+p[0][2]*tz)*(p[0][1]*ty+p[0][2]*tz)/(tx*tx) + p[1][0]*tx*(p[1][0]*tx+p[1][1]*ty+p[1][2]*tz)/(ty*ty) + p[2][0]*tx*(p[2][0]*tx+p[2][1]*ty+p[2][2]*tz)/(tz*tz);
+  return -(p[0][0]*t[0]+p[0][1]*t[1]+p[0][2]*t[2])*(p[0][1]*t[1]+p[0][2]*t[2])/(t[0]*t[0]) + p[1][0]*t[0]*(p[1][0]*t[0]+p[1][1]*t[1]+p[1][2]*t[2])/(t[1]*t[1]) + p[2][0]*t[0]*(p[2][0]*t[0]+p[2][1]*t[1]+p[2][2]*t[2])/(t[2]*t[2]);
 }
 
-float f2(float p[3][3], float *g)
+float f2(float p[3][3], float *t)
 {
-  float tx=(1+g[0])*(1+g[0]);
-  float ty=(1+g[1])*(1+g[1]);
-  float tz=(1+g[2])*(1+g[2]);
-  return p[0][1]*ty*(p[0][0]*tx+p[0][1]*ty+p[0][2]*tz)/(tx*tx) - (p[1][0]*tx+p[1][1]*ty+p[1][2]*tz)*(p[1][0]*tx+p[1][2]*tz)/(ty*ty) + p[2][1]*ty*(p[2][0]*tx+p[2][1]*ty+p[2][2]*tz)/(tz*tz);
+  return p[0][1]*t[1]*(p[0][0]*t[0]+p[0][1]*t[1]+p[0][2]*t[2])/(t[0]*t[0]) - (p[1][0]*t[0]+p[1][1]*t[1]+p[1][2]*t[2])*(p[1][0]*t[0]+p[1][2]*t[2])/(t[1]*t[1]) + p[2][1]*t[1]*(p[2][0]*t[0]+p[2][1]*t[1]+p[2][2]*t[2])/(t[2]*t[2]);
 }
 
-float f3(float p[3][3], float *g, float *a, float one_g)
+float f3(float p[3][3], float *t, float *a, float one_g)
 {
-  long long tx=(1+g[0])*(1+g[0]);
-  long long ty=(1+g[1])*(1+g[1]);
-  long long tz=(1+g[2])*(1+g[2]);
-  return (p[0][0]*tx+p[0][1]*ty+p[0][2]*tz)*(p[0][0]*tx+p[0][1]*ty+p[0][2]*tz)/(tx*4) + (p[1][0]*tx+p[1][1]*ty+p[1][2]*tz)*(p[1][0]*tx+p[1][1]*ty+p[1][2]*tz)/(ty*4) + (p[2][0]*tx+p[2][1]*ty+p[2][2]*tz)*(p[2][0]*tx+p[2][1]*ty+p[2][2]*tz)/(tz*4) \
-         - (p[0][0]*tx+p[0][1]*ty+p[0][2]*tz)*a[0]/2 - (p[1][0]*tx+p[1][1]*ty+p[1][2]*tz)*a[1]/2 - (p[2][0]*tx+p[2][1]*ty+p[2][2]*tz)*a[2]/2 + tx*a[0]*a[0] + ty*a[1]*a[1] + tz*a[2]*a[2] - one_g*one_g;
+  return (p[0][0]*t[0]+p[0][1]*t[1]+p[0][2]*t[2])*(p[0][0]*t[0]+p[0][1]*t[1]+p[0][2]*t[2])/(t[0]*4.0) + (p[1][0]*t[0]+p[1][1]*t[1]+p[1][2]*t[2])*(p[1][0]*t[0]+p[1][1]*t[1]+p[1][2]*t[2])/(t[1]*4.0) + (p[2][0]*t[0]+p[2][1]*t[1]+p[2][2]*t[2])*(p[2][0]*t[0]+p[2][1]*t[1]+p[2][2]*t[2])/(t[2]*4.0) \
+         - (p[0][0]*t[0]+p[0][1]*t[1]+p[0][2]*t[2])*a[0] - (p[1][0]*t[0]+p[1][1]*t[1]+p[1][2]*t[2])*a[1] - (p[2][0]*t[0]+p[2][1]*t[1]+p[2][2]*t[2])*a[2] + t[0]*a[0]*a[0] + t[1]*a[1]*a[1] + t[2]*a[2]*a[2] - one_g*one_g;
 }
 
-float f1d1(float p[3][3], float *g)
+float f1d1(float p[3][3], float *t)
 {
-  float tx=(1+g[0])*(1+g[0]);
-  float ty=(1+g[1])*(1+g[1]);
-  float tz=(1+g[2])*(1+g[2]);
-  return ((p[0][1]*ty+p[0][2]*tz)*(p[0][0]*tx+2*p[0][1]*ty+2*p[0][2]*tz)/(tx*tx*tx) + p[1][0]*(2*p[1][0]*tx+p[1][1]*ty+p[1][2]*tz)/(ty*ty) + p[2][0]*(2*p[2][0]*tx+p[2][1]*ty+p[2][2]*tz)/(tz*tz))*(1+g[0])*2;
+  return (p[0][1]*t[1]+p[0][2]*t[2])*(p[0][0]*t[0]+2.0*p[0][1]*t[1]+2.0*p[0][2]*t[2])/(t[0]*t[0]*t[0]) + p[1][0]*(2.0*p[1][0]*t[0]+p[1][1]*t[1]+p[1][2]*t[2])/(t[1]*t[1]) + p[2][0]*(2.0*p[2][0]*t[0]+p[2][1]*t[1]+p[2][2]*t[2])/(t[2]*t[2]);
 }
 
-float f1d2(float p[3][3], float *g)
+float f1d2(float p[3][3], float *t)
 {
-  float tx=(1+g[0])*(1+g[0]);
-  float ty=(1+g[1])*(1+g[1]);
-  float tz=(1+g[2])*(1+g[2]);
-  return (-p[0][1]*(p[0][0]*tx+2*p[0][1]*ty+2*p[0][2]*tz)/(tx*tx) - p[1][0]*tx*(p[1][0]*tx+2*p[1][1]*ty+p[1][2]*tz)/(ty*ty*ty) + p[2][0]*p[2][1]*tx/(tz*tz))*(1+g[1])*2;
+  return -p[0][1]*(p[0][0]*t[0]+2.0*p[0][1]*t[1]+2.0*p[0][2]*t[2])/(t[0]*t[0]) - p[1][0]*t[0]*(p[1][0]*t[0]+2.0*p[1][1]*t[1]+p[1][2]*t[2])/(t[1]*t[1]*t[1]) + p[2][0]*p[2][1]*t[0]/(t[2]*t[2]);
 }
 
-float f1d3(float p[3][3], float *g)
+float f1d3(float p[3][3], float *t)
 {
-  float tx=(1+g[0])*(1+g[0]);
-  float ty=(1+g[1])*(1+g[1]);
-  float tz=(1+g[2])*(1+g[2]);
-  return (-p[0][2]*(p[0][0]*tx+2*p[0][1]*ty+2*p[0][2]*tz)/(tx*tx) + p[1][0]*p[1][2]*tx/(ty*ty) - p[2][0]*tx*(p[2][0]*tx+2*p[2][1]*ty+p[2][2]*tz)/(tz*tz*tz))*(1+g[2])*2;
+  return -p[0][2]*(p[0][0]*t[0]+2.0*p[0][1]*t[1]+2.0*p[0][2]*t[2])/(t[0]*t[0]) + p[1][0]*p[1][2]*t[0]/(t[1]*t[1]) - p[2][0]*t[0]*(p[2][0]*t[0]+2.0*p[2][1]*t[1]+p[2][2]*t[2])/(t[2]*t[2]*t[2]);
 }
 
-float f2d1(float p[3][3], float *g)
+float f2d1(float p[3][3], float *t)
 {
-  float tx=(1+g[0])*(1+g[0]);
-  float ty=(1+g[1])*(1+g[1]);
-  float tz=(1+g[2])*(1+g[2]);
-  return (-p[0][1]*(p[0][0]*tx+2*p[0][1]*ty+2*p[0][2]*tz)/(tx*tx*tx) - p[1][0]*(2*p[1][0]*tx+p[1][1]*ty+2*p[1][2]*tz)/(ty*ty) + p[2][0]*p[2][1]*ty/(tz*tz))*(1+g[0])*2;
+  return -p[0][1]*(p[0][0]*t[0]+2.0*p[0][1]*t[1]+2.0*p[0][2]*t[2])/(t[0]*t[0]*t[0]) - p[1][0]*(2.0*p[1][0]*t[0]+p[1][1]*t[1]+2.0*p[1][2]*t[2])/(t[1]*t[1]) + p[2][0]*p[2][1]*t[1]/(t[2]*t[2]);
 }
 
-float f2d2(float p[3][3], float *g)
+float f2d2(float p[3][3], float *t)
 {
-  float tx=(1+g[0])*(1+g[0]);
-  float ty=(1+g[1])*(1+g[1]);
-  float tz=(1+g[2])*(1+g[2]);
-  return (p[0][1]*(p[0][0]*tx+2*p[0][1]*ty+p[0][2]*tz)/(tx*tx) + (2*p[1][0]*tx+p[1][1]*ty+2*p[1][2]*tz)*(p[1][0]*tx+p[1][2]*tz)/(ty*ty*ty) + p[2][1]*(p[2][0]*tx+2*p[2][1]*ty+p[2][2]*tz)/(tz*tz))*(1+g[1])*2;
+  return p[0][1]*(p[0][0]*t[0]+2.0*p[0][1]*t[1]+p[0][2]*t[2])/(t[0]*t[0]) + (2.0*p[1][0]*t[0]+p[1][1]*t[1]+2.0*p[1][2]*t[2])*(p[1][0]*t[0]+p[1][2]*t[2])/(t[1]*t[1]*t[1]) + p[2][1]*(p[2][0]*t[0]+2.0*p[2][1]*t[1]+p[2][2]*t[2])/(t[2]*t[2]);
 }
 
-float f2d3(float p[3][3], float *g)
+float f2d3(float p[3][3], float *t)
 {
-  float tx=(1+g[0])*(1+g[0]);
-  float ty=(1+g[1])*(1+g[1]);
-  float tz=(1+g[2])*(1+g[2]);
-  return (p[0][1]*p[0][2]*ty/(tx*tx) - p[1][2]*(2*p[1][0]*tx+p[1][1]*ty+p[1][2]*tz)/(ty*ty) - p[2][1]*ty*(2*p[2][0]*tx+2*p[2][1]*ty+p[2][2]*tz)/(tz*tz*tz))*(1+g[2])*2;
+  return p[0][1]*p[0][2]*t[1]/(t[0]*t[0]) - p[1][2]*(2.0*p[1][0]*t[0]+p[1][1]*t[1]+p[1][2]*t[2])/(t[1]*t[1]) - p[2][1]*t[1]*(2.0*p[2][0]*t[0]+2.0*p[2][1]*t[1]+p[2][2]*t[2])/(t[2]*t[2]*t[2]);
 }
 
-float f3d1(float p[3][3], float *g, float *a)
+float f3d1(float p[3][3], float *t, float *a)
 {
-  float tx=(1+g[0])*(1+g[0]);
-  float ty=(1+g[1])*(1+g[1]);
-  float tz=(1+g[2])*(1+g[2]);
-  return (-(p[0][0]*tx+p[0][1]*ty+p[0][2]*tz)*(p[0][0]*tx+p[0][1]*ty+p[0][2]*tz)/(4*tx*tx) + p[0][0]*(p[0][0]*tx+p[0][1]*ty+p[0][2]*tz)/(2*tx) + p[1][0]*(p[1][0]*tx+p[1][1]*ty+p[1][2]*tz)/(2*ty) + p[2][0]*(p[2][0]*tx+p[2][1]*ty+p[2][2]*tz)/(2*tz) - (p[0][0]*a[0]+p[1][0]*a[1]+p[2][0]*a[2])/2 + a[0]*a[0])*(1+g[0])*2;
+  return -(p[0][0]*t[0]+p[0][1]*t[1]+p[0][2]*t[2])*(p[0][0]*t[0]+p[0][1]*t[1]+p[0][2]*t[2])/(t[0]*t[0]*4.0) + p[0][0]*(p[0][0]*t[0]+p[0][1]*t[1]+p[0][2]*t[2])/(t[0]*2.0) + p[1][0]*(p[1][0]*t[0]+p[1][1]*t[1]+p[1][2]*t[2])/(t[1]*2.0) + p[2][0]*(p[2][0]*t[0]+p[2][1]*t[1]+p[2][2]*t[2])/(t[2]*2.0) - (p[0][0]*a[0]+p[1][0]*a[1]+p[2][0]*a[2]) + a[0]*a[0];
 }
 
-float f3d2(float p[3][3], float *g, float *a)
+float f3d2(float p[3][3], float *t, float *a)
 {
-  float tx=(1+g[0])*(1+g[0]);
-  float ty=(1+g[1])*(1+g[1]);
-  float tz=(1+g[2])*(1+g[2]);
-  return (-(p[1][0]*tx+p[1][1]*ty+p[1][2]*tz)*(p[1][0]*tx+p[1][1]*ty+p[1][2]*tz)/(4*ty*ty) + p[0][1]*(p[0][0]*tx+p[0][1]*ty+p[0][2]*tz)/(2*tx) + p[1][1]*(p[1][0]*tx+p[1][1]*ty+p[1][2]*tz)/(2*ty) + p[2][1]*(p[2][0]*tx+p[2][1]*ty+p[2][2]*tz)/(2*tz) - (p[0][1]*a[0]+p[1][1]*a[1]+p[2][1]*a[2])/2 + a[1]*a[1])*(1+g[1])*2;
+  return -(p[1][0]*t[0]+p[1][1]*t[1]+p[1][2]*t[2])*(p[1][0]*t[0]+p[1][1]*t[1]+p[1][2]*t[2])/(t[1]*t[1]*4.0) + p[0][1]*(p[0][0]*t[0]+p[0][1]*t[1]+p[0][2]*t[2])/(t[0]*2.0) + p[1][1]*(p[1][0]*t[0]+p[1][1]*t[1]+p[1][2]*t[2])/(t[1]*2.0) + p[2][1]*(p[2][0]*t[0]+p[2][1]*t[1]+p[2][2]*t[2])/(t[2]*2.0) - (p[0][1]*a[0]+p[1][1]*a[1]+p[2][1]*a[2]) + a[1]*a[1];
 }
 
-float f3d3(float p[3][3], float *g, float *a)
+float f3d3(float p[3][3], float *t, float *a)
 {
-  float tx=(1+g[0])*(1+g[0]);
-  float ty=(1+g[1])*(1+g[1]);
-  float tz=(1+g[2])*(1+g[2]);
-  return (-(p[2][0]*tx+p[2][1]*ty+p[2][2]*tz)*(p[2][0]*tx+p[2][1]*ty+p[2][2]*tz)/(4*ty*ty) + p[0][2]*(p[0][0]*tx+p[0][1]*ty+p[0][2]*tz)/(2*tx) + p[1][2]*(p[1][0]*tx+p[1][1]*ty+p[1][2]*tz)/(2*ty) + p[2][2]*(p[2][0]*tx+p[2][1]*ty+p[2][2]*tz)/(2*tz) - (p[0][2]*a[0]+p[1][2]*a[1]+p[2][2]*a[2])/2 + a[2]*a[2])*(1+g[2])*2;
+  return -(p[2][0]*t[0]+p[2][1]*t[1]+p[2][2]*t[2])*(p[2][0]*t[0]+p[2][1]*t[1]+p[2][2]*t[2])/(t[2]*t[2]*4.0) + p[0][2]*(p[0][0]*t[0]+p[0][1]*t[1]+p[0][2]*t[2])/(t[0]*2.0) + p[1][2]*(p[1][0]*t[0]+p[1][1]*t[1]+p[1][2]*t[2])/(t[1]*2.0) + p[2][2]*(p[2][0]*t[0]+p[2][1]*t[1]+p[2][2]*t[2])/(t[2]*2.0) - (p[0][2]*a[0]+p[1][2]*a[1]+p[2][2]*a[2]) + a[2]*a[2];
 }
 
-int findGain(long *a, long *b, long *c, long *d, long *e, long *x, long one_g) //please contact me on shulyaka at gmail if you are interested in the math behind it. I'm going to publish a documentation with all the equations some day...
+//returns the gain that has to be applied for the 5 points to be on the same sphere, in the form of (1+x/200) (comptitble with BMA-180)
+int findGain(long *a, long *b, long *c, long *d, long *e, long *f, long *x, long one_g) //please contact me on shulyaka at gmail if you are interested in the math behind it. I'm going to publish a documentation with all the equations some day...
 {
 //  long long matrix[9];
 //  long long *p[3]={&matrix[0], &matrix[3], &matrix[6]};
+  float p0[3][3];
   float p[3][3];
-  float p1[3][3];
+  float p2[3][3];
   float m[3][3];
   float r[3];
+  float t[3];
   float dena;
   float dene;
-  float res[3]={0,0,0};
-  float at[3]={a[0],a[1],a[2]};
-  char string[10]={0};
-  //long long Ax, Ay, Az, Bx, By, Bz, Cx, Cy, Cz;
-//  long long k=1;
+  float denf;
+  float dif=0;
+  float res[3]={0, 0, 0};//{(float)x[0]/200.0, (float)x[1]/200.0, (float)x[2]/200.0};
+  float resb[3]={1,1,1};
+  float _a[3]={a[0],a[1],a[2]};
+  int itern=0;
+
+float center[3];
+float a2[3];
 
   dena=det((float)(b[0]-a[0]), c[0]-a[0], d[0]-a[0], b[1]-a[1], c[1]-a[1], d[1]-a[1], b[2]-a[2], c[2]-a[2], d[2]-a[2]);
   dene=det((float)(b[0]-e[0]), c[0]-e[0], d[0]-e[0], b[1]-e[1], c[1]-e[1], d[1]-e[1], b[2]-e[2], c[2]-e[2], d[2]-e[2]);
-  Serial.println(dena);
-  Serial.println(dene);
-  p[0][0]=det((float)(b[0]*b[0]-a[0]*a[0]), c[0]*c[0]-a[0]*a[0], d[0]*d[0]-a[0]*a[0], b[1]-a[1], c[1]-a[1], d[1]-a[1], b[2]-a[2], c[2]-a[2], d[2]-a[2])/dena-det((float)(b[0]*b[0]-e[0]*e[0]), c[0]*c[0]-e[0]*e[0], d[0]*d[0]-e[0]*e[0], b[1]-e[1], c[1]-e[1], d[1]-e[1], b[2]-e[2], c[2]-e[2], d[2]-e[2])/dene;
-  p[0][1]=det((float)(b[1]*b[1]-a[1]*a[1]), c[1]*c[1]-a[1]*a[1], d[1]*d[1]-a[1]*a[1], b[1]-a[1], c[1]-a[1], d[1]-a[1], b[2]-a[2], c[2]-a[2], d[2]-a[2])/dena-det((float)(b[1]*b[1]-e[1]*e[1]), c[1]*c[1]-e[1]*e[1], d[1]*d[1]-e[1]*e[1], b[1]-e[1], c[1]-e[1], d[1]-e[1], b[2]-e[2], c[2]-e[2], d[2]-e[2])/dene;
-  p[0][2]=det((float)(b[2]*b[2]-a[2]*a[2]), c[2]*c[2]-a[2]*a[2], d[2]*d[2]-a[2]*a[2], b[1]-a[1], c[1]-a[1], d[1]-a[1], b[2]-a[2], c[2]-a[2], d[2]-a[2])/dena-det((float)(b[2]*b[2]-e[2]*e[2]), c[2]*c[2]-e[2]*e[2], d[2]*d[2]-e[2]*e[2], b[1]-e[1], c[1]-e[1], d[1]-e[1], b[2]-e[2], c[2]-e[2], d[2]-e[2])/dene;
-  p[1][0]=det((float)(b[0]-a[0]), c[0]-a[0], d[0]-a[0], b[0]*b[0]-a[0]*a[0], c[0]*c[0]-a[0]*a[0], d[0]*d[0]-a[0]*a[0], b[2]-a[2], c[2]-a[2], d[2]-a[2])/dena-det((float)(b[0]-e[0]), c[0]-e[0], d[0]-e[0], b[0]*b[0]-e[0]*e[0], c[0]*c[0]-e[0]*e[0], d[0]*d[0]-e[0]*e[0], b[2]-e[2], c[2]-e[2], d[2]-e[2])/dene;
-  p[1][1]=det((float)(b[0]-a[0]), c[0]-a[0], d[0]-a[0], b[1]*b[1]-a[1]*a[1], c[1]*c[1]-a[1]*a[1], d[1]*d[1]-a[1]*a[1], b[2]-a[2], c[2]-a[2], d[2]-a[2])/dena-det((float)(b[0]-e[0]), c[0]-e[0], d[0]-e[0], b[1]*b[1]-e[1]*e[1], c[1]*c[1]-e[1]*e[1], d[1]*d[1]-e[1]*e[1], b[2]-e[2], c[2]-e[2], d[2]-e[2])/dene;
-  p[1][2]=det((float)(b[0]-a[0]), c[0]-a[0], d[0]-a[0], b[2]*b[2]-a[2]*a[2], c[2]*c[2]-a[2]*a[2], d[2]*d[2]-a[2]*a[2], b[2]-a[2], c[2]-a[2], d[2]-a[2])/dena-det((float)(b[0]-e[0]), c[0]-e[0], d[0]-e[0], b[2]*b[2]-e[2]*e[2], c[2]*c[2]-e[2]*e[2], d[2]*d[2]-e[2]*e[2], b[2]-e[2], c[2]-e[2], d[2]-e[2])/dene;
-  p[2][0]=det((float)(b[0]-a[0]), c[0]-a[0], d[0]-a[0], b[1]-a[1], c[1]-a[1], d[1]-a[1], b[0]*b[0]-a[0]*a[0], c[0]*c[0]-a[0]*a[0], d[0]*d[0]-a[0]*a[0])/dena-det((float)(b[0]-e[0]), c[0]-e[0], d[0]-e[0], b[1]-e[1], c[1]-e[1], d[1]-e[1], b[0]*b[0]-e[0]*e[0], c[0]*c[0]-e[0]*e[0], d[0]*d[0]-e[0]*e[0])/dene;
-  p[2][1]=det((float)(b[0]-a[0]), c[0]-a[0], d[0]-a[0], b[1]-a[1], c[1]-a[1], d[1]-a[1], b[1]*b[1]-a[1]*a[1], c[1]*c[1]-a[1]*a[1], d[1]*d[1]-a[1]*a[1])/dena-det((float)(b[0]-e[0]), c[0]-e[0], d[0]-e[0], b[1]-e[1], c[1]-e[1], d[1]-e[1], b[1]*b[1]-e[1]*e[1], c[1]*c[1]-e[1]*e[1], d[1]*d[1]-e[1]*e[1])/dene;
-  p[2][2]=det((float)(b[0]-a[0]), c[0]-a[0], d[0]-a[0], b[1]-a[1], c[1]-a[1], d[1]-a[1], b[2]*b[2]-a[2]*a[2], c[2]*c[2]-a[2]*a[2], d[2]*d[2]-a[2]*a[2])/dena-det((float)(b[0]-e[0]), c[0]-e[0], d[0]-e[0], b[1]-e[1], c[1]-e[1], d[1]-e[1], b[2]*b[2]-e[2]*e[2], c[2]*c[2]-e[2]*e[2], d[2]*d[2]-e[2]*e[2])/dene;
+  denf=det((float)(b[0]-f[0]), c[0]-f[0], d[0]-f[0], b[1]-f[1], c[1]-f[1], d[1]-f[1], b[2]-f[2], c[2]-f[2], d[2]-f[2]);
+//  Serial.println(dena);
+//  Serial.println(dene);
+//  Serial.println(denf);
 
-  p1[0][0]=det((float)(b[0]*b[0]-a[0]*a[0]), c[0]*c[0]-a[0]*a[0], d[0]*d[0]-a[0]*a[0], b[1]-a[1], c[1]-a[1], d[1]-a[1], b[2]-a[2], c[2]-a[2], d[2]-a[2])/dena;
-  p1[0][1]=det((float)(b[1]*b[1]-a[1]*a[1]), c[1]*c[1]-a[1]*a[1], d[1]*d[1]-a[1]*a[1], b[1]-a[1], c[1]-a[1], d[1]-a[1], b[2]-a[2], c[2]-a[2], d[2]-a[2])/dena;
-  p1[0][2]=det((float)(b[2]*b[2]-a[2]*a[2]), c[2]*c[2]-a[2]*a[2], d[2]*d[2]-a[2]*a[2], b[1]-a[1], c[1]-a[1], d[1]-a[1], b[2]-a[2], c[2]-a[2], d[2]-a[2])/dena;
-  p1[1][0]=det((float)(b[0]-a[0]), c[0]-a[0], d[0]-a[0], b[0]*b[0]-a[0]*a[0], c[0]*c[0]-a[0]*a[0], d[0]*d[0]-a[0]*a[0], b[2]-a[2], c[2]-a[2], d[2]-a[2])/dena;
-  p1[1][1]=det((float)(b[0]-a[0]), c[0]-a[0], d[0]-a[0], b[1]*b[1]-a[1]*a[1], c[1]*c[1]-a[1]*a[1], d[1]*d[1]-a[1]*a[1], b[2]-a[2], c[2]-a[2], d[2]-a[2])/dena;
-  p1[1][2]=det((float)(b[0]-a[0]), c[0]-a[0], d[0]-a[0], b[2]*b[2]-a[2]*a[2], c[2]*c[2]-a[2]*a[2], d[2]*d[2]-a[2]*a[2], b[2]-a[2], c[2]-a[2], d[2]-a[2])/dena;
-  p1[2][0]=det((float)(b[0]-a[0]), c[0]-a[0], d[0]-a[0], b[1]-a[1], c[1]-a[1], d[1]-a[1], b[0]*b[0]-a[0]*a[0], c[0]*c[0]-a[0]*a[0], d[0]*d[0]-a[0]*a[0])/dena;
-  p1[2][1]=det((float)(b[0]-a[0]), c[0]-a[0], d[0]-a[0], b[1]-a[1], c[1]-a[1], d[1]-a[1], b[1]*b[1]-a[1]*a[1], c[1]*c[1]-a[1]*a[1], d[1]*d[1]-a[1]*a[1])/dena;
-  p1[2][2]=det((float)(b[0]-a[0]), c[0]-a[0], d[0]-a[0], b[1]-a[1], c[1]-a[1], d[1]-a[1], b[2]*b[2]-a[2]*a[2], c[2]*c[2]-a[2]*a[2], d[2]*d[2]-a[2]*a[2])/dena;
+  p0[0][0]=det((float)(b[0]*b[0]-a[0]*a[0]), c[0]*c[0]-a[0]*a[0], d[0]*d[0]-a[0]*a[0], b[1]-a[1], c[1]-a[1], d[1]-a[1], b[2]-a[2], c[2]-a[2], d[2]-a[2])/dena;
+  p0[0][1]=det((float)(b[1]*b[1]-a[1]*a[1]), c[1]*c[1]-a[1]*a[1], d[1]*d[1]-a[1]*a[1], b[1]-a[1], c[1]-a[1], d[1]-a[1], b[2]-a[2], c[2]-a[2], d[2]-a[2])/dena;
+  p0[0][2]=det((float)(b[2]*b[2]-a[2]*a[2]), c[2]*c[2]-a[2]*a[2], d[2]*d[2]-a[2]*a[2], b[1]-a[1], c[1]-a[1], d[1]-a[1], b[2]-a[2], c[2]-a[2], d[2]-a[2])/dena;
+  p0[1][0]=det((float)(b[0]-a[0]), c[0]-a[0], d[0]-a[0], b[0]*b[0]-a[0]*a[0], c[0]*c[0]-a[0]*a[0], d[0]*d[0]-a[0]*a[0], b[2]-a[2], c[2]-a[2], d[2]-a[2])/dena;
+  p0[1][1]=det((float)(b[0]-a[0]), c[0]-a[0], d[0]-a[0], b[1]*b[1]-a[1]*a[1], c[1]*c[1]-a[1]*a[1], d[1]*d[1]-a[1]*a[1], b[2]-a[2], c[2]-a[2], d[2]-a[2])/dena;
+  p0[1][2]=det((float)(b[0]-a[0]), c[0]-a[0], d[0]-a[0], b[2]*b[2]-a[2]*a[2], c[2]*c[2]-a[2]*a[2], d[2]*d[2]-a[2]*a[2], b[2]-a[2], c[2]-a[2], d[2]-a[2])/dena;
+  p0[2][0]=det((float)(b[0]-a[0]), c[0]-a[0], d[0]-a[0], b[1]-a[1], c[1]-a[1], d[1]-a[1], b[0]*b[0]-a[0]*a[0], c[0]*c[0]-a[0]*a[0], d[0]*d[0]-a[0]*a[0])/dena;
+  p0[2][1]=det((float)(b[0]-a[0]), c[0]-a[0], d[0]-a[0], b[1]-a[1], c[1]-a[1], d[1]-a[1], b[1]*b[1]-a[1]*a[1], c[1]*c[1]-a[1]*a[1], d[1]*d[1]-a[1]*a[1])/dena;
+  p0[2][2]=det((float)(b[0]-a[0]), c[0]-a[0], d[0]-a[0], b[1]-a[1], c[1]-a[1], d[1]-a[1], b[2]*b[2]-a[2]*a[2], c[2]*c[2]-a[2]*a[2], d[2]*d[2]-a[2]*a[2])/dena;
 
-  printMatrix(p, "p:");
-  printMatrix(p1, "p1:");
+
+  p[0][0]=p0[0][0]-det((float)(b[0]*b[0]-e[0]*e[0]), c[0]*c[0]-e[0]*e[0], d[0]*d[0]-e[0]*e[0], b[1]-e[1], c[1]-e[1], d[1]-e[1], b[2]-e[2], c[2]-e[2], d[2]-e[2])/dene;
+  p[0][1]=p0[0][1]-det((float)(b[1]*b[1]-e[1]*e[1]), c[1]*c[1]-e[1]*e[1], d[1]*d[1]-e[1]*e[1], b[1]-e[1], c[1]-e[1], d[1]-e[1], b[2]-e[2], c[2]-e[2], d[2]-e[2])/dene;
+  p[0][2]=p0[0][2]-det((float)(b[2]*b[2]-e[2]*e[2]), c[2]*c[2]-e[2]*e[2], d[2]*d[2]-e[2]*e[2], b[1]-e[1], c[1]-e[1], d[1]-e[1], b[2]-e[2], c[2]-e[2], d[2]-e[2])/dene;
+  p[1][0]=p0[1][0]-det((float)(b[0]-e[0]), c[0]-e[0], d[0]-e[0], b[0]*b[0]-e[0]*e[0], c[0]*c[0]-e[0]*e[0], d[0]*d[0]-e[0]*e[0], b[2]-e[2], c[2]-e[2], d[2]-e[2])/dene;
+  p[1][1]=p0[1][1]-det((float)(b[0]-e[0]), c[0]-e[0], d[0]-e[0], b[1]*b[1]-e[1]*e[1], c[1]*c[1]-e[1]*e[1], d[1]*d[1]-e[1]*e[1], b[2]-e[2], c[2]-e[2], d[2]-e[2])/dene;
+  p[1][2]=p0[1][2]-det((float)(b[0]-e[0]), c[0]-e[0], d[0]-e[0], b[2]*b[2]-e[2]*e[2], c[2]*c[2]-e[2]*e[2], d[2]*d[2]-e[2]*e[2], b[2]-e[2], c[2]-e[2], d[2]-e[2])/dene;
+  p[2][0]=p0[2][0]-det((float)(b[0]-e[0]), c[0]-e[0], d[0]-e[0], b[1]-e[1], c[1]-e[1], d[1]-e[1], b[0]*b[0]-e[0]*e[0], c[0]*c[0]-e[0]*e[0], d[0]*d[0]-e[0]*e[0])/dene;
+  p[2][1]=p0[2][1]-det((float)(b[0]-e[0]), c[0]-e[0], d[0]-e[0], b[1]-e[1], c[1]-e[1], d[1]-e[1], b[1]*b[1]-e[1]*e[1], c[1]*c[1]-e[1]*e[1], d[1]*d[1]-e[1]*e[1])/dene;
+  p[2][2]=p0[2][2]-det((float)(b[0]-e[0]), c[0]-e[0], d[0]-e[0], b[1]-e[1], c[1]-e[1], d[1]-e[1], b[2]*b[2]-e[2]*e[2], c[2]*c[2]-e[2]*e[2], d[2]*d[2]-e[2]*e[2])/dene;
+
+  p2[0][0]=p0[0][0]-det((float)(b[0]*b[0]-f[0]*f[0]), c[0]*c[0]-f[0]*f[0], d[0]*d[0]-f[0]*f[0], b[1]-f[1], c[1]-f[1], d[1]-f[1], b[2]-f[2], c[2]-f[2], d[2]-f[2])/denf;
+  p2[0][1]=p0[0][1]-det((float)(b[1]*b[1]-f[1]*f[1]), c[1]*c[1]-f[1]*f[1], d[1]*d[1]-f[1]*f[1], b[1]-f[1], c[1]-f[1], d[1]-f[1], b[2]-f[2], c[2]-f[2], d[2]-f[2])/denf;
+  p2[0][2]=p0[0][2]-det((float)(b[2]*b[2]-f[2]*f[2]), c[2]*c[2]-f[2]*f[2], d[2]*d[2]-f[2]*f[2], b[1]-f[1], c[1]-f[1], d[1]-f[1], b[2]-f[2], c[2]-f[2], d[2]-f[2])/denf;
+  p2[1][0]=p0[1][0]-det((float)(b[0]-f[0]), c[0]-f[0], d[0]-f[0], b[0]*b[0]-f[0]*f[0], c[0]*c[0]-f[0]*f[0], d[0]*d[0]-f[0]*f[0], b[2]-f[2], c[2]-f[2], d[2]-f[2])/denf;
+  p2[1][1]=p0[1][1]-det((float)(b[0]-f[0]), c[0]-f[0], d[0]-f[0], b[1]*b[1]-f[1]*f[1], c[1]*c[1]-f[1]*f[1], d[1]*d[1]-f[1]*f[1], b[2]-f[2], c[2]-f[2], d[2]-f[2])/denf;
+  p2[1][2]=p0[1][2]-det((float)(b[0]-f[0]), c[0]-f[0], d[0]-f[0], b[2]*b[2]-f[2]*f[2], c[2]*c[2]-f[2]*f[2], d[2]*d[2]-f[2]*f[2], b[2]-f[2], c[2]-f[2], d[2]-f[2])/denf;
+  p2[2][0]=p0[2][0]-det((float)(b[0]-f[0]), c[0]-f[0], d[0]-f[0], b[1]-f[1], c[1]-f[1], d[1]-f[1], b[0]*b[0]-f[0]*f[0], c[0]*c[0]-f[0]*f[0], d[0]*d[0]-f[0]*f[0])/denf;
+  p2[2][1]=p0[2][1]-det((float)(b[0]-f[0]), c[0]-f[0], d[0]-f[0], b[1]-f[1], c[1]-f[1], d[1]-f[1], b[1]*b[1]-f[1]*f[1], c[1]*c[1]-f[1]*f[1], d[1]*d[1]-f[1]*f[1])/denf;
+  p2[2][2]=p0[2][2]-det((float)(b[0]-f[0]), c[0]-f[0], d[0]-f[0], b[1]-f[1], c[1]-f[1], d[1]-f[1], b[2]*b[2]-f[2]*f[2], c[2]*c[2]-f[2]*f[2], d[2]*d[2]-f[2]*f[2])/denf;
+
+//  printMatrix(p0, "p0:");
+//  printMatrix(p, "p:");
+//  printMatrix(p2, "p2:");
   
-  for(int i=0;i<10;i++)
+  while(true)
   {
-    m[0][0]=f1d1(p, res); m[0][1]=f1d2(p, res); m[0][2]=f1d3(p, res);
-    m[1][0]=f2d1(p, res); m[1][1]=f2d2(p, res); m[1][2]=f2d3(p, res);
-    m[2][0]=f3d1(p1, res, at); m[2][1]=f3d2(p1, res, at); m[2][2]=f3d3(p1, res, at);
-    r[0]=m[0][0]*res[0]+m[0][1]*res[1]+m[0][2]*res[2]-f1(p, res);
-    r[1]=m[1][0]*res[0]+m[1][1]*res[1]+m[1][2]*res[2]-f2(p, res);
-    r[2]=m[2][0]*res[0]+m[2][1]*res[1]+m[2][2]*res[2]-f3(p1, res, at, one_g);
+    t[0]=(res[0]+1.0)*(res[0]+1.0);
+    t[1]=(res[1]+1.0)*(res[1]+1.0);
+    t[2]=(res[2]+1.0)*(res[2]+1.0);
+    r[2]=f3(p0, t, _a, one_g);
+    if(itern > 5 && abs(r[2])<one_g*0.001 && abs(res[0]-resb[0])<0.5/one_g && abs(res[1]-resb[1])<0.5/one_g && abs(res[2]-resb[2])<0.5/one_g)
+    {
+//      Serial.println("Found it!");
+      break;
+    }
+    if(itern++ > 5 && (abs(r[2])>100*one_g || abs(res[0])>1 || abs(res[1])>1 || abs(res[2])>1 || itern>50))
+    {
+      Serial.println("Bad data!");
+      return 2;
+    }
+    m[0][0]=f1d1(p, t)*(res[0]+1.0)*2.0; m[0][1]=f1d2(p, t)*(res[1]+1.0)*2.0; m[0][2]=f1d3(p, t)*(res[2]+1.0)*2.0;
+    m[1][0]=f2d1(p2, t)*(res[0]+1.0)*2.0; m[1][1]=f2d2(p2, t)*(res[1]+1.0)*2.0; m[1][2]=f2d3(p2, t)*(res[2]+1.0)*2.0;
+    m[2][0]=f3d1(p0, t, _a)*(res[0]+1.0)*2.0; m[2][1]=f3d2(p0, t, _a)*(res[1]+1.0)*2.0; m[2][2]=f3d3(p0, t, _a)*(res[2]+1.0)*2.0;
+    r[0]=m[0][0]*res[0]+m[0][1]*res[1]+m[0][2]*res[2]-f1(p, t);
+    r[1]=m[1][0]*res[0]+m[1][1]*res[1]+m[1][2]*res[2]-f2(p2, t);
+    r[2]=m[2][0]*res[0]+m[2][1]*res[1]+m[2][2]*res[2]-r[2];
     
-    printValue(f3(p1, res, at, one_g), "f3:");
-    printMatrix(m, "m:");
-    printRow(r, "r:");
+//    printMatrix(m, "m:");
+//    printRow(r, "r:");
+    
+    center[0]=(p0[0][0]*t[0]+p0[0][1]*t[1]+p0[0][2]*t[2])/(2.0*(res[0]+1.0));
+    center[1]=(p0[1][0]*t[0]+p0[1][1]*t[1]+p0[1][2]*t[2])/(2.0*(res[1]+1.0));
+    center[2]=(p0[2][0]*t[0]+p0[2][1]*t[1]+p0[2][2]*t[2])/(2.0*(res[2]+1.0));
+    a2[0]=(res[0]+1.0)*_a[0];
+    a2[1]=(res[1]+1.0)*_a[1];
+    a2[2]=(res[2]+1.0)*_a[2];
+    printRow(center, "center:");
+//    printRow(a2, "a2:");
+//    printValue(sqrt(center[0]*center[0]-2.0*a2[0]*center[0]+a2[0]*a2[0] + center[1]*center[1]-2.0*a2[1]*center[1]+a2[1]*a2[1] + center[2]*center[2]-2.0*a2[2]*center[2]+a2[2]*a2[2]), "g:");
+//    printValue(f3(p0, t, _a, one_g), "f3:");
+    resb[0]=res[0];
+    resb[1]=res[1];
+    resb[2]=res[2];
     if(lsolve(m, r, res)!=0)
       return 1;
-    printRow(res, "res:");
+//    Serial.print(itern);
+//    printRow(res, ". res:");
+    for(byte i=0;i<3;i++)
+      x[i]=res[i]>0? res[i]*200.0 + 0.5 : res[i]*200.0 - 0.5;
+    printRow(x, "gain:");
   }
 
 
   //Serial.println(fss(p,res));
   //printMatrix(p);
-
+  for(byte i=0; i<3; i++)
+  {
+    if(isnan(res[i]))
+      return 2;
+    x[i]=res[i]>0? res[i]*200.0 + 0.5 : res[i]*200.0 - 0.5;
+    /*
+    a[i]=a[i]>0 ? ((float)a[i])*(res[i]+1.0)+0.5 : ((float)a[i])*(res[i]+1.0)-0.5;
+    b[i]=((float)b[i])*(res[i]+1.0)+0.5;
+    c[i]=((float)c[i])*(res[i]+1.0)+0.5;
+    d[i]=((float)d[i])*(res[i]+1.0)+0.5;
+    e[i]=((float)e[i])*(res[i]+1.0)+0.5;
+    f[i]=((float)f[i])*(res[i]+1.0)+0.5;
+    h[i]=((float)h[i])*(res[i]+1.0)+0.5;
+    */
+  }
   //theoretically we could easily calculate offset here, but we have to stop at this point and do it with separate measurements due to unpredictable nature of BMA180 when it comes to gain/offset relations
   return 0;
 }
@@ -650,7 +683,8 @@ const byte l_sqrt[192]={		// input: x (64-255), output: sqrt((x-64)<<8)
 181,181,182,183,183,184,185,185,186,187,187,188,189,189,190,191,192,192,193,193,194,195,195,196,197,197,198,199,199,200,201,201,
 202,203,203,204,204,205,206,206,207,208,208,209,209,210,211,211,212,212,213,214,214,215,215,216,217,217,218,218,219,219,220,221,
 221,222,222,223,224,224,225,225,226,226,227,227,228,229,229,230,230,231,231,232,232,233,234,234,235,235,236,236,237,237,238,238,
-239,240,240,241,241,242,242,243,243,244,244,245,245,246,246,247,247,248,248,249,249,250,250,251,251,252,252,253,253,254,254,255};
+239,240,240,241,241,242,242,243,243,244,244,245,245,246,246,247,247,248,248,249,249,250,250,251,251,252,252,253,253,254,254,255
+};
 
 unsigned long usqrt(lfixed x)
 {
@@ -707,8 +741,14 @@ lfixed lsqrt(lfixed x)
 fixed vectlen(fixed a, fixed b, fixed c)
 {return sqrt(a%a+b%b+c%c);}
 
+fixed vectlen(fixed a, fixed b)
+{return sqrt(a%a+b%b);}
+
 lfixed lvectlen(fixed a, fixed b, fixed c)
 {return lsqrt(a%a+b%b+c%c);}
+
+lfixed lvectlen(fixed a, fixed b)
+{return lsqrt(a%a+b%b);}
 
 inline fixed sinbycos(fixed& x)
 {return (x==one) ? 0 : sqrt(0x4000000000000000ULL-x%x);}
