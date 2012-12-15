@@ -1,3 +1,6 @@
+fixed sqrt(lfixed x);
+lfixed lsqrt(lfixed x);
+
 class quaternion
 {
   public:
@@ -70,13 +73,62 @@ quaternion operator*(fixed a, quaternion b)
 quaternion operator*(quaternion b, fixed a)
 {return a*b;}
 
+quaternion operator/(quaternion a, fixed b)
+{
+  quaternion c;
+  c.x=tolfixed(a.x)/b;
+  c.y=tolfixed(a.y)/b;
+  c.z=tolfixed(a.z)/b;
+  c.w=tolfixed(a.w)/b;
+  return c;
+}
+
 quaternion operator*(quaternion a, quaternion b)
 {
   quaternion c;
   c.x=a.y*b.z-a.z*b.y+a.w*b.x+a.x*b.w;
   c.y=a.z*b.x-a.x*b.z+a.w*b.y+a.y*b.w;
-  c.z=a.x*b.y-a.y*b.x+a.w*b.z+a.y*b.w;
+  c.z=a.x*b.y-a.y*b.x+a.w*b.z+a.z*b.w;
   c.w=a.w*b.w-a.x*b.x-a.y*b.y-a.z*b.z;
   return c;
 }
+
+quaternion operator-(quaternion a)
+{
+  quaternion c;
+  c.x=-a.x;
+  c.y=-a.y;
+  c.z=-a.z;
+  c.w=-a.w; //see also conjugate()
+  return c;
+}
+
+fixed norm(quaternion a)
+{return a.x*a.x+a.y*a.y+a.z*a.z+a.w*a.w;}
+
+lfixed lnorm(quaternion a)
+{return a.x%a.x+a.y%a.y+a.z%a.z+a.w%a.w;}
+
+fixed magnitude(quaternion a)
+{return sqrt(lnorm(a));}
+
+lfixed lmagnitude(quaternion a)
+{return lsqrt(lnorm(a));}
+
+quaternion conjugate(quaternion a)
+{
+  quaternion c;
+  c.x=-a.x;
+  c.y=-a.y;
+  c.z=-a.z;
+  c.w=a.w;
+  return c;
+}
+
+quaternion inverse(quaternion a)
+{return conjugate(a)/norm(a);}
+
+fixed inner(quaternion a, quaternion b)
+{return a.x*b.x+a.y*b.y+a.z*b.z+a.w*b.w;}
+
 
