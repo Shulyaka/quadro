@@ -104,31 +104,34 @@ void state_init_accel(void)
 
 void state_init_gyro(void)
 {
-  fixed x,y,z;
+  fixed grav[3];
+  fixed nort[3];
+  fixed t[3];
+  quaternion q1;
   while(accel_time==0)
     continue;
 
   disable_sensor_interrupts();
 
-  x=(long)accelADC[1]<<18;
-  y=-(long)accelADC[0]<<18;
-  z=(long)accelADC[2]<<18;
-  
-  state.cosp=tolfixed(z)/vectlen(x,y,z);
-  state.sinp=sinbycos(state.cosp);
-  
-  state.cosf=tolfixed(x)/vectlen(x,y);
-  state.sinf=tolfixed(y)/vectlen(x,y);
-  state.cost=state.cosf; //to be rewritten based on magneto estimations
-  state.sint=state.sinf;
+  for(byte i=0; i<3;i++)
+    grav[i]=(long)accelADC[i]<<18;
+  nort[0]=one;
+  nort[1]=0;
+  nort[2]=0;
 
-/*  state.cosp=hcos(0);
-  state.sinp=hsin(0);
-  state.cosf=hcos(0);
-  state.sinf=hsin(0);
-  state.cost=hcos(0);
-  state.sint=hsin(0);
-*/
+  t[0]=grav[1]*nort[2]-grav[2]*nort[1];
+  t[1]=grav[2]*nort[0]-grav[0]*nort[2];
+  t[2]=grav[0]*nort[1]-grav[1]*nort[0];
+  
+  nort[0]=t[1]*grav[2]-t[2]*grav[1];
+  nort[1]=t[2]*grav[0]-t[0]*grav[2];
+  nort[2]=t[0]*grav[1]-t[1]*grav[0];
+
+  vectnorm(grav);
+  vectnorm(nort);
+  
+//  q1=quaternion(
+
   enable_sensor_interrupts();
 }
 
