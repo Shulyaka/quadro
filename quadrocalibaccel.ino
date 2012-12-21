@@ -139,6 +139,7 @@ void loop(void)
   fixed ax, ay, az;
   lfixed tm;
   angle f,p,t;
+  quaternion qt;
   long a,b;
   long long c;
   long *d;
@@ -227,6 +228,7 @@ void loop(void)
     t5=state.tmp5;
     tm=state.tmp;
     //p=acos(cp);
+    qt=state.q;
     p=getangle(sp,cp);
     f=getangle(sf,cf);
     t=getangle(st,ct);
@@ -240,26 +242,28 @@ void loop(void)
       t=-acos(ct);
     */
 
-if(cp==0&&cf==0&&sp==0) Serial.println(" "); //Just making sure cos are calculated
+if(cp==0&&cf==0&&sp==0&&qt.x==0&&qt.y==0&&qt.z==0&&qt.w==0) Serial.println(" "); //Just making sure cos are calculated
 
     Serial.println("----------------");
-    print(" p",p);
-    print("cp",cp);
-    print("sp",sp);
-    print(" f",f);
-    print("cf",cf);
-    print("sf",sf);
-    print(" t",t);
-    print("ct",ct);
-    print("st",st);
+    print("qt",qt);
+    print("Nq",norm(qt));
+//    print(" p",p);
+//    print("cp",cp);
+//    print("sp",sp);
+//    print(" f",f);
+//    print("cf",cf);
+//    print("sf",sf);
+//    print(" t",t);
+//    print("ct",ct);
+//    print("st",st);
     print("t1",t1);
     print("t2",t2);
     print("t3",t3);
-    print("t4",t4);
-    print("t5",t5);
-    print("n1",cp*cf);
-    print("n2",cp*sf);
-    print("n3",sp);
+//    print("t4",t4);
+//    print("t5",t5);
+//    print("n1",cp*cf);
+//    print("n2",cp*sf);
+//    print("n3",sp);
     
 //    print(" s",t1%t1+t2%t2+t3%t3);
 //    print("ss",lsqrt(t1%t1+t2%t2+t3%t3));
@@ -273,12 +277,12 @@ if(cp==0&&cf==0&&sp==0) Serial.println(" "); //Just making sure cos are calculat
 //    print("tm",tm);
 //    print("tt",tofixed(tm));
 //    print("tn",t1%cc+t2%sc);
-//  print("y1",state.y1);
-//  print("y2",state.y2);
-//  print("y3",state.y3);
-//  print("ax",ax);
-//  print("ay",ay);
-//  print("az",az);
+//  print("z1",state.z1);
+//  print("z2",state.z2);
+//  print("z3",state.z3);
+  print("ax",ax);
+  print("ay",ay);
+  print("az",az);
 //  print("vx",state.vx);
 //  print("vy",state.vy);
 //  print("vz",state.vz);

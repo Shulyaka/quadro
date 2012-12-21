@@ -51,6 +51,10 @@ void cmd_zero(void)
   state.x=0;
   state.y=0;
   state.z=0;
+  state.q.x=0;
+  state.q.y=0;
+  state.q.z=0;
+  state.q.w=one;
 }
 
 void cmd_temp(void)

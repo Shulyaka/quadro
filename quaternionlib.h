@@ -7,6 +7,7 @@ class quaternion
   quaternion(void);
   quaternion(fixed, fixed, fixed, fixed);
   quaternion(fixed, fixed, fixed);
+  void normalize(void);
   fixed x, y, z, w;
 };
 
@@ -114,6 +115,15 @@ fixed magnitude(quaternion a)
 
 lfixed lmagnitude(quaternion a)
 {return lsqrt(lnorm(a));}
+
+void quaternion::normalize(void)
+{
+  lfixed nm=lmagnitude(*this);
+  this->x=this->x%one/nm;
+  this->y=this->y%one/nm;
+  this->z=this->z%one/nm;
+  this->w=this->w%one/nm;
+}
 
 quaternion conjugate(quaternion a)
 {

@@ -98,7 +98,7 @@ void accel_int(void)
     return;
   }
   
-  state_updatePosition(-(long)accelADC[1]<<18, (long)accelADC[0]<<18, -(long)accelADC[2]<<18);
+  state_updatePosition((long)accelADC[0]<<18, (long)accelADC[1]<<18, (long)accelADC[2]<<18);
   enable_sensor_interrupts();
 
   digitalWrite(LampPin, 0);

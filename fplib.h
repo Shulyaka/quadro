@@ -26,6 +26,7 @@ fixed::fixed(long x)
 {
   fixed::value=x;
   bool isone=false;
+  //if(x==1) Serial.println("Did you mean 'one'?");
 }
 
 fixed::fixed(long x, bool is_one)

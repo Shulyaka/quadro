@@ -38,7 +38,7 @@ void print(fixed val)
     Serial.print(" (");
     if(val>=0) Serial.print(" ");
     Serial.print(val.value);
-    Serial.println(" )");
+    Serial.print(" )");
   }
   else
     Serial.print(" 1.00 ( one )");

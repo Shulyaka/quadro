@@ -22,22 +22,21 @@ angle gyrogamma=0;
 
 void state_updateOrientation(int alpha, int beta, int gamma)
 {
-  fixed cospn, sinpn;
+/*  fixed cospn, sinpn;
   fixed cosfn, sinfn;
   fixed costn, sintn;
   fixed t1, t2, t3, t4;
   lfixed lt1, lt2;
   fixed norm;
   fixed nm1,nm2,nm3;
-  lfixed nm;
-  quaternion qr;
+  lfixed nm;*/
+//  quaternion qr;
   fixed sasb,sacb,casb,cacb;
-//  unsigned fixed ggg;
-  unsigned long dn;
+//  quaternion qt1, qt2, qt3;
 
-  alpha=gyroalpha; //uncomment for gyro simulation
-  beta=gyrobeta;
-  gamma=gyrogamma;
+//  alpha=gyroalpha; //uncomment for gyro simulation
+//  beta=gyrobeta;
+//  gamma=gyrogamma;
 
 
   state.sina=qsin(alpha);
@@ -51,28 +50,46 @@ void state_updateOrientation(int alpha, int beta, int gamma)
   sacb=state.sina*state.cosb;
   casb=state.cosa*state.sinb;
   cacb=state.cosa*state.cosb;
-  
-  qr=quaternion(sacb*state.cosc+casb*state.sinc, casb*state.cosc-sacb*state.sinc, sasb*state.cosc+cacb*state.sinc, cacb*state.cosc-sasb*state.sinc); //qx*qy*qz
-  state.q=qr*state.q;
+//  qr=quaternion(sacb*state.cosc+casb*state.sinc, casb*state.cosc-sacb*state.sinc, sasb*state.cosc+cacb*state.sinc, cacb*state.cosc-sasb*state.sinc);
+  state.q=state.q*quaternion(sacb*state.cosc+casb*state.sinc, casb*state.cosc-sacb*state.sinc, sasb*state.cosc+cacb*state.sinc, cacb*state.cosc-sasb*state.sinc); //qx*qy*qz
 
-state.x1=t1*state.cosp+t4;
-state.x2=t2*state.cosp-t3;
-state.x3=-state.cost*state.sinp;
-state.y1=t3*state.cosp-t2;
-state.y2=t4*state.cosp+t1;
-state.y3=-state.sint*state.sinp;
-state.z1=state.cosf*state.sinp;
-state.z2=state.sinf*state.sinp;
-state.z3=state.cosp;
+//state.tmp1=qr.x;
+//state.tmp2=qr.y;
+//state.tmp3=qr.z;
+
+/*qt1=state.q*quaternion(state.q.w, state.q.z, -state.q.y, state.q.x);
+qt2=state.q*quaternion(-state.q.z, state.q.w, state.q.x, state.q.y);
+qt3=state.q*quaternion(state.q.y, -state.q.x, state.q.w, state.q.z);
+
+state.x1=qt1.x;
+state.x2=qt1.y;
+state.x3=qt1.z;
+state.y1=qt2.x;
+state.y2=qt2.y;
+state.y3=qt2.z;
+state.z1=qt3.x;
+state.z2=qt3.y;
+state.z3=qt3.z;
+
+state.tmp1=qt1.w;
+state.tmp2=qt2.w;
+state.tmp3=qt3.w;
+*/
 }
 
 const fixed gravity=0x40000000;
 
 void state_updatePosition(fixed i, fixed j, fixed k)
 {
+  quaternion acc=state.q*quaternion(i,j,k,0)*conjugate(state.q);
+  state.ax=acc.x;
+  state.ay=acc.y;
+  state.az=acc.z-gravity;
+  /*
   state.ax=state.x1*i+state.x2*j+state.x3*k;
   state.ay=state.y1*i+state.y2*j+state.y3*k;
   state.az=state.z1*i+state.z2*j+state.z3*k+gravity;
+  */
   state.vx=state.vx+state.ax*(accel_time<<9);
   state.vy=state.vy+state.ay*(accel_time<<9);
   state.vz=state.vz+state.az*(accel_time<<9);
