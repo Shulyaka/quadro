@@ -757,6 +757,32 @@ inline fixed sinbycos(fixed& x)
 inline fixed cosbysin(fixed& x)
 {return sinbycos(x);}
 
+int vectnorm(fixed x[3])
+{
+  fixed l=vectlen(x[0], x[1], x[2]);
+  if(l==0)
+    return -1;
+
+  x[0]=x[0]%one/l;
+  x[1]=x[1]%one/l;
+  x[2]=x[2]%one/l;
+  
+  return 0;
+}
+
+int lvectnorm(fixed x[3])
+{
+  lfixed l=lvectlen(x[0], x[1], x[2]);
+  if(l==0)
+    return -1;
+
+  x[0]=x[0]%one/l;
+  x[1]=x[1]%one/l;
+  x[2]=x[2]%one/l;
+  
+  return 0;
+}
+
 /*angle acos(fixed& x)
 {return asin(cosbysin(x));} //to be rewritten
 */
