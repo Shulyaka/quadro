@@ -5,10 +5,10 @@ typedef struct State {
   fixed x1, x2, x3; //coordinates of "East"
   fixed y1, y2, y3; //coordinates of "North"
   fixed z1, z2, z3; //coordinates of "Top"
-  fixed cosa, cosb, cosc, sina, sinb, sinc, tana, tanb;
-  fixed cosp, sinp;
-  fixed cosf, sinf;
-  fixed cost, sint;
+  fixed cosa, cosb, cosc, sina, sinb, sinc;
+//  fixed cosp, sinp;
+//  fixed cosf, sinf;
+//  fixed cost, sint;
   lfixed lcost, lsint;
   fixed tmp1, tmp2, tmp3, tmp4, tmp5;
   lfixed tmp;
@@ -22,14 +22,6 @@ angle gyrogamma=0;
 
 void state_updateOrientation(int alpha, int beta, int gamma)
 {
-/*  fixed cospn, sinpn;
-  fixed cosfn, sinfn;
-  fixed costn, sintn;
-  fixed t1, t2, t3, t4;
-  lfixed lt1, lt2;
-  fixed norm;
-  fixed nm1,nm2,nm3;
-  lfixed nm;*/
 //  quaternion qr;
   fixed sasb,sacb,casb,cacb;
 //  quaternion qt1, qt2, qt3;

@@ -33,12 +33,6 @@ void cmd_lamp(int state)
 
 void cmd_zero(void)
 {
-  state.cosp=hcos((angle)0);
-  state.sinp=hsin((angle)0);
-  state.cosf=hcos((angle)0);
-  state.sinf=hsin((angle)0);
-  state.cost=hcos((angle)0);
-  state.sint=hsin((angle)0);
   gyroalpha=0;
   gyrobeta=0;
   gyrogamma=0;
