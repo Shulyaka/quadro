@@ -124,7 +124,7 @@ void state_init_gyro(void)
   fixed grav[3];
   fixed nort[3];
   fixed t[3];
-  quaternion q1, qt;
+  quaternion q1, q2;
   while(accel_time==0)
     continue;
 
@@ -132,28 +132,25 @@ void state_init_gyro(void)
 
   for(byte i=0; i<3;i++)
     grav[i]=(long)accelADC[i]<<18;
-  nort[0]=one;
+
+  nort[0]=one; // put magneto data here;
   nort[1]=0;
   nort[2]=0;
 
-  t[0]=grav[1]*nort[2]-grav[2]*nort[1];
-  t[1]=grav[2]*nort[0]-grav[0]*nort[2];
-  t[2]=grav[0]*nort[1]-grav[1]*nort[0];
+  q2=quaternion(grav[1]>>1, -grav[0]>>1, 0, (grav[2]>>1)+(one>>1));   //  grav*(0,0,1)=(grav[1], -grav[0], 0)
+  q2.normalize();
   
-  nort[0]=t[1]*grav[2]-t[2]*grav[1];
-  nort[1]=t[2]*grav[0]-t[0]*grav[2];
-  nort[2]=t[0]*grav[1]-t[1]*grav[0];
+  q1=q2*quaternion(nort[0],nort[1],nort[2],0)*conjugate(q2);
 
-  vectnorm(grav);
+  nort[0]=q1.x;
+  nort[1]=q1.y;
+  nort[2]=0;
   vectnorm(nort);
-  
-//  (0,0,1)*grav=(-grav[1], grav[0], 0)
-  
-  q1=quaternion(-grav[1]>>1, grav[0]>>1, 0, (grav[2]>>1)+(one>>1));
+
+  q1=quaternion(0, 0, -nort[1]>>1, (nort[0]>>1)+(one>>1));   //  nort*(1,0,0)=(0, 0, -nort[1]);
   q1.normalize();
   
-  qt=conjugate(q1)*quaternion(1,0,0,0)*q1;
-  
+  state.q=q1*q2;
 
   enable_sensor_interrupts();
 }
