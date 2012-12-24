@@ -124,7 +124,7 @@ void state_init_gyro(void)
   fixed grav[3];
   fixed nort[3];
   fixed t[3];
-  quaternion q1;
+  quaternion q1, qt;
   while(accel_time==0)
     continue;
 
@@ -147,7 +147,13 @@ void state_init_gyro(void)
   vectnorm(grav);
   vectnorm(nort);
   
-//  q1=quaternion(
+//  (0,0,1)*grav=(-grav[1], grav[0], 0)
+  
+  q1=quaternion(-grav[1]>>1, grav[0]>>1, 0, (grav[2]>>1)+(one>>1));
+  q1.normalize();
+  
+  qt=conjugate(q1)*quaternion(1,0,0,0)*q1;
+  
 
   enable_sensor_interrupts();
 }
