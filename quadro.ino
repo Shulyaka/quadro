@@ -223,6 +223,9 @@ if(qt.x==0&&qt.y==0&&qt.z==0&&qt.w==0) Serial.println(" "); //Just making sure q
     Serial.println("----------------");
     print("qt",qt);
     print("Nq",norm(qt));
+    print("Mx",Mx);
+    print("My",My);
+    print("Mx",Mz);
 //    print("t1",t1);
 //    print("t2",t2);
 //    print("t3",t3);

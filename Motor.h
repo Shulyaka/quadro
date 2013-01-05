@@ -5,9 +5,9 @@ void motor_updateControl(void)
   fixed h=one>>1; //some constants
   fixed k=one>>1;
   
-  Mx=-h*state.wx-k*state.q.w*state.q.x;
-  My=-h*state.wx-k*state.q.w*state.q.x;
-  Mz=-h*state.wx-k*state.q.w*state.q.x;
+  Mx=k*state.q.w*state.q.x-h*state.wx;
+  My=k*state.q.w*state.q.y-h*state.wy;
+  Mz=k*state.q.w*state.q.z-h*state.wz;
   
   
 }
