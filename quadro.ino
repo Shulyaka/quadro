@@ -29,7 +29,8 @@ volatile unsigned long int accel_time=0;
 #include "quadro.h"
 #include "Accel.h"
 #include "Gyro.h"
-#include "State.h"
+#include "Imu.h"
+#include "Motor.h"
 
 //static int mysin[1293];
 //int mycos[1293];
@@ -135,10 +136,11 @@ void loop(void)
   long x;
   //long long p;
   int z;
-  fixed ta,tb,sa,sb,sc,ca,cb,cc,sf,cf,sp,cp,st,ct,t1,t2,t3,t4,t5;
+  fixed t1,t2,t3,t4,t5;
   fixed ax, ay, az;
   lfixed tm;
-  angle f,p,t;
+//  angle f,p,t;
+  quaternion qt;
   long a,b;
   long long c;
   long *d;
@@ -206,20 +208,6 @@ void loop(void)
     ax=state.ax;
     ay=state.ay;
     az=state.az;
-    ta=state.tana;
-    tb=state.tanb;
-    sa=state.sina;
-    sb=state.sinb;
-    sc=state.sinc;
-    ca=state.cosa;
-    cb=state.cosb;
-    cc=state.cosc;
-    sf=state.sinf;
-    sp=state.sinp;
-    cf=state.cosf;
-    cp=state.cosp;
-    ct=state.cost;
-    st=state.sint;
     t1=state.tmp1;
     t2=state.tmp2;
     t3=state.tmp3;
@@ -227,64 +215,40 @@ void loop(void)
     t5=state.tmp5;
     tm=state.tmp;
     //p=acos(cp);
-    p=getangle(sp,cp);
-    f=getangle(sf,cf);
-    t=getangle(st,ct);
-    /*if(sf>0)
-      f=acos(cf);
-    else
-      f=-acos(cf);
-    if(st>0)
-      t=acos(ct);
-    else
-      t=-acos(ct);
-    */
+    qt=state.q;
+//    p=getangle(sp,cp);
 
-if(cp==0&&cf==0&&sp==0) Serial.println(" "); //Just making sure cos are calculated
+if(qt.x==0&&qt.y==0&&qt.z==0&&qt.w==0) Serial.println(" "); //Just making sure quaternion is calculated
 
     Serial.println("----------------");
-    print(" p",p);
-    print("cp",cp);
-    print("sp",sp);
-    print(" f",f);
-    print("cf",cf);
-    print("sf",sf);
-    print(" t",t);
-    print("ct",ct);
-    print("st",st);
-    print("t1",t1);
-    print("t2",t2);
-    print("t3",t3);
-    print("t4",t4);
-    print("t5",t5);
-    print("n1",cp*cf);
-    print("n2",cp*sf);
-    print("n3",sp);
+    print("qt",qt);
+    print("Nq",norm(qt));
+//    print("t1",t1);
+//    print("t2",t2);
+//    print("t3",t3);
+//    print("t4",t4);
+//    print("t5",t5);
     
 //    print(" s",t1%t1+t2%t2+t3%t3);
 //    print("ss",lsqrt(t1%t1+t2%t2+t3%t3));
 //    print("v1",lvectlen(t1,t2,t3));
 //    print("v2",vectlen(t1,t2,t3));
-//    print("s1",one-sqrt(cf%cf+sf%sf));
-//    print("s2",one-sqrt(ct%ct+st%st));
-//    print("s3",one-sqrt(t1%t1+t2%t2));
-//    print("sc",sc);
-//    print("cc",cc);
 //    print("tm",tm);
 //    print("tt",tofixed(tm));
 //    print("tn",t1%cc+t2%sc);
-//  print("y1",state.y1);
-//  print("y2",state.y2);
-//  print("y3",state.y3);
-//  print("ax",ax);
-//  print("ay",ay);
-//  print("az",az);
-//  print("vx",state.vx);
-//  print("vy",state.vy);
-//  print("vz",state.vz);
-//  print(" x",state.x);
-//  print(" y",state.y);
-//  print(" z",state.z);
+//  print("z1",state.z1);
+//  print("z2",state.z2);
+//  print("z3",state.z3);
+  print("ax",ax);
+  print("ay",ay);
+  print("az",az);
+/*  print("vx",state.vx);
+  print("vy",state.vy);
+  print("vz",state.vz);
+  print(" x",state.x);
+  print(" y",state.y);
+  print(" z",state.z);
+*/
   cmd_gyro();
   Serial.println(accel_time);
   }

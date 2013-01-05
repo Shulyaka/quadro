@@ -11,6 +11,7 @@ int gyro_interrupted=0;
 void gyro_int(void);
 void gyro_clear_int(void);
 void state_updateOrientation(int a, int b, int c);
+void motor_updateControl(void);
 void state_init_gyro(void);
 
 void gyro_init(void)
@@ -24,7 +25,7 @@ void gyro_init(void)
 
     updateRegisterI2C(gyroAddress, 0x3E, 0x80); // send a reset to the device
     delay(10);
-    updateRegisterI2C(gyroAddress, 0x15, 0x01); // Sample rate 200Hz
+    updateRegisterI2C(gyroAddress, 0x15, 0x01); // Sample rate  // 200Hz
     updateRegisterI2C(gyroAddress, 0x16, 0x1D); // 10Hz low pass filter
     updateRegisterI2C(gyroAddress, 0x17, 0x31); // enable raw data ready interrupt
     updateRegisterI2C(gyroAddress, 0x3E, 0x02); // use Y gyro oscillator
@@ -146,5 +147,6 @@ void gyro_int(void)
   for (byte i=0; i<3; i++)
     gyroBuf[i]=0;
   state_updateOrientation(gyroADC[0],gyroADC[1],gyroADC[2]);
+  motor_updateControl();
   digitalWrite(4, 0);
 }

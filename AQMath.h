@@ -1,4 +1,5 @@
 #include "fplib.h"
+#include "quaternionlib.h"
 
 typedef int angle;
 
@@ -756,6 +757,32 @@ inline fixed sinbycos(fixed& x)
 inline fixed cosbysin(fixed& x)
 {return sinbycos(x);}
 
+int vectnorm(fixed x[3])
+{
+  fixed l=vectlen(x[0], x[1], x[2]);
+  if(l==0)
+    return -1;
+
+  x[0]=x[0]%one/l;
+  x[1]=x[1]%one/l;
+  x[2]=x[2]%one/l;
+  
+  return 0;
+}
+
+int lvectnorm(fixed x[3])
+{
+  lfixed l=lvectlen(x[0], x[1], x[2]);
+  if(l==0)
+    return -1;
+
+  x[0]=x[0]%one/l;
+  x[1]=x[1]%one/l;
+  x[2]=x[2]%one/l;
+  
+  return 0;
+}
+
 /*angle acos(fixed& x)
 {return asin(cosbysin(x));} //to be rewritten
 */
@@ -796,3 +823,17 @@ fixed htan(int x)
   return a + (a3.value+1)/3 + (((a3*a2)<<1).value+7)/15;
 }
 
+fixed qsin(int x) //third approximation
+{
+  fixed a=(5599242093LL*gyro_time*x+0x80000000)>>32;
+  fixed a2=a*a;
+  fixed a3=a2*a;
+  return a - (a3.value+3)/6 + ((a3*a2).value+60)/120;
+}
+
+fixed qcos(int x)
+{
+  fixed a=(5599242093LL*gyro_time*x+0x80000000)>>32;
+  fixed a2=a*a;
+  return one - ((a2.value+1)>>1) + ((a2*a2).value+12)/24;
+}

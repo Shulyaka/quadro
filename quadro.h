@@ -29,6 +29,21 @@ void enable_sensor_interrupts() //warning: only use when all interrupt vectors a
 void dummy_int(void)
   {return;}
 
+void print(fixed val)
+{
+  if(val!=one)
+  {
+    if(val>=0) Serial.print(" ");
+    Serial.print((double)val.value/65536/32768);
+    Serial.print(" (");
+    if(val>=0) Serial.print(" ");
+    Serial.print(val.value);
+    Serial.print(" )");
+  }
+  else
+    Serial.print(" 1.00 ( one )");
+}
+
 void print(const char *name, fixed val)
 {
   Serial.print(name);
@@ -72,6 +87,20 @@ void print(const char *name, lfixed val)
       a=a-((a>>i)<<i);
     }
     Serial.println(")");
+}
+
+void print(const char *name, quaternion val)
+{
+  Serial.print(name);
+  Serial.print(" = [");
+  print(val.x);
+  Serial.print(",");
+  print(val.y);
+  Serial.print(",");
+  print(val.z);
+  Serial.print(",");
+  print(val.w);
+  Serial.println("]");
 }
 
 #endif

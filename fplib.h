@@ -3,7 +3,9 @@ class fixed
   public:
   fixed(void);
   fixed(long);
+  fixed(long,bool);
   long value;
+  bool isone; //not used currently
 };
 
 class lfixed
@@ -15,10 +17,23 @@ class lfixed
 };
 
 fixed::fixed(void)
-{}
+{
+  fixed::value=0;
+  bool isone=false;
+}
 
 fixed::fixed(long x)
-{fixed::value=x;}
+{
+  fixed::value=x;
+  bool isone=false;
+  //if(x==1) Serial.println("Did you mean 'one'?");
+}
+
+fixed::fixed(long x, bool is_one)
+{
+  fixed::value=x;
+  bool isone=is_one;
+}
 
 lfixed::lfixed(void)
 {}
@@ -40,7 +55,7 @@ lfixed newlfixed(long long x)
   return z;
 }*/
 
-const fixed one = ((signed long)((1UL<<31)-1))+1;
+const fixed one = fixed(((signed long)((1UL<<31)-1))+1, true);
 
 bool operator==(fixed x, fixed y)
 {return x.value==y.value ? true : false;}
