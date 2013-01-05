@@ -5,6 +5,7 @@ typedef struct State {
   fixed x1, x2, x3; //coordinates of "East"
   fixed y1, y2, y3; //coordinates of "North"
   fixed z1, z2, z3; //coordinates of "Top"
+  fixed wx, wy, wz; //rotation speed in 'local' coordinats
   fixed cosa, cosb, cosc, sina, sinb, sinc;
 //  fixed cosp, sinp;
 //  fixed cosf, sinf;
@@ -37,6 +38,10 @@ void state_updateOrientation(int alpha, int beta, int gamma)
   state.cosb=qcos(beta);
   state.sinc=qsin(gamma);
   state.cosc=qcos(gamma);
+
+  state.wx=alpha;
+  state.wy=beta;
+  state.wz=gamma;
 
   sasb=state.sina*state.sinb;
   sacb=state.sina*state.cosb;

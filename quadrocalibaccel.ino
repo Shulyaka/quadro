@@ -30,6 +30,7 @@ volatile unsigned long int accel_time=0;
 #include "Accel.h"
 #include "Gyro.h"
 #include "Imu.h"
+#include "Motor.h"
 
 //static int mysin[1293];
 //int mycos[1293];
@@ -241,12 +242,13 @@ if(qt.x==0&&qt.y==0&&qt.z==0&&qt.w==0) Serial.println(" "); //Just making sure q
   print("ax",ax);
   print("ay",ay);
   print("az",az);
-  print("vx",state.vx);
+/*  print("vx",state.vx);
   print("vy",state.vy);
   print("vz",state.vz);
   print(" x",state.x);
   print(" y",state.y);
   print(" z",state.z);
+*/
   cmd_gyro();
   Serial.println(accel_time);
   }
