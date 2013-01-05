@@ -1,4 +1,4 @@
-quadrocalibaccel
+quadro
 ================
 
-Arduino Quadrocopter Sensor Calibration
+Arduino Quadrocopter IMU Control System
