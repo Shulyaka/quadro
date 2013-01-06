@@ -26,11 +26,11 @@ void clear_spdBuf(void);
 volatile unsigned long int gyro_time=0;
 volatile unsigned long int accel_time=0;
 #include "AQMath.h"
-#include "quadro.h"
+#include "declarations.h"
 #include "Accel.h"
 #include "Gyro.h"
 #include "Imu.h"
-#include "Motor.h"
+//#include "Motor.h"
 
 //static int mysin[1293];
 //int mycos[1293];

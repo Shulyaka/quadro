@@ -14,6 +14,8 @@ bool debug=false;
 #define GYROCNTP 5
 #define ACCELCNT 32
 
+fixed Mx, My, Mz;
+
 void disable_sensor_interrupts()
 {
   EIMSK &= ~(1 << INT3); //gyro

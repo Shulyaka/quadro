@@ -1,4 +1,4 @@
-#include "quadro.h"
+//#include "quadro.h"
 
 void cmd_ping(void)
 {

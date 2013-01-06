@@ -1,4 +1,4 @@
-fixed Mx, My, Mz;
+//fixed Mx, My, Mz;
 
 void motor_updateControl(void)
 {
