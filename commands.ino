@@ -1,5 +1,3 @@
-//#include "quadro.h"
-
 void cmd_ping(void)
 {
   Serial.println("Pong.");
@@ -103,3 +101,4 @@ void cmd_setc(int c)
   Serial.print(c);
   Serial.print(".\n");
 }
+

@@ -1,5 +1,9 @@
-#ifndef QUADRO_H
-#define QUADRO_H
+#ifndef DECLARATIONS_H
+#define DECLARATIONS_H
+
+//#include <Arduino.h>
+#include "fplib.h"
+#include "quaternionlib.h"
 
 #define LampPin    13
 #define AudioPin   12
@@ -14,29 +18,7 @@ bool debug=false;
 #define GYROCNTP 5
 #define ACCELCNT 32
 
-typedef int angle;
-
-//#include <Arduino.h>
-#include "fplib.h"
-#include "quaternionlib.h"
-
 fixed Mx, My, Mz;
-int accelADC[3];
-
-void disable_sensor_interrupts()
-{
-  EIMSK &= ~(1 << INT3); //gyro
-  EIMSK &= ~(1 << INT2); //accel
-}
-
-void enable_sensor_interrupts() //warning: only use when all interrupt vectors are set correctly
-{
-  EIMSK |= (1 << INT3); //gyro
-  EIMSK |= (1 << INT2); //accel
-}
-
-void dummy_int(void)
-  {return;}
 
 typedef struct State {
   fixed ax, ay, az;
@@ -57,8 +39,14 @@ typedef struct State {
 };
 
 State state;
+
+typedef int angle;
+
 angle gyroalpha=0;
 angle gyrobeta=0;
 angle gyrogamma=0;
+
+volatile unsigned long int gyro_time=0;
+volatile unsigned long int accel_time=0;
 
 #endif

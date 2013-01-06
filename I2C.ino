@@ -77,8 +77,6 @@ void updateRegisterI2C(int deviceAddress, byte dataAddress, byte dataValue) {
 }  
 
 void updateRegisterI2C(int deviceAddress, byte dataAddress, byte dataValue, byte dataMask) {
-//  sendByteI2C(deviceAddress, dataAddress);
   updateRegisterI2C(deviceAddress, dataAddress, readRegisterI2C(deviceAddress, dataAddress, ~dataMask) | (dataValue & dataMask) );
-                                            //  (readByteI2C(deviceAddress) & (~dataMask))
 }
 

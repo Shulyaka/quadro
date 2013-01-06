@@ -434,6 +434,21 @@ lfixed operator*(lfixed x, fixed y)
   return x*tolfixed(y);
 }
 
+/*   I used the following code to generate the below lookup table:
+void printSqrtTable(void)
+{
+  Serial.print("const unsigned char l_sqrt[192]={		// input: x (64-255), output: sqrt((x-64)<<8)\n");
+  for(i=64; i<256; i++)
+  {
+    Serial.print((unsigned byte)sqrt(i<<8));
+    if(i!=255)
+      Serial.print(",\n");
+    else
+      Serial.print("};\n");
+  }
+}
+*/
+
 const unsigned char l_sqrt[192]={		// input: x (64-255), output: sqrt((x-64)<<8)
 128,128,129,130,131,132,133,134,135,136,137,138,139,140,141,142,143,144,144,145,146,147,148,149,150,150,151,152,153,154,155,155,
 156,157,158,159,160,160,161,162,163,163,164,165,166,167,167,168,169,170,170,171,172,173,173,174,175,176,176,177,178,178,179,180,

@@ -1,6 +1,8 @@
 #ifndef QUATERNIONLIB_H
 #define QUATERNIONLIB_H
 
+//#include "fplib.h"
+
 class quaternion
 {
   public:

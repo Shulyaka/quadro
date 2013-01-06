@@ -1,20 +1,7 @@
-//#include "I2C.h"
-
-#define XAXIS 0
-#define YAXIS 1
-#define ZAXIS 2
-
 #define accelAddress 0x40 // page 54 and 61 of datasheet
-//int accelADC[3];
+int accelADC[3];
 long accelBuf[3];
 int accelOneG;
-void accel_measure(void);
-void AutoOneG(void);
-void accel_int(void);
-void state_init_accel(void);
-void state_updatePosition(fixed i, fixed j, fixed k);
-void accel_calibrate(void);
-void accel_clear_int(void);
 
 void accel_init(void)
 {
@@ -430,3 +417,4 @@ void ac(void)
   z=accelADC[2];
   Serial.println(sqrt(x*x + y*y + z*z));
 }
+

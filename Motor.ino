@@ -1,5 +1,3 @@
-//fixed Mx, My, Mz;
-
 void motor_updateControl(void)
 {
   fixed h=one>>1; //some constants
@@ -11,3 +9,4 @@ void motor_updateControl(void)
   
   
 }
+

@@ -1,11 +1,3 @@
-//#include "fplib.h"
-//#include "quaternionlib.h"
-
-typedef int angle;
-
-void printMatrix(long long a[3][3]);
-void printRow(long long a[3]);
-
 void printFloat(float x)
 {
   if(isinf(x))
@@ -664,21 +656,6 @@ angle getangle(fixed sinx, fixed cosx)
 //inline long lcosbylsin(long x)
 //{return lsinbylcos(x);}
 
-/*   I used the following code to generate the below lookup table:
-void printSqrtTable(void)
-{
-  Serial.print("const byte l_sqrt[192]={		// input: x (64-255), output: sqrt((x-64)<<8)\n");
-  for(i=64; i<256; i++)
-  {
-    Serial.print((unsigned byte)sqrt(i<<8));
-    if(i!=255)
-      Serial.print(",\n");
-    else
-      Serial.print("};\n");
-  }
-}
-*/
-
 fixed vectlen(fixed a, fixed b, fixed c)
 {return sqrt(a%a+b%b+c%c);}
 
@@ -723,23 +700,6 @@ int lvectnorm(fixed x[3])
   return 0;
 }
 
-/*angle acos(fixed& x)
-{return asin(cosbysin(x));} //to be rewritten
-*/
-
-/*inline long mult(long x, long y)
-{return (x>0) ? ((long long)y*((unsigned long)x<<1))>>32 : -(((long long)y*((unsigned long)(-x)<<1))>>32);}
-
-inline long mult(long x, long y, long z)
-{return mult(mult(x,y),z);}
-
-inline long mult(long x, long y, long z, long w)
-{return mult(mult(x,y),mult(z,w));}
-
-long sin(angle x)
-{return lsin(x);}
-*/
-
 fixed hsin(int x) //third approximation
 {
   fixed a=(11198484186LL*gyro_time*x+0x80000000)>>32;
@@ -763,7 +723,7 @@ fixed htan(int x)
   return a + (a3.value+1)/3 + (((a3*a2)<<1).value+7)/15;
 }
 
-fixed qsin(int x) //third approximation
+fixed qsin(int x) //returns sin of half of the angle
 {
   fixed a=(5599242093LL*gyro_time*x+0x80000000)>>32;
   fixed a2=a*a;
@@ -777,3 +737,4 @@ fixed qcos(int x)
   fixed a2=a*a;
   return one - ((a2.value+1)>>1) + ((a2*a2).value+12)/24;
 }
+

@@ -2,17 +2,9 @@
 int gyroADC[3];
 long gyroBuf[3];
 int gyroZero[3];
-void autoZero(void);
-void gyro_measure(void);
-void gyro_calibrate(void);
 byte correction[3];
 int gyro_icnt;
 int gyro_interrupted=0;
-void gyro_int(void);
-void gyro_clear_int(void);
-void state_updateOrientation(int a, int b, int c);
-void motor_updateControl(void);
-void state_init_gyro(void);
 
 void gyro_init(void)
 {
@@ -150,3 +142,4 @@ void gyro_int(void)
   motor_updateControl();
   digitalWrite(4, 0);
 }
+
