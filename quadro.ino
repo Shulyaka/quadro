@@ -1,4 +1,9 @@
 #include <Wire.h>
+//#include "fplib.h"
+#include "declarations.h"
+
+//#include <Arduino.h>
+//typedef int angle;
 
 void clear_cmdBuf(void);
 void error(const char *);
@@ -22,11 +27,12 @@ unsigned long get_spdBufDif(unsigned char, unsigned char,unsigned char); // help
 void upd_spdBuf(void); // interrupt function
 void clear_spdBuf(void);
 
-//#include "mysin.h"
+//#include "fplib.h"
+//#include "declarations.h"
 volatile unsigned long int gyro_time=0;
 volatile unsigned long int accel_time=0;
-#include "AQMath.h"
-#include "declarations.h"
+//#include "AQMath.h"
+//#include "declarations.h"
 //#include "Accel.h"
 //#include "Gyro.h"
 #include "Imu.h"
@@ -281,3 +287,76 @@ void error (const char *msg)
   Serial.println(msg);
 }
 
+void print(fixed val)
+{
+  if(val!=one)
+  {
+    if(val>=0) Serial.print(" ");
+    Serial.print((double)val.value/65536/32768);
+    Serial.print(" (");
+    if(val>=0) Serial.print(" ");
+    Serial.print(val.value);
+    Serial.print(" )");
+  }
+  else
+    Serial.print(" 1.00 ( one )");
+}
+
+void print(const char *name, fixed val)
+{
+  Serial.print(name);
+  Serial.print(" = ");
+  if(val!=one)
+  {
+    if(val>=0) Serial.print(" ");
+    Serial.print((double)val.value/65536/32768);
+    Serial.print(" (");
+    if(val>=0) Serial.print(" ");
+    Serial.print(val.value);
+    Serial.println(" )");
+    //Serial.println(val.value,BIN);
+  }
+  else
+    Serial.println(" 1.00 ( one )");
+}
+void print(const char *name, angle val)
+{
+  Serial.print(name);
+  Serial.print(" = ");
+  if(val>=0) Serial.print(" ");
+  Serial.print((double)val/115);
+  Serial.print(" (");
+  if(val>=0) Serial.print(" ");
+  Serial.print(val);
+  Serial.println(" )");
+}
+
+void print(const char *name, lfixed val)
+{
+  unsigned long long a=val.value;
+  Serial.print(name);
+  Serial.print(" = ");
+  if(val>=0) Serial.print(" ");
+    Serial.print((double)val.value/65536/32768/65536/32768);
+    Serial.print(" (");
+    for(byte i=63;i!=255;i--)
+    {
+      Serial.print((byte)(a>>i),BIN);
+      a=a-((a>>i)<<i);
+    }
+    Serial.println(")");
+}
+
+void print(const char *name, quaternion val)
+{
+  Serial.print(name);
+  Serial.print(" = [");
+  print(val.x);
+  Serial.print(",");
+  print(val.y);
+  Serial.print(",");
+  print(val.z);
+  Serial.print(",");
+  print(val.w);
+  Serial.println("]");
+}

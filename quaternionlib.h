@@ -1,5 +1,5 @@
-fixed sqrt(lfixed x);
-lfixed lsqrt(lfixed x);
+#ifndef QUATERNIONLIB_H
+#define QUATERNIONLIB_H
 
 class quaternion
 {
@@ -141,4 +141,4 @@ quaternion inverse(quaternion a)
 fixed inner(quaternion a, quaternion b)
 {return a.x*b.x+a.y*b.y+a.z*b.z+a.w*b.w;}
 
-
+#endif
