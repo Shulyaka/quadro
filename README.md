@@ -9,3 +9,5 @@ code to your board having in mind that the code is heavily relies on interrupts,
 gyro and BMA180 accel are currently supported. However you will find a lot of useful ideas in the code
 such as fixed-point math library, advanced accel calibration algorythm (not finished yet, sorry) and
 quaternion-based IMU implementation.
+
+The development is in not complete yet.
