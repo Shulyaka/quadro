@@ -1,12 +1,8 @@
 #include <Wire.h>
-//#include "fplib.h"
 #include "declarations.h"
 
-//#include <Arduino.h>
-//typedef int angle;
-
 void clear_cmdBuf(void);
-void error(const char *);
+//void error(const char *);
 void check_cmd(void);  // to be used inside loop() constantly.
 void print_cmdBuf(void);
 unsigned char parse_cmd(int *);
@@ -20,27 +16,10 @@ void cmd_preas(void);
 void cmd_humid(void);
 void cmd_debug(void);
 
-unsigned int get_speed(void); // returns current speed in km/h multiplied by 100. We avoid floating-point calculations on our CPU.
-int get_accel(void); // returns current horizontal acceleration in m/s^2 multiplied by 100
-//inline unsigned long get_spdBuf(unsigned char); // helper function to get timestamp from speedBuf
-unsigned long get_spdBufDif(unsigned char, unsigned char,unsigned char); // helper function to get difference between two timestamps from speedBuf
-void upd_spdBuf(void); // interrupt function
-void clear_spdBuf(void);
-
-//#include "fplib.h"
-//#include "declarations.h"
 volatile unsigned long int gyro_time=0;
 volatile unsigned long int accel_time=0;
-//#include "AQMath.h"
-//#include "declarations.h"
-//#include "Accel.h"
-//#include "Gyro.h"
-#include "Imu.h"
-//#include "Motor.h"
 
-//static int mysin[1293];
-//int mycos[1293];
-//int mytan[1293];
+//#include "Imu.h"
 
 int interrupted;
 
@@ -59,7 +38,6 @@ void setup(void)
   Serial.begin(115200);
   Serial.println("\nInitializing... ");
   clear_cmdBuf();
-  clear_spdBuf();
   pinMode(LampPin, OUTPUT);
   pinMode(4, OUTPUT);
   pinMode(31, OUTPUT);
