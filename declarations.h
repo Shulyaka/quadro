@@ -15,6 +15,7 @@ bool debug=false;
 #define ACCELCNT 32
 
 fixed Mx, My, Mz;
+int accelADC[3];
 
 void disable_sensor_interrupts()
 {

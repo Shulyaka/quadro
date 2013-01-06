@@ -1,11 +1,11 @@
-#include "I2C.h"
+//#include "I2C.h"
 
 #define XAXIS 0
 #define YAXIS 1
 #define ZAXIS 2
 
 #define accelAddress 0x40 // page 54 and 61 of datasheet
-int accelADC[3];
+//int accelADC[3];
 long accelBuf[3];
 int accelOneG;
 void accel_measure(void);
