@@ -4,9 +4,9 @@
 #define CMDACCEL   3
 #define CMDLAMP    4
 #define CMDZERO    5
-#define CMDTEMP    6
-#define CMDPREAS   7
-#define CMDHUMID   8
+#define CMDTAKEOFF 6
+#define CMDLAND    7
+#define CMDEMERG   8
 #define CMDDEBUG   9 // toggle debug flag
 #define CMDSETA    10
 #define CMDSETB    11
@@ -65,14 +65,14 @@ void check_cmd(void)
     case CMDZERO:
       cmd_zero();
       break;
-    case CMDTEMP:
-      cmd_temp();
+    case CMDTAKEOFF:
+      cmd_takeoff();
       break;
-    case CMDPREAS:
-      cmd_preas();
+    case CMDLAND:
+      cmd_land();
       break;
-    case CMDHUMID:
-      cmd_humid();
+    case CMDEMERG:
+      cmd_emerg();
       break;
     case CMDDEBUG:
       cmd_debug(param);
@@ -117,12 +117,12 @@ unsigned char parse_cmd(int *param)
   }
   if (!memcmp(cmdBuf,"zero",4)||!memcmp(cmdBuf,"0",1))
     return CMDZERO;
-  if (!memcmp(cmdBuf,"temp",4))
-    return CMDTEMP;
-  if (!memcmp(cmdBuf,"preas",5))
-    return CMDPREAS;
-  if (!memcmp(cmdBuf,"humid",5))
-    return CMDHUMID;
+  if (!memcmp(cmdBuf,"takeoff",7))
+    return CMDTAKEOFF;
+  if (!memcmp(cmdBuf,"land",4))
+    return CMDLAND;
+  if (!memcmp(cmdBuf,"emerg",5))
+    return CMDEMERG;
   if (!memcmp(cmdBuf,"debug",5))
   {
     if (!memcmp(cmdBuf+6,"on",2))

@@ -5,7 +5,7 @@
 #include "fplib.h"
 #include "quaternionlib.h"
 
-#define LampPin    13
+#define LampPin    13 //to be removed
 #define AudioPin   12
 #define LightPin   A0
 #define TempPin    A1
@@ -17,6 +17,11 @@ bool debug=false;
 #define FINDZERO 128
 #define GYROCNTP 5
 #define ACCELCNT 32
+
+#define Motor0Pin  2
+#define Motor1Pin   3
+#define Motor2Pin  5
+#define Motor3Pin   6
 
 fixed Mx, My, Mz;
 
@@ -35,7 +40,7 @@ typedef struct State {
   lfixed lcost, lsint;
   fixed tmp1, tmp2, tmp3, tmp4, tmp5;
   lfixed tmp;
-  quaternion q; //current orientation
+  quaternion q;  //current orientation
   quaternion qd; //desired orientation
   quaternion qn; //next desired orientation
 };

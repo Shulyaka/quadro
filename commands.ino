@@ -49,25 +49,39 @@ void cmd_zero(void)
   state.q.z=0;
 }
 
-void cmd_temp(void)
+void cmd_takeoff(void)
 {
-  Serial.print("The temperature is ");
-  Serial.print(analogRead(TempPin));
-  Serial.print(" degrees.\n");
+  Serial.println("Taking off");
+  for(byte i=0; i<128; i++)
+  {
+    motor0(i);
+    motor1(i);
+    motor2(i);
+    motor3(i);
+    delay(100);
+  }
 }
 
-void cmd_preas(void)
+void cmd_land(void)
 {
-  Serial.print("The atmosphere preassure is ");
-  Serial.print(analogRead(PreasPin));
-  Serial.print(" pascal.\n");
+  Serial.println("Landing");
+  for(byte i=128; i!=255; i--)
+  {
+    motor0(i);
+    motor1(i);
+    motor2(i);
+    motor3(i);
+    delay(50);
+  }
 }
 
-void cmd_humid(void)
+void cmd_emerg(void)
 {
-  Serial.print("The atmosphere humidity is ");
-  Serial.print(analogRead(HumidPin));
-  Serial.print(" mm.\n");
+  Serial.println("Emergency landing!\nMight be dangerous and damaging!\nAaaaaaa!");
+  motor0(0);
+  motor1(0);
+  motor2(0);
+  motor3(0);
 }
 
 void cmd_debug(int state)

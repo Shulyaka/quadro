@@ -17,6 +17,10 @@ void setup(void)
   pinMode(31, OUTPUT);
   pinMode(18, INPUT);
   pinMode(19, INPUT);
+  pinMode(Motor0Pin, OUTPUT);
+  pinMode(Motor1Pin, OUTPUT);
+  pinMode(Motor2Pin, OUTPUT);
+  pinMode(Motor3Pin, OUTPUT);
   Wire.begin();
   TWBR = 12;
   state_init();
@@ -64,9 +68,11 @@ void loop(void)
     Serial.println("----------------");
     print("qt",qt);
     print("Nq",norm(qt));
+    print("qd",state.qd);
+    print("mi",qt*conjugate(state.qd));
     print("Mx",Mx);
     print("My",My);
-    print("Mx",Mz);
+    print("Mz",Mz);
 //    print("t1",t1);
 //    print("t2",t2);
 //    print("t3",t3);

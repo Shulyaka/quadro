@@ -124,8 +124,8 @@ void state_init_gyro(void)
   q1.normalize();
   
   state.q=q1*q2;
-  state.qd=quaternion(1, 0, 0, 0);
-  state.qn=quaternion(1, 0, 0, 0);
+  state.qd=quaternion(one, 0, 0, 0);
+  state.qn=quaternion(one, 0, 0, 0);
 
   enable_sensor_interrupts();
 }
