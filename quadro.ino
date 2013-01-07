@@ -59,7 +59,7 @@ void loop(void)
     qt=state.q;
 //    f=getangle(qt.x);
 
-  if(qt.x==0&&qt.y==0&&qt.z==0&&qt.w==0) Serial.println(" "); //Just making sure the quaternion is calculated
+  if(qt.w==0&&qt.x==0&&qt.y==0&&qt.z==0) Serial.println(" "); //Just making sure the quaternion is calculated
 
     Serial.println("----------------");
     print("qt",qt);
@@ -104,7 +104,7 @@ void error (const char *msg)
   Serial.println(msg);
 }
 
-void print(fixed val)
+void print(fixed val)  //to be rewritten using fixed-point math
 {
   if(val!=one)
   {
@@ -168,13 +168,13 @@ void print(const char *name, quaternion val)
 {
   Serial.print(name);
   Serial.print(" = [");
+  print(val.w);
+  Serial.print(",");
   print(val.x);
   Serial.print(",");
   print(val.y);
   Serial.print(",");
   print(val.z);
-  Serial.print(",");
-  print(val.w);
   Serial.println("]");
 }
 

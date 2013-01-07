@@ -24,16 +24,16 @@ void state_updateOrientation(int alpha, int beta, int gamma)
   sacb=state.sina*state.cosb;
   casb=state.cosa*state.sinb;
   cacb=state.cosa*state.cosb;
-//  qr=quaternion(sacb*state.cosc+casb*state.sinc, casb*state.cosc-sacb*state.sinc, sasb*state.cosc+cacb*state.sinc, cacb*state.cosc-sasb*state.sinc);
-  state.q=state.q*quaternion(sacb*state.cosc+casb*state.sinc, casb*state.cosc-sacb*state.sinc, sasb*state.cosc+cacb*state.sinc, cacb*state.cosc-sasb*state.sinc); //qx*qy*qz
+//  qr=quaternion(cacb*state.cosc-sasb*state.sinc, sacb*state.cosc+casb*state.sinc, casb*state.cosc-sacb*state.sinc, sasb*state.cosc+cacb*state.sinc);
+  state.q=state.q*quaternion(cacb*state.cosc-sasb*state.sinc, sacb*state.cosc+casb*state.sinc, casb*state.cosc-sacb*state.sinc, sasb*state.cosc+cacb*state.sinc); //qx*qy*qz
 
 //state.tmp1=qr.x;
 //state.tmp2=qr.y;
 //state.tmp3=qr.z;
 
-/*qt1=state.q*quaternion(state.q.w, state.q.z, -state.q.y, state.q.x);
-qt2=state.q*quaternion(-state.q.z, state.q.w, state.q.x, state.q.y);
-qt3=state.q*quaternion(state.q.y, -state.q.x, state.q.w, state.q.z);
+/*qt1=state.q*quaternion(state.q.x, state.q.w, state.q.z, -state.q.y);
+qt2=state.q*quaternion(state.q.y, -state.q.z, state.q.w, state.q.x);
+qt3=state.q*quaternion(state.q.z, state.q.y, -state.q.x, state.q.w);
 
 state.x1=qt1.x;
 state.x2=qt1.y;
@@ -55,7 +55,7 @@ const fixed gravity=0x40000000;
 
 void state_updatePosition(fixed i, fixed j, fixed k)
 {
-  quaternion acc=state.q*quaternion(i,j,k,0)*conjugate(state.q);
+  quaternion acc=state.q*quaternion(i,j,k)*conjugate(state.q);
   state.ax=acc.x;
   state.ay=acc.y;
   state.az=acc.z-gravity;
@@ -97,7 +97,6 @@ void state_init_gyro(void)
 {
   fixed grav[3];
   fixed nort[3];
-  fixed t[3];
   quaternion q1, q2;
   while(accel_time==0)
     continue;
@@ -107,24 +106,26 @@ void state_init_gyro(void)
   for(byte i=0; i<3;i++)
     grav[i]=(long)accelADC[i]<<18;
 
-  nort[0]=one; // put magneto data here;
+  nort[0]=one; // put real magneto data here;
   nort[1]=0;
   nort[2]=0;
 
-  q2=quaternion(grav[1]>>1, -grav[0]>>1, 0, (grav[2]>>1)+(one>>1));   //  grav*(0,0,1)=(grav[1], -grav[0], 0)
+  q2=quaternion((grav[2]>>1)+(one>>1), grav[1]>>1, -grav[0]>>1, 0);   //  grav*(0,0,1)=(grav[1], -grav[0], 0)
   q2.normalize();
-  
-  q1=q2*quaternion(nort[0],nort[1],nort[2],0)*conjugate(q2);
+
+  q1=q2*quaternion(nort[0], nort[1], nort[2])*conjugate(q2);
 
   nort[0]=q1.x;
   nort[1]=q1.y;
   nort[2]=0;
   vectnorm(nort);
 
-  q1=quaternion(0, 0, -nort[1]>>1, (nort[0]>>1)+(one>>1));   //  nort*(1,0,0)=(0, 0, -nort[1]);
+  q1=quaternion((nort[0]>>1)+(one>>1), 0, 0, -nort[1]>>1);   //  nort*(1,0,0)=(0, 0, -nort[1]);
   q1.normalize();
   
   state.q=q1*q2;
+  state.qd=quaternion(1, 0, 0, 0);
+  state.qn=quaternion(1, 0, 0, 0);
 
   enable_sensor_interrupts();
 }

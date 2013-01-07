@@ -35,7 +35,9 @@ typedef struct State {
   lfixed lcost, lsint;
   fixed tmp1, tmp2, tmp3, tmp4, tmp5;
   lfixed tmp;
-  quaternion q;
+  quaternion q; //current orientation
+  quaternion qd; //desired orientation
+  quaternion qn; //next desired orientation
 };
 
 State state;
