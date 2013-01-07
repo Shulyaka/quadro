@@ -24,7 +24,8 @@ void setup(void)
   Wire.begin();
   TWBR = 12;
   state_init();
-
+  motor_init();
+  
   Serial.println("OK");
 
 //accel_calibrate_manual();

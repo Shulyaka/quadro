@@ -52,26 +52,26 @@ void cmd_zero(void)
 void cmd_takeoff(void)
 {
   Serial.println("Taking off");
-  for(byte i=0; i<128; i++)
-  {
-    motor0(i);
-    motor1(i);
-    motor2(i);
-    motor3(i);
-    delay(100);
-  }
-}
-
-void cmd_land(void)
-{
-  Serial.println("Landing");
-  for(byte i=128; i!=255; i--)
+  for(byte i=0; i<100; i++)
   {
     motor0(i);
     motor1(i);
     motor2(i);
     motor3(i);
     delay(50);
+  }
+}
+
+void cmd_land(void)
+{
+  Serial.println("Landing");
+  for(byte i=100; i!=255; i--)
+  {
+    motor0(i);
+    motor1(i);
+    motor2(i);
+    motor3(i);
+    delay(20);
   }
 }
 

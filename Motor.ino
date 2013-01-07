@@ -30,15 +30,23 @@ void motor_updateControl(void)
 
 }
 
-void motor0(unsigned char v)
-{analogWrite(Motor0Pin, v);}
+void motor_init(void)
+{
+  motor0(0);
+  motor1(0);
+  motor2(0);
+  motor3(0);
+}
 
-void motor1(unsigned char v)
-{analogWrite(Motor1Pin, v);}
+void motor0(signed char v) //our range is 120-247
+{if(v>=0)analogWrite(Motor0Pin, 120+v);}
 
-void motor2(unsigned char v)
-{analogWrite(Motor2Pin, v);}
+void motor1(signed char v)
+{if(v>=0)analogWrite(Motor1Pin, 120+v);}
 
-void motor3(unsigned char v)
-{analogWrite(Motor3Pin, v);}
+void motor2(signed char v)
+{if(v>=0)analogWrite(Motor2Pin, 120+v);}
+
+void motor3(signed char v)
+{if(v>=0)analogWrite(Motor3Pin, 120+v);}
 
