@@ -27,7 +27,10 @@ void motor_updateControl(void)
     }
   }
 
-
+  motor0(Motor0Zero);
+  motor1(Motor1Zero);
+  motor2(Motor2Zero);
+  motor3(Motor3Zero);
 }
 
 void motor_init(void)

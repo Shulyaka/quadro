@@ -26,8 +26,6 @@ void setup(void)
   imu_init();
   motor_init();
 
-  flight_state=FSTATE_IDLE;
-  
   Serial.println("OK");
 
 //accel_calibrate_manual();
@@ -45,10 +43,41 @@ void loop(void)
   lfixed tm;
 //  angle f,p,t;
   quaternion qt;
+  static quaternion q_idle=imu.q;
+  static signed char takeoff_speed=0;
   
   delay(10);
 
-  check_cmd(); //to be rewritten using serialEvent()
+  check_cmd(); //to be rewritten using serialEvent() //or may be not...
+
+  switch(flight_state)
+  {
+    case FSTATE_IDLE:
+      q_idle=imu.q;
+      break;
+    case FSTATE_TAKEOFF:
+      if(abs((imu.q*conjugate(q_idle)).w)<2126008811ULL) //0.99
+      {
+        if(debug) Serial.println("Flying");
+        Motor0Zero=takeoff_speed;
+        Motor1Zero=takeoff_speed;
+        Motor2Zero=takeoff_speed;
+        Motor3Zero=takeoff_speed;
+        flight_state=FSTATE_FLY;
+        break;
+      }
+      motor0(takeoff_speed);
+      motor1(takeoff_speed);
+      motor2(takeoff_speed);
+      motor3(takeoff_speed);
+      if(debug)Serial.println(takeoff_speed);
+      takeoff_speed++;
+      break;
+    default:
+      Serial.println("State not used");
+  }
+
+
 
   if(!(i++%10))
   {

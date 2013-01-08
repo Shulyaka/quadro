@@ -12,7 +12,7 @@
 #define PreasPin   A2
 #define HumidPin   A3
 
-bool debug=false;
+bool debug=true;
 
 #define FINDZERO 128
 #define GYROCNTP 5
@@ -23,7 +23,12 @@ bool debug=false;
 #define Motor2Pin  5
 #define Motor3Pin   6
 
-fixed Mx, My, Mz;
+fixed Mx=0, My=0, Mz=0;
+
+signed char Motor0Zero=0;
+signed char Motor1Zero=0;
+signed char Motor2Zero=0;
+signed char Motor3Zero=0;
 
 typedef struct Imu {
   fixed ax, ay, az;
