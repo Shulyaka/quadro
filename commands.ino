@@ -34,32 +34,33 @@ void cmd_zero(void)
   gyroalpha=0;
   gyrobeta=0;
   gyrogamma=0;
-  state.ax=0;
-  state.ay=0;
-  state.az=0;
-  state.vx=0;
-  state.vy=0;
-  state.vz=0;
-  state.x=0;
-  state.y=0;
-  state.z=0;
-  state.q.w=one;
-  state.q.x=0;
-  state.q.y=0;
-  state.q.z=0;
+  imu.ax=0;
+  imu.ay=0;
+  imu.az=0;
+  imu.vx=0;
+  imu.vy=0;
+  imu.vz=0;
+  imu.x=0;
+  imu.y=0;
+  imu.z=0;
+  imu.q.w=one;
+  imu.q.x=0;
+  imu.q.y=0;
+  imu.q.z=0;
 }
 
 void cmd_takeoff(void)
 {
   Serial.println("Taking off");
-  for(byte i=0; i<100; i++)
+  flight_state=FSTATE_TAKEOFF;
+/*  for(byte i=0; i<100; i++)
   {
     motor0(i);
     motor1(i);
     motor2(i);
     motor3(i);
     delay(50);
-  }
+  }*/
 }
 
 void cmd_land(void)
@@ -84,11 +85,11 @@ void cmd_emerg(void)
   motor3(0);
 }
 
-void cmd_debug(int state)
+void cmd_debug(int flag)
 {
-  debug=state;
+  debug=flag;
   Serial.print("The debug flag is ");
-  Serial.print(state);
+  Serial.print(debug);
   Serial.print(" now.\n");
 }
 

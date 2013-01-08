@@ -102,7 +102,7 @@ void gyro_calibrate(void) // finds gyroZero in background, sets gyro_time to non
   cstep=-2;
   gyro_icnt=0;
 //  Serial.println("Gyro calibration complete");
-  state_init_gyro();
+  imu_init_orientation();
   disable_sensor_interrupts();
   attachInterrupt(5, gyro_int, RISING);
   gyro_clear_int();
@@ -138,8 +138,9 @@ void gyro_int(void)
   gyroADC[2]=(gyroBuf[2]-gyroZero[2])>>GYROCNTP;
   for (byte i=0; i<3; i++)
     gyroBuf[i]=0;
-  state_updateOrientation(gyroADC[0],gyroADC[1],gyroADC[2]);
-  motor_updateControl();
+  imu_updateOrientation(gyroADC[0],gyroADC[1],gyroADC[2]);
+  if(flight_state==FSTATE_FLY)
+    motor_updateControl();
   digitalWrite(4, 0);
 }
 

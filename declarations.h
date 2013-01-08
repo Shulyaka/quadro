@@ -25,7 +25,7 @@ bool debug=false;
 
 fixed Mx, My, Mz;
 
-typedef struct State {
+typedef struct Imu {
   fixed ax, ay, az;
   fixed vx, vy, vz;
   fixed x, y, z;
@@ -45,7 +45,7 @@ typedef struct State {
   quaternion qn; //next desired orientation
 };
 
-State state;
+Imu imu;
 
 typedef int angle;
 
@@ -55,5 +55,12 @@ angle gyrogamma=0;
 
 volatile unsigned long int gyro_time=0;
 volatile unsigned long int accel_time=0;
+
+#define FSTATE_IDLE    0
+#define FSTATE_TAKEOFF 1
+#define FSTATE_LAND    2
+#define FSTATE_FLY     3
+
+unsigned char flight_state=FSTATE_IDLE;
 
 #endif

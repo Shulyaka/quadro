@@ -35,7 +35,7 @@ void accel_init(void)
 
 void accel_calibrate()
 {  //does not calibrate currently
-  state_init_accel();
+  imu_init_position();
   attachInterrupt(4, accel_int, RISING);
 }
 
@@ -85,7 +85,7 @@ void accel_int(void)
     return;
   }
   
-  state_updatePosition((long)accelADC[0]<<18, (long)accelADC[1]<<18, (long)accelADC[2]<<18);
+  imu_updatePosition((long)accelADC[0]<<18, (long)accelADC[1]<<18, (long)accelADC[2]<<18);
   enable_sensor_interrupts();
 
   digitalWrite(LampPin, 0);
@@ -409,7 +409,7 @@ findCenter(point[0], point[1], point[2], point[3], x);
   //accel_update_eeprom(); //this will call accel_init and soft reset the sensor
 }
 
-void ac(void)
+/*void ac(void)
 {
   long int x,y,z;
   x=accelADC[0];
@@ -417,4 +417,5 @@ void ac(void)
   z=accelADC[2];
   Serial.println(sqrt(x*x + y*y + z*z));
 }
+*/
 

@@ -23,8 +23,10 @@ void setup(void)
   pinMode(Motor3Pin, OUTPUT);
   Wire.begin();
   TWBR = 12;
-  state_init();
+  imu_init();
   motor_init();
+
+  flight_state=FSTATE_IDLE;
   
   Serial.println("OK");
 
@@ -52,16 +54,16 @@ void loop(void)
   {
     j++;
 
-    ax=state.ax;
-    ay=state.ay;
-    az=state.az;
-    t1=state.tmp1;
-    t2=state.tmp2;
-    t3=state.tmp3;
-    t4=state.tmp4;
-    t5=state.tmp5;
-    tm=state.tmp;
-    qt=state.q;
+    ax=imu.ax;
+    ay=imu.ay;
+    az=imu.az;
+    t1=imu.tmp1;
+    t2=imu.tmp2;
+    t3=imu.tmp3;
+    t4=imu.tmp4;
+    t5=imu.tmp5;
+    tm=imu.tmp;
+    qt=imu.q;
 //    f=getangle(qt.x);
 
   if(qt.w==0&&qt.x==0&&qt.y==0&&qt.z==0) Serial.println(" "); //Just making sure the quaternion is calculated
@@ -69,8 +71,8 @@ void loop(void)
     Serial.println("----------------");
     print("qt",qt);
     print("Nq",norm(qt));
-    print("qd",state.qd);
-    print("mi",qt*conjugate(state.qd));
+    print("qd",imu.qd);
+    print("mi",qt*conjugate(imu.qd));
     print("Mx",Mx);
     print("My",My);
     print("Mz",Mz);
@@ -87,18 +89,18 @@ void loop(void)
 //    print("tm",tm);
 //    print("tt",tofixed(tm));
 //    print("tn",t1%cc+t2%sc);
-//  print("z1",state.z1);
-//  print("z2",state.z2);
-//  print("z3",state.z3);
+//  print("z1",imu.z1);
+//  print("z2",imu.z2);
+//  print("z3",imu.z3);
   print("ax",ax);
   print("ay",ay);
   print("az",az);
-/*  print("vx",state.vx);
-  print("vy",state.vy);
-  print("vz",state.vz);
-  print(" x",state.x);
-  print(" y",state.y);
-  print(" z",state.z);
+/*  print("vx",imu.vx);
+  print("vy",imu.vy);
+  print("vz",imu.vz);
+  print(" x",imu.x);
+  print(" y",imu.y);
+  print(" z",imu.z);
 */
   cmd_gyro();
   Serial.println(accel_time);

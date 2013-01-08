@@ -3,27 +3,27 @@ void motor_updateControl(void)
   fixed h=one>>1; //some constants
   fixed k=one>>1;
   fixed k2=k*sinpi4;
-  quaternion m=state.q*conjugate(state.qd);
+  quaternion m=imu.q*conjugate(imu.qd);
 
   if(abs(m.w)>sinpi4)
   {
-    Mx=k*m.w*m.x-h*state.sina;
-    My=k*m.w*m.y-h*state.sinb;
-    Mz=k*m.w*m.z-h*state.sinc;
+    Mx=k*m.w*m.x-h*imu.sina;
+    My=k*m.w*m.y-h*imu.sinb;
+    Mz=k*m.w*m.z-h*imu.sinc;
   }
   else
   {
     if(m.w>0)
     {
-      Mx=k2*m.x-h*state.sina;
-      My=k2*m.y-h*state.sinb;
-      Mz=k2*m.z-h*state.sinc;
+      Mx=k2*m.x-h*imu.sina;
+      My=k2*m.y-h*imu.sinb;
+      Mz=k2*m.z-h*imu.sinc;
     }
     else
     {
-      Mx=-k2*m.x-h*state.sina;
-      My=-k2*m.y-h*state.sinb;
-      Mz=-k2*m.z-h*state.sinc;
+      Mx=-k2*m.x-h*imu.sina;
+      My=-k2*m.y-h*imu.sinb;
+      Mz=-k2*m.z-h*imu.sinc;
     }
   }
 
