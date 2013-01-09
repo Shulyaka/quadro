@@ -32,6 +32,10 @@ void setup(void)
 
   while(gyro_time==0 || accel_time==0)
     continue;
+  Serial.print("Gyro time is ");
+  Serial.println(gyro_time);
+  Serial.print("Accel time is ");
+  Serial.println(accel_time);
 }
 
 void loop(void)
@@ -43,7 +47,7 @@ void loop(void)
   lfixed tm;
 //  angle f,p,t;
   quaternion qt;
-  static quaternion q_idle=imu.q;
+  static fixed az_idle=imu.az;
   static signed char takeoff_speed=0;
   
   delay(10);
@@ -53,16 +57,17 @@ void loop(void)
   switch(flight_state)
   {
     case FSTATE_IDLE:
-      q_idle=imu.q;
+      az_idle=imu.az;
       break;
     case FSTATE_TAKEOFF:
-      if(abs((imu.q*conjugate(q_idle)).w)<2126008811ULL) //0.99
+      if(imu.az>az_idle+42949673ULL) //takeoff condition: last known idle z acceleration plus 0.02 to be above noise
       {
         if(debug) Serial.println("Flying");
         Motor0Zero=takeoff_speed;
         Motor1Zero=takeoff_speed;
         Motor2Zero=takeoff_speed;
         Motor3Zero=takeoff_speed;
+        takeoff_speed=0;
         flight_state=FSTATE_FLY;
         break;
       }
@@ -72,9 +77,19 @@ void loop(void)
       motor3(takeoff_speed);
       if(debug)Serial.println(takeoff_speed);
       takeoff_speed++;
+      if (takeoff_speed<0)
+      {
+        takeoff_speed=0;
+        flight_state=FSTATE_IDLE;
+      }
+      delayMicroseconds(accel_time); //making sure that we wait enough
       break;
+    case FSTATE_FLY:
+        // put the flight control logic here
+        break;
+
     default:
-      Serial.println("State not used");
+      error("State not used");
   }
 
 

@@ -1,7 +1,6 @@
 #define accelAddress 0x40 // page 54 and 61 of datasheet
 int accelADC[3];
 long accelBuf[3];
-int accelOneG;
 
 void accel_init(void)
 {

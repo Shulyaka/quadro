@@ -2,7 +2,6 @@
 int gyroADC[3];
 long gyroBuf[3];
 int gyroZero[3];
-byte correction[3];
 int gyro_icnt;
 int gyro_interrupted=0;
 
@@ -120,6 +119,7 @@ void gyro_clear_int(void)
 void gyro_int(void)
 {
   digitalWrite(4, 1);
+
   disable_sensor_interrupts();
   interrupts();
   gyro_measure();
@@ -138,9 +138,12 @@ void gyro_int(void)
   gyroADC[2]=(gyroBuf[2]-gyroZero[2])>>GYROCNTP;
   for (byte i=0; i<3; i++)
     gyroBuf[i]=0;
+
   imu_updateOrientation(gyroADC[0],gyroADC[1],gyroADC[2]);
+  
   if(flight_state==FSTATE_FLY)
     motor_updateControl();
+
   digitalWrite(4, 0);
 }
 

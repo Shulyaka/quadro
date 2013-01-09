@@ -53,14 +53,6 @@ void cmd_takeoff(void)
 {
   Serial.println("Taking off");
   flight_state=FSTATE_TAKEOFF;
-/*  for(byte i=0; i<100; i++)
-  {
-    motor0(i);
-    motor1(i);
-    motor2(i);
-    motor3(i);
-    delay(50);
-  }*/
 }
 
 void cmd_land(void)
@@ -74,6 +66,7 @@ void cmd_land(void)
     motor3(i);
     delay(20);
   }
+  flight_state=FSTATE_IDLE;
 }
 
 void cmd_emerg(void)
