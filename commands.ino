@@ -47,6 +47,7 @@ void cmd_zero(void)
   imu.q.x=0;
   imu.q.y=0;
   imu.q.z=0;
+  imu.azd=gravity;
 }
 
 void cmd_takeoff(void)
@@ -58,24 +59,13 @@ void cmd_takeoff(void)
 void cmd_land(void)
 {
   Serial.println("Landing");
-  for(byte i=100; i!=255; i--)
-  {
-    motor0(i);
-    motor1(i);
-    motor2(i);
-    motor3(i);
-    delay(20);
-  }
-  flight_state=FSTATE_IDLE;
+  flight_state=FSTATE_LAND;
 }
 
 void cmd_emerg(void)
 {
   Serial.println("Emergency landing!\nMight be dangerous and damaging!\nAaaaaaa!");
-  motor0(0);
-  motor1(0);
-  motor2(0);
-  motor3(0);
+  setMotorSpeed(0);
 }
 
 void cmd_debug(int flag)

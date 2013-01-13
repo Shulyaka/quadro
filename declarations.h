@@ -6,11 +6,11 @@
 #include "quaternionlib.h"
 
 #define LampPin    13 //to be removed
-#define AudioPin   12
-#define LightPin   A0
-#define TempPin    A1
-#define PreasPin   A2
-#define HumidPin   A3
+//#define AudioPin   12
+//#define LightPin   A0
+//#define TempPin    A1
+//#define PreasPin   A2
+//#define HumidPin   A3
 
 bool debug=true;
 
@@ -18,17 +18,15 @@ bool debug=true;
 #define GYROCNTP 5
 #define ACCELCNT 32
 
-#define Motor0Pin  2
-#define Motor1Pin   3
-#define Motor2Pin  5
-#define Motor3Pin   6
+const unsigned char MotorPin[]={2, 3, 5, 6};
 
 fixed Mx=0, My=0, Mz=0;
 
-signed char Motor0Zero=0;
-signed char Motor1Zero=0;
-signed char Motor2Zero=0;
-signed char Motor3Zero=0;
+const fixed gravity=0x40000000; //   1/2
+
+fixed MotorAdjust[4]={0};
+fixed MotorSpeed[4]={0};
+fixed MotorAcceleration=gravity;
 
 typedef struct Imu {
   fixed ax, ay, az;
@@ -48,6 +46,7 @@ typedef struct Imu {
   quaternion q;  //current orientation
   quaternion qd; //desired orientation
   quaternion qn; //next desired orientation
+  fixed azd; //desired vertical acceleration
 };
 
 Imu imu;

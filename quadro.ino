@@ -17,10 +17,10 @@ void setup(void)
   pinMode(31, OUTPUT);
   pinMode(18, INPUT);
   pinMode(19, INPUT);
-  pinMode(Motor0Pin, OUTPUT);
-  pinMode(Motor1Pin, OUTPUT);
-  pinMode(Motor2Pin, OUTPUT);
-  pinMode(Motor3Pin, OUTPUT);
+  pinMode(MotorPin[0], OUTPUT);
+  pinMode(MotorPin[1], OUTPUT);
+  pinMode(MotorPin[2], OUTPUT);
+  pinMode(MotorPin[3], OUTPUT);
   Wire.begin();
   TWBR = 12;
   imu_init();
@@ -48,7 +48,8 @@ void loop(void)
 //  angle f,p,t;
   quaternion qt;
   static fixed az_idle=imu.az;
-  static signed char takeoff_speed=0;
+  static fixed takeoff_speed=0;
+  fixed cosg;
   
   delay(10);
 
@@ -60,32 +61,57 @@ void loop(void)
       az_idle=imu.az;
       break;
     case FSTATE_TAKEOFF:
-      if(imu.az>az_idle+42949673ULL) //takeoff condition: last known idle z acceleration plus 0.02 to be above noise
+      if(imu.az>az_idle+0x28F5C29) //takeoff condition: last known idle z acceleration plus 0.02 to be above noise
       {
         if(debug) Serial.println("Flying");
-        Motor0Zero=takeoff_speed;
-        Motor1Zero=takeoff_speed;
-        Motor2Zero=takeoff_speed;
-        Motor3Zero=takeoff_speed;
+        for(byte k=0; k<4; k++)
+          MotorAdjust[k]=takeoff_speed-0x1000000-gravity;
         takeoff_speed=0;
         flight_state=FSTATE_FLY;
         break;
       }
-      motor0(takeoff_speed);
-      motor1(takeoff_speed);
-      motor2(takeoff_speed);
-      motor3(takeoff_speed);
-      if(debug)Serial.println(takeoff_speed);
-      takeoff_speed++;
+      else
+        for(byte k=0; k<4; k++)
+          MotorAdjust[k]=0;
+      setMotorSpeed(takeoff_speed);
+      if(debug) print("takeoff_speed", takeoff_speed);
+      takeoff_speed=takeoff_speed+0x1000000; //  1/128
       if (takeoff_speed<0)
       {
         takeoff_speed=0;
-        flight_state=FSTATE_IDLE;
+        setMotorSpeed(0);
+        flight_state=FSTATE_IDLE; //failure to launch
       }
       delayMicroseconds(accel_time); //making sure that we wait enough
       break;
+    case FSTATE_LAND:
+      if (MotorSpeed[0]<0 && MotorSpeed[1]<0 && MotorSpeed[2]<0 && MotorSpeed[3]<0) //landing condition
+      {
+        if(debug) Serial.println("On the ground");
+        setMotorSpeed(0);
+        flight_state=FSTATE_IDLE;
+        break;
+      }
+      if(MotorSpeed[0]>0)
+        setMotorSpeed(0, MotorSpeed[0]-0x1000000); //   1/128
+      if(MotorSpeed[1]>0)
+        setMotorSpeed(1, MotorSpeed[1]-0x1000000);
+      if(MotorSpeed[2]>0)
+        setMotorSpeed(2, MotorSpeed[2]-0x1000000);
+      if(MotorSpeed[3]>0)
+        setMotorSpeed(3, MotorSpeed[3]-0x1000000);
+      delay(20);
+      break;
     case FSTATE_FLY:
-        // put the flight control logic here
+        cosg=(imu.q.w*imu.q.w-0x40000000)<<1;
+        if(cosg<0)
+          MotorAcceleration=0; //we are upside-down, no acceleration
+        else if(imu.azd>=cosg)
+          MotorAcceleration=one; //we are almost 90 degree rotated, not enough to hold altitude but do what we can with full acceleration
+        else
+          MotorAcceleration=imu.azd%one/cosg;   //normal operation
+
+        // put the main flight control logic here
         break;
 
     default:

@@ -27,29 +27,49 @@ void motor_updateControl(void)
     }
   }
 
-  motor0(Motor0Zero);
-  motor1(Motor1Zero);
-  motor2(Motor2Zero);
-  motor3(Motor3Zero);
+  setMotorSpeed(0, MotorAcceleration);
+  setMotorSpeed(1, MotorAcceleration);
+  setMotorSpeed(2, MotorAcceleration);
+  setMotorSpeed(3, MotorAcceleration);
 }
 
 void motor_init(void)
 {
-  motor0(0);
-  motor1(0);
-  motor2(0);
-  motor3(0);
+  setMotorSpeed(0);
 }
 
-void motor0(signed char v) //our range is 120-247
-{if(v>=0)analogWrite(Motor0Pin, 120+v);}
+void setMotorSpeed(unsigned char number, fixed rpm)
+{
+  const int baserange=120;
+  int v=baserange+128;
 
-void motor1(signed char v)
-{if(v>=0)analogWrite(Motor1Pin, 120+v);}
+  MotorSpeed[number]=rpm;
 
-void motor2(signed char v)
-{if(v>=0)analogWrite(Motor2Pin, 120+v);}
+  if (rpm<-MotorAdjust[number])
+  {
+    error("Motor rpm < 0");
+    rpm=-MotorAdjust[number];
+  }
+  
+  if(rpm!=one)
+  {
+    rpm=rpm+MotorAdjust[number];
+    if(rpm<0)
+      if(MotorAdjust[number]<0)
+        v=baserange;
+      else
+        v=baserange+128;
+    else
+      v=(rpm.value>>24)+baserange; //our range is 120-248
+  }
+  
+  analogWrite(MotorPin[number], v);
+}
 
-void motor3(signed char v)
-{if(v>=0)analogWrite(Motor3Pin, 120+v);}
-
+void setMotorSpeed(fixed rpm)
+{
+  setMotorSpeed(0, rpm);
+  setMotorSpeed(1, rpm);
+  setMotorSpeed(2, rpm);
+  setMotorSpeed(3, rpm);
+}

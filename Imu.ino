@@ -51,8 +51,6 @@ imu.tmp3=qt3.w;
 */
 }
 
-const fixed gravity=0x40000000;
-
 void imu_updatePosition(fixed i, fixed j, fixed k)
 {
   quaternion acc=imu.q*quaternion(i,j,k)*conjugate(imu.q);
@@ -91,6 +89,7 @@ void imu_init_position(void)
   imu.x=0;
   imu.y=0;
   imu.z=0;
+  imu.azd=gravity;
 }
 
 void imu_init_orientation(void)
