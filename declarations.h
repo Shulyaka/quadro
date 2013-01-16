@@ -51,7 +51,6 @@ typedef struct Imu {
   lfixed tmp;
   quaternion q;  //current orientation
   quaternion qd; //desired orientation
-  quaternion qn; //next desired orientation
   fixed azd; //desired vertical acceleration
 };
 

@@ -15,7 +15,7 @@ void gyro_init(void)
 
     updateRegisterI2C(gyroAddress, 0x3E, 0x80); // send a reset to the device
     delay(10);
-    updateRegisterI2C(gyroAddress, 0x15, 0x00); // Sample rate  // 200Hz
+    updateRegisterI2C(gyroAddress, 0x15, 0x02); // Sample rate  // 200Hz
     updateRegisterI2C(gyroAddress, 0x16, 0x18+0x06); // 10Hz low pass filter
     updateRegisterI2C(gyroAddress, 0x17, 0x31); // enable raw data ready interrupt
     updateRegisterI2C(gyroAddress, 0x3E, 0x02); // use Y gyro oscillator

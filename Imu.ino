@@ -128,7 +128,6 @@ void imu_init_orientation(void)
   if(imu.q.w<0)
     imu.q=-imu.q;
   imu.qd=quaternion(one, 0, 0, 0);
-  imu.qn=quaternion(one, 0, 0, 0);
 
   enable_sensor_interrupts();
 }

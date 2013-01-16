@@ -32,7 +32,7 @@ void setup(void)
   Serial.println("OK");
 
 #ifdef ACCELCALIBRATE
-//  accel_calibrate_manual();
+  accel_calibrate_manual();
 #endif
 
   Serial.print("Gyro time is ");
@@ -200,6 +200,7 @@ void error (const char *msg)
 
 void print(fixed val)
 {
+  int v;
   if(val==one)
     Serial.print(" 1.00 ( one )");
   else
@@ -212,7 +213,12 @@ void print(fixed val)
         Serial.print(" 0.");
       else
         Serial.print("-0.");
-      Serial.print(abs(val.value)/0x20C49C);
+      v=abs(val.value)/0x20C49C;
+      if(v<10)
+        Serial.print("00");
+      else if(v<100)
+        Serial.print("0");
+      Serial.print(v);
     }
     Serial.print(" (");
     if(val>=0) Serial.print(" ");
@@ -243,12 +249,18 @@ void print(const char *name, angle val)
 void print(const char *name, lfixed val)
 {
   unsigned long long a=val.value;
+  int v;
   Serial.print(name);
   Serial.print(" =");
   if(val>=0) Serial.print(" ");
-  Serial.print((long)(val.value/0x4000000000000000LL));
+  Serial.print((int)(val.value/0x4000000000000000LL));
   Serial.print(".");
-  Serial.print((long)(abs(val.value)/0x10624DD2F1A9FCLL - (abs(val.value)/0x4000000000000000LL)*1000));
+  v=abs(val.value)/0x10624DD2F1A9FCLL - (abs(val.value)/0x4000000000000000LL)*1000;
+  if(v<10)
+    Serial.print("00");
+  else if(v<100)
+    Serial.print("0");
+  Serial.print(v);
   Serial.print(" (");
   for(byte i=63;i!=255;i--)
   {
