@@ -1,3 +1,5 @@
+#ifdef ACCELCALIBRATE
+
 void printFloat(float x)
 {
   if(isinf(x))
@@ -21,65 +23,6 @@ void printlnFloat(float x)
   Serial.println("");
 }
 
-int findMedian(int *data, int arraySize)
-{
-  int temp;
-  boolean done = 0;
-  //byte i;
-  
-   // Sorts numbers from lowest to highest
-  while (done != 1) {        
-    done = 1;
-    for (byte i = 0; i<(arraySize-1); i++) {
-      if (data[i] > data[i+1]) {     // numbers are out of order - swap
-        temp = data[i+1];
-        data[i+1] = data[i];
-        data[i] = temp;
-        done = 0;
-      }
-    }
-  }
-  
-  return data[arraySize/2]; // return the median value
-}
-
-long findMedian2(long *data, int arraySize)
-{
-  long temp;
-  boolean done = 0;
-  //byte i;
-  
-   // Sorts numbers from lowest to highest
-  while (done != 1) {        
-    done = 1;
-    for (byte i = 0; i<(arraySize-1); i++) {
-      if (data[i] > data[i+1]) {     // numbers are out of order - swap
-        temp = data[i+1];
-        data[i+1] = data[i];
-        data[i] = temp;
-        done = 0;
-      }
-    }
-  }
-  
-  return data[arraySize/2]; // return the median value
-}
-
-long findAverage(long *data, int arraySize)
-{
-  long c=0;
-  for(byte i=0;i<arraySize;i++)
-    c+=data[i];
-  return c/arraySize;
-}
-
-int findAverage2(int *data, int arraySize)
-{
-  long c=0;
-  for(byte i=0;i<arraySize;i++)
-    c+=data[i];
-  return c/arraySize;
-}
 
 long long det(long long a11, long long a21, long long a31, long long a12, long long a22, long long a32, long long a13, long long a23, long long a33)
   {return a11*a22*a33-a13*a22*a31+a12*a23*a31-a12*a21*a33+a13*a21*a32-a11*a23*a32;}
@@ -128,13 +71,13 @@ int lcheck(long long a[3][3], long long r[3], long x[3])
   Serial.println((long)(a[2][0]*x[0]+a[2][1]*x[1]+a[2][2]*x[2]-r[2]));
 }
 
-int lcheck(float a[3][3], float r[3], float x[3])
-{
-  Serial.println("Check:");
-  printlnFloat(a[0][0]*x[0]+a[0][1]*x[1]+a[0][2]*x[2]-r[0]);
-  printlnFloat(a[1][0]*x[0]+a[1][1]*x[1]+a[1][2]*x[2]-r[1]);
-  printlnFloat(a[2][0]*x[0]+a[2][1]*x[1]+a[2][2]*x[2]-r[2]);
-}
+//int lcheck(float a[3][3], float r[3], float x[3])
+//{
+//  Serial.println("Check:");
+//  printlnFloat(a[0][0]*x[0]+a[0][1]*x[1]+a[0][2]*x[2]-r[0]);
+//  printlnFloat(a[1][0]*x[0]+a[1][1]*x[1]+a[1][2]*x[2]-r[1]);
+//  printlnFloat(a[2][0]*x[0]+a[2][1]*x[1]+a[2][2]*x[2]-r[2]);
+//}
 
 int findCenter(long *a, long *b, long *c, long *d, long *x)
 {
@@ -155,21 +98,20 @@ int findCenter(long *a, long *b, long *c, long *d, long *x)
   x[2]>>=1;
   return 0;
 }
-/*
-int findCenter(long *a, long *b, long *c, long *d, long *x)
-{
-  long long r[3];
-  long long den=det(b[0]-a[0], c[0]-a[0], d[0]-a[0], b[1]-a[1], c[1]-a[1], d[1]-a[1], b[2]-a[2], c[2]-a[2], d[2]-a[2])<<1;
-  if(den==0)
-    return 1;
-  r[0]=(long long)b[0]*b[0]-(long long)a[0]*a[0]+(long long)b[1]*b[1]-(long long)a[1]*a[1]+(long long)b[2]*b[2]-(long long)a[2]*a[2];
-  r[1]=(long long)c[0]*c[0]-(long long)a[0]*a[0]+(long long)c[1]*c[1]-(long long)a[1]*a[1]+(long long)c[2]*c[2]-(long long)a[2]*a[2];
-  r[2]=(long long)d[0]*d[0]-(long long)a[0]*a[0]+(long long)d[1]*d[1]-(long long)a[1]*a[1]+(long long)d[2]*d[2]-(long long)a[2]*a[2];
-  x[0]=(det(r[0], r[1], r[2], b[1]-a[1], c[1]-a[1], d[1]-a[1], b[2]-a[2], c[2]-a[2], d[2]-a[2])+(den>>1))/den;
-  x[1]=(det(b[0]-a[0], c[0]-a[0], d[0]-a[0], r[0], r[1], r[2], b[2]-a[2], c[2]-a[2], d[2]-a[2])+(den>>1))/den;
-  x[2]=(det(b[0]-a[0], c[0]-a[0], d[0]-a[0], b[1]-a[1], c[1]-a[1], d[1]-a[1], r[0], r[1], r[2])+(den>>1))/den;
-  return 0;
-}*/
+
+//int findCenter(long *a, long *b, long *c, long *d, long *x)
+//{
+//  long long r[3];
+//  long long den=det(b[0]-a[0], c[0]-a[0], d[0]-a[0], b[1]-a[1], c[1]-a[1], d[1]-a[1], b[2]-a[2], c[2]-a[2], d[2]-a[2])<<1;
+//  if(den==0)
+//    return 1;
+//  r[0]=(long long)b[0]*b[0]-(long long)a[0]*a[0]+(long long)b[1]*b[1]-(long long)a[1]*a[1]+(long long)b[2]*b[2]-(long long)a[2]*a[2];
+//  r[1]=(long long)c[0]*c[0]-(long long)a[0]*a[0]+(long long)c[1]*c[1]-(long long)a[1]*a[1]+(long long)c[2]*c[2]-(long long)a[2]*a[2];
+//  r[2]=(long long)d[0]*d[0]-(long long)a[0]*a[0]+(long long)d[1]*d[1]-(long long)a[1]*a[1]+(long long)d[2]*d[2]-(long long)a[2]*a[2];
+//  x[0]=(det(r[0], r[1], r[2], b[1]-a[1], c[1]-a[1], d[1]-a[1], b[2]-a[2], c[2]-a[2], d[2]-a[2])+(den>>1))/den;
+//  x[1]=(det(b[0]-a[0], c[0]-a[0], d[0]-a[0], r[0], r[1], r[2], b[2]-a[2], c[2]-a[2], d[2]-a[2])+(den>>1))/den;
+//  x[2]=(det(b[0]-a[0], c[0]-a[0], d[0]-a[0], b[1]-a[1], c[1]-a[1], d[1]-a[1], r[0], r[1], r[2])+(den>>1))/den;
+//  return 0;
 
 long long lpow(long long x, byte k)
 {
@@ -612,22 +554,83 @@ float a2[3];
     if(isnan(res[i]))
       return 2;
     x[i]=res[i]>0? res[i]*200.0 + 0.5 : res[i]*200.0 - 0.5;
-    /*
-    a[i]=a[i]>0 ? ((float)a[i])*(res[i]+1.0)+0.5 : ((float)a[i])*(res[i]+1.0)-0.5;
-    b[i]=((float)b[i])*(res[i]+1.0)+0.5;
-    c[i]=((float)c[i])*(res[i]+1.0)+0.5;
-    d[i]=((float)d[i])*(res[i]+1.0)+0.5;
-    e[i]=((float)e[i])*(res[i]+1.0)+0.5;
-    f[i]=((float)f[i])*(res[i]+1.0)+0.5;
-    h[i]=((float)h[i])*(res[i]+1.0)+0.5;
-    */
+    //a[i]=a[i]>0 ? ((float)a[i])*(res[i]+1.0)+0.5 : ((float)a[i])*(res[i]+1.0)-0.5;
+    //b[i]=((float)b[i])*(res[i]+1.0)+0.5;
+    //c[i]=((float)c[i])*(res[i]+1.0)+0.5;
+    //d[i]=((float)d[i])*(res[i]+1.0)+0.5;
+    //e[i]=((float)e[i])*(res[i]+1.0)+0.5;
+    //f[i]=((float)f[i])*(res[i]+1.0)+0.5;
+    //h[i]=((float)h[i])*(res[i]+1.0)+0.5;
   }
   //theoretically we could easily calculate offset here, but we have to stop at this point and do it with separate measurements due to unpredictable nature of BMA180 when it comes to gain/offset relations
   return 0;
 }
 
-const fixed sinpi4 = 1518500250L;
+#endif
 
+
+int findMedian(int *data, int arraySize)
+{
+  int temp;
+  boolean done = 0;
+  //byte i;
+  
+   // Sorts numbers from lowest to highest
+  while (done != 1) {        
+    done = 1;
+    for (byte i = 0; i<(arraySize-1); i++) {
+      if (data[i] > data[i+1]) {     // numbers are out of order - swap
+        temp = data[i+1];
+        data[i+1] = data[i];
+        data[i] = temp;
+        done = 0;
+      }
+    }
+  }
+  
+  return data[arraySize/2]; // return the median value
+}
+
+long findMedian2(long *data, int arraySize)
+{
+  long temp;
+  boolean done = 0;
+  //byte i;
+  
+   // Sorts numbers from lowest to highest
+  while (done != 1) {        
+    done = 1;
+    for (byte i = 0; i<(arraySize-1); i++) {
+      if (data[i] > data[i+1]) {     // numbers are out of order - swap
+        temp = data[i+1];
+        data[i+1] = data[i];
+        data[i] = temp;
+        done = 0;
+      }
+    }
+  }
+  
+  return data[arraySize/2]; // return the median value
+}
+
+long findAverage(long *data, int arraySize)
+{
+  long c=0;
+  for(byte i=0;i<arraySize;i++)
+    c+=data[i];
+  return c/arraySize;
+}
+
+int findAverage2(int *data, int arraySize)
+{
+  long c=0;
+  for(byte i=0;i<arraySize;i++)
+    c+=data[i];
+  return c/arraySize;
+}
+
+
+const fixed sinpi4 = 1518500250L;
 
 angle asin(fixed sinx)
 {

@@ -27,13 +27,14 @@ void setup(void)
   TWBR = 12;
   imu_init();
   motor_init();
-
-  Serial.println("OK");
-
-//accel_calibrate_manual();
-
   while(gyro_time==0 || accel_time==0)
     continue;
+  Serial.println("OK");
+
+#ifdef ACCELCALIBRATE
+//  accel_calibrate_manual();
+#endif
+
   Serial.print("Gyro time is ");
   Serial.println(gyro_time);
   Serial.print("Accel time is ");
@@ -197,44 +198,42 @@ void error (const char *msg)
   Serial.println(msg);
 }
 
-void print(fixed val)  //to be rewritten using fixed-point math
+void print(fixed val)
 {
-  if(val!=one)
+  if(val==one)
+    Serial.print(" 1.00 ( one )");
+  else
   {
-    if(val>=0) Serial.print(" ");
-    Serial.print((double)val.value/65536/32768);
+    if(val==-one)
+      Serial.print("-1.00 (");
+    else
+    {
+      if(val>=0)
+        Serial.print(" 0.");
+      else
+        Serial.print("-0.");
+      Serial.print(abs(val.value)/0x20C49C);
+    }
     Serial.print(" (");
     if(val>=0) Serial.print(" ");
     Serial.print(val.value);
     Serial.print(" )");
   }
-  else
-    Serial.print(" 1.00 ( one )");
 }
 
 void print(const char *name, fixed val)
 {
   Serial.print(name);
-  Serial.print(" = ");
-  if(val!=one)
-  {
-    if(val>=0) Serial.print(" ");
-    Serial.print((double)val.value/65536/32768);
-    Serial.print(" (");
-    if(val>=0) Serial.print(" ");
-    Serial.print(val.value);
-    Serial.println(" )");
-    //Serial.println(val.value,BIN);
-  }
-  else
-    Serial.println(" 1.00 ( one )");
+  Serial.print(" =");
+  print(val);
+  Serial.println("");
 }
 void print(const char *name, angle val)
 {
   Serial.print(name);
-  Serial.print(" = ");
+  Serial.print(" =");
   if(val>=0) Serial.print(" ");
-  Serial.print((double)val/115);
+  Serial.print(val/115);
   Serial.print(" (");
   if(val>=0) Serial.print(" ");
   Serial.print(val);
@@ -245,16 +244,18 @@ void print(const char *name, lfixed val)
 {
   unsigned long long a=val.value;
   Serial.print(name);
-  Serial.print(" = ");
+  Serial.print(" =");
   if(val>=0) Serial.print(" ");
-    Serial.print((double)val.value/65536/32768/65536/32768);
-    Serial.print(" (");
-    for(byte i=63;i!=255;i--)
-    {
-      Serial.print((byte)(a>>i),BIN);
-      a=a-((a>>i)<<i);
-    }
-    Serial.println(")");
+  Serial.print((long)(val.value/0x4000000000000000LL));
+  Serial.print(".");
+  Serial.print((long)(abs(val.value)/0x10624DD2F1A9FCLL - (abs(val.value)/0x4000000000000000LL)*1000));
+  Serial.print(" (");
+  for(byte i=63;i!=255;i--)
+  {
+    Serial.print((byte)(a>>i),BIN);
+    a=a-((a>>i)<<i);
+  }
+  Serial.println(")");
 }
 
 void print(const char *name, quaternion val)

@@ -162,6 +162,9 @@ void accel_calibrate_int_measure_wait(void)
   }
 }
 
+
+#ifdef ACCELCALIBRATE
+
 void accel_calibrate_manual() //manual accel calibration
 {
   //long a[4], b[4], c[4], x[3];
@@ -216,89 +219,61 @@ void accel_calibrate_manual() //manual accel calibration
 //accel_update_eeprom();
   attachInterrupt(4, accel_calibrate_int_measure_wait, RISING);
 
-/*  for(int i=-100;i<100;i+=2)
-  {
-    offset_x=i;
-    disable_sensor_interrupts(); updateRegisterI2C(accelAddress, 0x38, 0x80+(offset_x>>4)); updateRegisterI2C(accelAddress, 0x35, (offset_x<<4)-((offset_x>>4)<<8), 0xF0);
-    offset_x=(((int)readRegisterI2C(accelAddress, 0x38)<<4)|(readRegisterI2C(accelAddress, 0x35)>>4))-2048; enable_sensor_interrupts(); Serial.print(offset_x); Serial.print(", ");
-    //delay(5000);
-    for(accel_done=false; accel_done!=true;);
-    point[1][0]=accelBuf[0]/ACCELCNT; point[1][1]=accelBuf[1]/ACCELCNT; point[1][2]=accelBuf[2]/ACCELCNT;
-    Serial.println(point[1][0]);
-  }
-*/
-/*  gain[0]=20;
-  disable_sensor_interrupts(); updateRegisterI2C(accelAddress, 0x32, 0x80+(gain[0]<<1), 0xFE);
-  gain[0]=(readRegisterI2C(accelAddress, 0x32)>>1)-64; enable_sensor_interrupts(); Serial.print("\ngain[0]="); Serial.println(gain[0]);
+//  for(int i=-100;i<100;i+=2)
+//  {
+//    offset_x=i;
+//    disable_sensor_interrupts(); updateRegisterI2C(accelAddress, 0x38, 0x80+(offset_x>>4)); updateRegisterI2C(accelAddress, 0x35, (offset_x<<4)-((offset_x>>4)<<8), 0xF0);
+//    offset_x=(((int)readRegisterI2C(accelAddress, 0x38)<<4)|(readRegisterI2C(accelAddress, 0x35)>>4))-2048; enable_sensor_interrupts(); Serial.print(offset_x); Serial.print(", ");
+//    //delay(5000);
+//    for(accel_done=false; accel_done!=true;);
+//    point[1][0]=accelBuf[0]/ACCELCNT; point[1][1]=accelBuf[1]/ACCELCNT; point[1][2]=accelBuf[2]/ACCELCNT;
+//    Serial.println(point[1][0]);
+//  }
+//
+//  gain[0]=20;
+//  disable_sensor_interrupts(); updateRegisterI2C(accelAddress, 0x32, 0x80+(gain[0]<<1), 0xFE);
+//  gain[0]=(readRegisterI2C(accelAddress, 0x32)>>1)-64; enable_sensor_interrupts(); Serial.print("\ngain[0]="); Serial.println(gain[0]);
+//
+//  for(int i=-100;i<100;i+=2)
+//  {
+//    offset_x=i;
+//    disable_sensor_interrupts(); updateRegisterI2C(accelAddress, 0x38, 0x80+(offset_x>>4)); updateRegisterI2C(accelAddress, 0x35, (offset_x<<4)-((offset_x>>4)<<8), 0xF0);
+//    offset_x=(((int)readRegisterI2C(accelAddress, 0x38)<<4)|(readRegisterI2C(accelAddress, 0x35)>>4))-2048; enable_sensor_interrupts(); Serial.print(offset_x); Serial.print(", ");
+//    //delay(5000);
+//    for(accel_done=false; accel_done!=true;);
+//    point[1][0]=accelBuf[0]/ACCELCNT; point[1][1]=accelBuf[1]/ACCELCNT; point[1][2]=accelBuf[2]/ACCELCNT;
+//    Serial.println(point[1][0]);
+//  }
+//
 
-  for(int i=-100;i<100;i+=2)
-  {
-    offset_x=i;
-    disable_sensor_interrupts(); updateRegisterI2C(accelAddress, 0x38, 0x80+(offset_x>>4)); updateRegisterI2C(accelAddress, 0x35, (offset_x<<4)-((offset_x>>4)<<8), 0xF0);
-    offset_x=(((int)readRegisterI2C(accelAddress, 0x38)<<4)|(readRegisterI2C(accelAddress, 0x35)>>4))-2048; enable_sensor_interrupts(); Serial.print(offset_x); Serial.print(", ");
-    //delay(5000);
-    for(accel_done=false; accel_done!=true;);
-    point[1][0]=accelBuf[0]/ACCELCNT; point[1][1]=accelBuf[1]/ACCELCNT; point[1][2]=accelBuf[2]/ACCELCNT;
-    Serial.println(point[1][0]);
-  }
+//  gain[0]=50;
+//  disable_sensor_interrupts(); updateRegisterI2C(accelAddress, 0x32, 0x80+(gain[0]<<1), 0xFE);
+//  gain[0]=(readRegisterI2C(accelAddress, 0x32)>>1)-64; enable_sensor_interrupts(); Serial.print("\ngain[0]="); Serial.println(gain[0]);
+//
+//  for(int i=-100;i<0;i+=2)
+//  {
+//    offset_x=i;
+//    disable_sensor_interrupts(); updateRegisterI2C(accelAddress, 0x38, 0x80+(offset_x>>4)); updateRegisterI2C(accelAddress, 0x35, (offset_x<<4)-((offset_x>>4)<<8), 0xF0);
+//    offset_x=(((int)readRegisterI2C(accelAddress, 0x38)<<4)|(readRegisterI2C(accelAddress, 0x35)>>4))-2048; enable_sensor_interrupts(); Serial.print(offset_x); Serial.print(", ");
+//    //delay(5000);
+//    for(accel_done=false; accel_done!=true;);
+//    point[1][0]=accelBuf[0]/ACCELCNT; point[1][1]=accelBuf[1]/ACCELCNT; point[1][2]=accelBuf[2]/ACCELCNT;
+//    Serial.println(point[1][0]);
+//  }
+//
 
-  gain[0]=-20;
-  disable_sensor_interrupts(); updateRegisterI2C(accelAddress, 0x32, 0x80+(gain[0]<<1), 0xFE);
-  gain[0]=(readRegisterI2C(accelAddress, 0x32)>>1)-64; enable_sensor_interrupts(); Serial.print("\ngain[0]="); Serial.println(gain[0]);
+//  offset_x=0;
+//  disable_sensor_interrupts(); updateRegisterI2C(accelAddress, 0x38, 0x80+(offset_x>>4)); updateRegisterI2C(accelAddress, 0x35, (offset_x<<4)-((offset_x>>4)<<8), 0xF0);
+//  offset_x=(((int)readRegisterI2C(accelAddress, 0x38)<<4)|(readRegisterI2C(accelAddress, 0x35)>>4))-2048; enable_sensor_interrupts(); Serial.print("offset_x="); Serial.println(offset_x);
+//
+//  offset_y=0;
+//  disable_sensor_interrupts(); updateRegisterI2C(accelAddress, 0x39, 0x80+(offset_y>>4)); updateRegisterI2C(accelAddress, 0x36, offset_y-((offset_y>>4)<<4), 0x0F);
+//  offset_y=(((int)readRegisterI2C(accelAddress, 0x39)<<4)|readRegisterI2C(accelAddress, 0x36, 0x0F))-2048; enable_sensor_interrupts(); Serial.print("offset_y="); Serial.println(offset_y);
+//
+//  offset_z=0;
+//  disable_sensor_interrupts(); updateRegisterI2C(accelAddress, 0x3A, 0x80+(offset_z>>4)); updateRegisterI2C(accelAddress, 0x36, (offset_z<<4)-((offset_z>>4)<<8), 0xF0);
+//  offset_z=(((int)readRegisterI2C(accelAddress, 0x3A)<<4)|(readRegisterI2C(accelAddress, 0x36)>>4))-2048; enable_sensor_interrupts(); Serial.print("offset_z="); Serial.println(offset_z);
 
-  for(int i=-100;i<100;i+=2)
-  {
-    offset_x=i;
-    disable_sensor_interrupts(); updateRegisterI2C(accelAddress, 0x38, 0x80+(offset_x>>4)); updateRegisterI2C(accelAddress, 0x35, (offset_x<<4)-((offset_x>>4)<<8), 0xF0);
-    offset_x=(((int)readRegisterI2C(accelAddress, 0x38)<<4)|(readRegisterI2C(accelAddress, 0x35)>>4))-2048; enable_sensor_interrupts(); Serial.print(offset_x); Serial.print(", ");
-    //delay(5000);
-    for(accel_done=false; accel_done!=true;);
-    point[1][0]=accelBuf[0]/ACCELCNT; point[1][1]=accelBuf[1]/ACCELCNT; point[1][2]=accelBuf[2]/ACCELCNT;
-    Serial.println(point[1][0]);
-  }*/
-/*
-  gain[0]=50;
-  disable_sensor_interrupts(); updateRegisterI2C(accelAddress, 0x32, 0x80+(gain[0]<<1), 0xFE);
-  gain[0]=(readRegisterI2C(accelAddress, 0x32)>>1)-64; enable_sensor_interrupts(); Serial.print("\ngain[0]="); Serial.println(gain[0]);
-
-  for(int i=-100;i<0;i+=2)
-  {
-    offset_x=i;
-    disable_sensor_interrupts(); updateRegisterI2C(accelAddress, 0x38, 0x80+(offset_x>>4)); updateRegisterI2C(accelAddress, 0x35, (offset_x<<4)-((offset_x>>4)<<8), 0xF0);
-    offset_x=(((int)readRegisterI2C(accelAddress, 0x38)<<4)|(readRegisterI2C(accelAddress, 0x35)>>4))-2048; enable_sensor_interrupts(); Serial.print(offset_x); Serial.print(", ");
-    //delay(5000);
-    for(accel_done=false; accel_done!=true;);
-    point[1][0]=accelBuf[0]/ACCELCNT; point[1][1]=accelBuf[1]/ACCELCNT; point[1][2]=accelBuf[2]/ACCELCNT;
-    Serial.println(point[1][0]);
-  }
-*/ /*
-  gain[0]=50;
-  disable_sensor_interrupts(); updateRegisterI2C(accelAddress, 0x32, 0x80+(gain[0]<<1), 0xFE);
-  gain[0]=(readRegisterI2C(accelAddress, 0x32)>>1)-64; enable_sensor_interrupts(); Serial.print("\ngain[0]="); Serial.println(gain[0]);
-
-  for(int i=-100;i<100;i+=2)
-  {
-    offset_x=i;
-    disable_sensor_interrupts(); updateRegisterI2C(accelAddress, 0x38, 0x80+(offset_x>>4)); updateRegisterI2C(accelAddress, 0x35, (offset_x<<4)-((offset_x>>4)<<8), 0xF0);
-    offset_x=(((int)readRegisterI2C(accelAddress, 0x38)<<4)|(readRegisterI2C(accelAddress, 0x35)>>4))-2048; enable_sensor_interrupts(); Serial.print(offset_x); Serial.print(", ");
-    //delay(5000);
-    for(accel_done=false; accel_done!=true;);
-    point[1][0]=accelBuf[0]/ACCELCNT; point[1][1]=accelBuf[1]/ACCELCNT; point[1][2]=accelBuf[2]/ACCELCNT;
-    Serial.println(point[1][0]);
-  }
-*/
-/*  offset_x=0;
-  disable_sensor_interrupts(); updateRegisterI2C(accelAddress, 0x38, 0x80+(offset_x>>4)); updateRegisterI2C(accelAddress, 0x35, (offset_x<<4)-((offset_x>>4)<<8), 0xF0);
-  offset_x=(((int)readRegisterI2C(accelAddress, 0x38)<<4)|(readRegisterI2C(accelAddress, 0x35)>>4))-2048; enable_sensor_interrupts(); Serial.print("offset_x="); Serial.println(offset_x);
-
-  offset_y=0;
-  disable_sensor_interrupts(); updateRegisterI2C(accelAddress, 0x39, 0x80+(offset_y>>4)); updateRegisterI2C(accelAddress, 0x36, offset_y-((offset_y>>4)<<4), 0x0F);
-  offset_y=(((int)readRegisterI2C(accelAddress, 0x39)<<4)|readRegisterI2C(accelAddress, 0x36, 0x0F))-2048; enable_sensor_interrupts(); Serial.print("offset_y="); Serial.println(offset_y);
-
-  offset_z=0;
-  disable_sensor_interrupts(); updateRegisterI2C(accelAddress, 0x3A, 0x80+(offset_z>>4)); updateRegisterI2C(accelAddress, 0x36, (offset_z<<4)-((offset_z>>4)<<8), 0xF0);
-  offset_z=(((int)readRegisterI2C(accelAddress, 0x3A)<<4)|(readRegisterI2C(accelAddress, 0x36)>>4))-2048; enable_sensor_interrupts(); Serial.print("offset_z="); Serial.println(offset_z);
-*/
 
 point[0][0]=-4096;
 point[0][1]=0;
@@ -346,41 +321,41 @@ point[5][2]=2365;
 //    {Serial.println("Error: Non-singular matrix. Possible reasons: programmer was drunk. Please try again.");
 //    return;
 //    }
-/*  while(findGain(point[0], point[1], point[2], point[3], point[4], point[5], x, 4096)!=0)
-  {
-    if(n++>5)
-    {
-      Serial.println("Something is wrong... Please try again later");
-      return;
-    }
-    Serial.println("Additional position needed");
-    for(byte i=0; i<5; i++)
-      for(byte j=0; j<3; j++)
-        point[i][j]=point[i+1][j];
-    for(accel_done=false; accel_done!=true;);
-    for(byte j=0;j<3;j++)
-      point[5][j]=accelBuf[j]/ACCELCNT;
-    printpoint(point[5]);
-  }
-printRow(x,"gain:");
+//  while(findGain(point[0], point[1], point[2], point[3], point[4], point[5], x, 4096)!=0)
+//  {
+//    if(n++>5)
+//    {
+//      Serial.println("Something is wrong... Please try again later");
+//      return;
+//    }
+//    Serial.println("Additional position needed");
+//    for(byte i=0; i<5; i++)
+//      for(byte j=0; j<3; j++)
+//        point[i][j]=point[i+1][j];
+//    for(accel_done=false; accel_done!=true;);
+//    for(byte j=0;j<3;j++)
+//      point[5][j]=accelBuf[j]/ACCELCNT;
+//    printpoint(point[5]);
+//  }
+//printRow(x,"gain:");
+//
+//findGain(point[2], point[1], point[0], point[3], point[4], point[5], x, 4096);
+//printRow(x,"gain1:");
+//findGain(point[3], point[1], point[2], point[0], point[4], point[5], x, 4096);
+//printRow(x,"gain2:");
+//findGain(point[4], point[1], point[2], point[3], point[0], point[5], x, 4096);
+//printRow(x,"gain3:");
+//findGain(point[5], point[1], point[2], point[3], point[4], point[0], x, 4096);
+//printRow(x,"gain4:");
+//findGain(point[0], point[1], point[3], point[4], point[2], point[5], x, 4096);
+//printRow(x,"gain5:");
+//
+//findGain(point[0], point[1], point[2], point[3], point[4], point[5], x, 4096);
+//
+//for(byte i=0; i<7; i++)
+//  for(byte j=0; j<3; j++)
+//    point[i][j]=point[i][j]>0 ? (point[i][j]*(200+x[j])+100)/200 : (point[i][j]*(200+x[j])-100)/200;
 
-findGain(point[2], point[1], point[0], point[3], point[4], point[5], x, 4096);
-printRow(x,"gain1:");
-findGain(point[3], point[1], point[2], point[0], point[4], point[5], x, 4096);
-printRow(x,"gain2:");
-findGain(point[4], point[1], point[2], point[3], point[0], point[5], x, 4096);
-printRow(x,"gain3:");
-findGain(point[5], point[1], point[2], point[3], point[4], point[0], x, 4096);
-printRow(x,"gain4:");
-findGain(point[0], point[1], point[3], point[4], point[2], point[5], x, 4096);
-printRow(x,"gain5:");
-
-findGain(point[0], point[1], point[2], point[3], point[4], point[5], x, 4096);
-
-for(byte i=0; i<7; i++)
-  for(byte j=0; j<3; j++)
-    point[i][j]=point[i][j]>0 ? (point[i][j]*(200+x[j])+100)/200 : (point[i][j]*(200+x[j])-100)/200;
-*/
 printRow(point[0],"point[0]:");
 printRow(point[1],"point[1]:");
 printRow(point[2],"point[2]:");
@@ -426,13 +401,5 @@ findCenter(point[0], point[1], point[2], point[3], x);
   //accel_update_eeprom(); //this will call accel_init and soft reset the sensor
 }
 
-/*void ac(void)
-{
-  long int x,y,z;
-  x=accelADC[0];
-  y=accelADC[1];
-  z=accelADC[2];
-  Serial.println(sqrt(x*x + y*y + z*z));
-}
-*/
+#endif
 
