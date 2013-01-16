@@ -3,34 +3,76 @@ void motor_updateControl(void)
   fixed h=one>>1; //some constants
   fixed k=one>>1;
   fixed k2=k*sinpi4;
+  fixed Mt;
+  fixed acc;
   quaternion m=imu.q*conjugate(imu.qd);
 
   if(abs(m.w)>sinpi4)
   {
-    Mx=k*m.w*m.x-h*imu.sina;
-    My=k*m.w*m.y-h*imu.sinb;
-    Mz=k*m.w*m.z-h*imu.sinc;
+    M[0]=k*m.w*m.x-h*imu.sina;
+    M[1]=k*m.w*m.y-h*imu.sinb;
+    M[2]=k*m.w*m.z-h*imu.sinc;
   }
   else
   {
     if(m.w>0)
     {
-      Mx=k2*m.x-h*imu.sina;
-      My=k2*m.y-h*imu.sinb;
-      Mz=k2*m.z-h*imu.sinc;
+      M[0]=k2*m.x-h*imu.sina;
+      M[1]=k2*m.y-h*imu.sinb;
+      M[2]=k2*m.z-h*imu.sinc;
     }
     else
     {
-      Mx=-k2*m.x-h*imu.sina;
-      My=-k2*m.y-h*imu.sinb;
-      Mz=-k2*m.z-h*imu.sinc;
+      M[0]=-k2*m.x-h*imu.sina;
+      M[1]=-k2*m.y-h*imu.sinb;
+      M[2]=-k2*m.z-h*imu.sinc;
     }
   }
 
-  setMotorSpeed(0, MotorAcceleration);
-  setMotorSpeed(1, MotorAcceleration);
-  setMotorSpeed(2, MotorAcceleration);
-  setMotorSpeed(3, MotorAcceleration);
+  Mt=-M[0]+M[1]+M[2];
+  acc=MotorAcceleration+Mt;
+  if(acc<0)
+  {
+    if(Mt>0)
+      acc=one;
+    else
+      acc=0;
+  }
+  setMotorSpeed(0, acc);
+
+  Mt=M[0]+M[1]-M[2];
+  acc=MotorAcceleration+Mt;
+  if(acc<0)
+  {
+    if(Mt>0)
+      acc=one;
+    else
+      acc=0;
+  }
+  setMotorSpeed(1, acc);
+
+  Mt=M[0]-M[1]+M[2];
+  acc=MotorAcceleration+Mt;
+  if(acc<0)
+  {
+    if(Mt>0)
+      acc=one;
+    else
+      acc=0;
+  }
+  setMotorSpeed(2, acc);
+
+  Mt=-M[0]-M[1]-M[2];
+  acc=MotorAcceleration+Mt;
+  if(acc<0)
+  {
+    if(Mt>0)
+      acc=one;
+    else
+      acc=0;
+  }
+  setMotorSpeed(3, acc);
+
 }
 
 void motor_init(void)
@@ -47,7 +89,7 @@ void setMotorSpeed(unsigned char number, fixed rpm)
 
   if (rpm<-MotorAdjust[number])
   {
-    error("Motor rpm < 0");
+//    error("Motor rpm < 0");
     rpm=-MotorAdjust[number];
   }
   

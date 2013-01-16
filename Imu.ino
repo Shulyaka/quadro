@@ -26,6 +26,8 @@ void imu_updateOrientation(int alpha, int beta, int gamma)
   cacb=imu.cosa*imu.cosb;
 //  qr=quaternion(cacb*imu.cosc-sasb*imu.sinc, sacb*imu.cosc+casb*imu.sinc, casb*imu.cosc-sacb*imu.sinc, sasb*imu.cosc+cacb*imu.sinc);
   imu.q=imu.q*quaternion(cacb*imu.cosc-sasb*imu.sinc, sacb*imu.cosc+casb*imu.sinc, casb*imu.cosc-sacb*imu.sinc, sasb*imu.cosc+cacb*imu.sinc); //qx*qy*qz
+//  if(imu.q.w<0)
+//    imu.q=-imu.q;
 
 //imu.tmp1=qr.x;
 //imu.tmp2=qr.y;
@@ -72,8 +74,8 @@ void imu_updatePosition(fixed i, fixed j, fixed k)
 
 void imu_init(void)
 {
-  attachInterrupt(4, dummy_int, RISING);
-  attachInterrupt(5, dummy_int, RISING);
+  attachInterrupt(AccelIntNum, dummy_int, RISING);
+  attachInterrupt(GyroIntNum, dummy_int, RISING);
   accel_init();
   gyro_init();
 }
@@ -123,6 +125,8 @@ void imu_init_orientation(void)
   q1.normalize();
   
   imu.q=q1*q2;
+  if(imu.q.w<0)
+    imu.q=-imu.q;
   imu.qd=quaternion(one, 0, 0, 0);
   imu.qn=quaternion(one, 0, 0, 0);
 

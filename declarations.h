@@ -5,12 +5,20 @@
 #include "fplib.h"
 #include "quaternionlib.h"
 
-#define LampPin    13 //to be removed
-//#define AudioPin   12
-//#define LightPin   A0
-//#define TempPin    A1
-//#define PreasPin   A2
-//#define HumidPin   A3
+#define BattMonPin   0
+#define GyroLEDPin   4
+#define AccelLEDPin  13
+#define StatusLEDPin 31
+#define GyroIntPin   18
+#define AccelIntPin  19
+#define GyroIntNum   5
+#define AccelIntNum  4
+#define GyroIntNumAtmega  INT3 // must match *IntNum Arduino interrupt number
+#define AccelIntNumAtmega INT2 // please see attachInterrupt() sources for the interrupt number assignment
+
+const unsigned char MotorPin[]={2, 3, 5, 6};
+
+// We use the following motor configuration: http://aeroquad.com/showwiki.php?title=Images:Quad+X.jpg
 
 bool debug=true;
 
@@ -18,9 +26,7 @@ bool debug=true;
 #define GYROCNTP 5
 #define ACCELCNT 32
 
-const unsigned char MotorPin[]={2, 3, 5, 6};
-
-fixed Mx=0, My=0, Mz=0;
+fixed M[3]={0};
 
 const fixed gravity=0x40000000; //   1/2
 
@@ -59,6 +65,9 @@ angle gyrogamma=0;
 
 volatile unsigned long int gyro_time=0;
 volatile unsigned long int accel_time=0;
+
+int gyro_interrupted=0;
+int accel_interrupted=0;
 
 #define FSTATE_IDLE    0
 #define FSTATE_TAKEOFF 1

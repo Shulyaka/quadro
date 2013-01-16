@@ -26,7 +26,7 @@ void accel_init(void)
     //enable_sensor_interrupts();
     delay(100); //waiting for accel to stabilize
     accel_clear_int();
-    attachInterrupt(4, accel_calibrate, RISING);
+    attachInterrupt(AccelIntNum, accel_calibrate, RISING);
     //disable_sensor_interrupts();
     //accel_measure();
     enable_sensor_interrupts();
@@ -34,8 +34,9 @@ void accel_init(void)
 
 void accel_calibrate()
 {  //does not calibrate currently
+  Serial.println("Accel calibration complete");
   imu_init_position();
-  attachInterrupt(4, accel_int, RISING);
+  attachInterrupt(AccelIntNum, accel_int, RISING);
 }
 
 void accel_measure(void) //warning: you must call disable_sensor_interrupts() and interrupts() before attempting to call this function
@@ -70,7 +71,12 @@ void accel_update_eeprom(void)
 void accel_int(void)
 {
   static unsigned long int accel_oldtime=0;
-  digitalWrite(LampPin, 1);
+  accel_interrupted=true;
+  digitalWrite(AccelLEDPin, HIGH);
+  if(gyro_interrupted)
+    digitalWrite(GyroLEDPin, LOW);
+  else
+    digitalWrite(StatusLEDPin, LOW);
   accel_time=micros()-accel_oldtime;
   accel_oldtime=micros();
 
@@ -80,14 +86,26 @@ void accel_int(void)
   
   if(gyro_time==0)
   {
+    digitalWrite(AccelLEDPin, LOW);
+    if(gyro_interrupted)
+      digitalWrite(GyroLEDPin, HIGH);
+    else
+      digitalWrite(StatusLEDPin, HIGH);
+    accel_interrupted=false;
     enable_sensor_interrupts();
     return;
   }
   
   imu_updatePosition((long)accelADC[0]<<18, (long)accelADC[1]<<18, (long)accelADC[2]<<18);
-  enable_sensor_interrupts();
+  
+  digitalWrite(AccelLEDPin, LOW);
+  if(gyro_interrupted)
+    digitalWrite(GyroLEDPin, HIGH);
+  else
+    digitalWrite(StatusLEDPin, HIGH);
+  accel_interrupted=false;
 
-  digitalWrite(LampPin, 0);
+  enable_sensor_interrupts();
 }
 
 void printpoint(long *x)

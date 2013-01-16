@@ -23,7 +23,7 @@ void cmd_accel(void)
 
 void cmd_lamp(int state)
 {
-  digitalWrite(LampPin, state);
+  digitalWrite(AccelLEDPin, state);
   Serial.print("The lamp is in state ");
   Serial.print(state);
   Serial.print(" now.\n");

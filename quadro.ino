@@ -3,6 +3,16 @@
 
 void setup(void)
 {
+  pinMode(AccelLEDPin, OUTPUT);
+  pinMode(GyroLEDPin, OUTPUT);
+  pinMode(StatusLEDPin, OUTPUT);
+  pinMode(GyroIntPin, INPUT);
+  pinMode(AccelIntPin, INPUT);
+  pinMode(BattMonPin, INPUT);
+  pinMode(MotorPin[0], OUTPUT);
+  pinMode(MotorPin[1], OUTPUT);
+  pinMode(MotorPin[2], OUTPUT);
+  pinMode(MotorPin[3], OUTPUT);
   Serial.begin(9600);
   Serial.print("AT+NAMEp01quadro");
   delay(2000);
@@ -11,16 +21,8 @@ void setup(void)
   Serial.flush();
   Serial.begin(115200);
   Serial.println("\nInitializing... ");
+  digitalWrite(StatusLEDPin, HIGH);
   clear_cmdBuf();
-  pinMode(LampPin, OUTPUT);
-  pinMode(4, OUTPUT);
-  pinMode(31, OUTPUT);
-  pinMode(18, INPUT);
-  pinMode(19, INPUT);
-  pinMode(MotorPin[0], OUTPUT);
-  pinMode(MotorPin[1], OUTPUT);
-  pinMode(MotorPin[2], OUTPUT);
-  pinMode(MotorPin[3], OUTPUT);
   Wire.begin();
   TWBR = 12;
   imu_init();
@@ -103,9 +105,15 @@ void loop(void)
       delay(20);
       break;
     case FSTATE_FLY:
-        cosg=(imu.q.w*imu.q.w-0x40000000)<<1;
+        cosg=imu.q.x*imu.q.x+imu.q.y*imu.q.y;
+        cosg=one-cosg-cosg;
         if(cosg<0)
+        {
           MotorAcceleration=0; //we are upside-down, no acceleration
+          for(byte k=0; k<3; k++)
+            if(abs(M[k])>MotorAcceleration)
+              MotorAcceleration=abs(M[k]); //or at least minimum to get out of this state
+        }
         else if(imu.azd>=cosg)
           MotorAcceleration=one; //we are almost 90 degree rotated, not enough to hold altitude but do what we can with full acceleration
         else
@@ -143,9 +151,9 @@ void loop(void)
     print("Nq",norm(qt));
     print("qd",imu.qd);
     print("mi",qt*conjugate(imu.qd));
-    print("Mx",Mx);
-    print("My",My);
-    print("Mz",Mz);
+    print("Mx",M[0]);
+    print("My",M[1]);
+    print("Mz",M[2]);
 //    print("t1",t1);
 //    print("t2",t2);
 //    print("t3",t3);
@@ -172,6 +180,12 @@ void loop(void)
   print(" y",imu.y);
   print(" z",imu.z);
 */
+  print("Motor0", MotorSpeed[0]);
+  print("Motor1", MotorSpeed[1]);
+  print("Motor2", MotorSpeed[2]);
+  print("Motor3", MotorSpeed[3]);
+  print("battery", analogRead(BattMonPin));
+
   cmd_gyro();
   Serial.println(accel_time);
   }
@@ -260,15 +274,15 @@ void print(const char *name, quaternion val)
 void dummy_int(void)
   {return;}
 
-void disable_sensor_interrupts()
+void disable_sensor_interrupts() //we call this to prevent sudden I2C traffic caused by sensor interrupts in the middle of transfer but do not disable interrupts completely because I2C functionality relies on them
 {
-  EIMSK &= ~(1 << INT3); //gyro
-  EIMSK &= ~(1 << INT2); //accel
+  EIMSK &= ~(1 << GyroIntNumAtmega);
+  EIMSK &= ~(1 << AccelIntNumAtmega);
 }
 
 void enable_sensor_interrupts() //warning: only use when all interrupt vectors are set correctly
 {
-  EIMSK |= (1 << INT3); //gyro
-  EIMSK |= (1 << INT2); //accel
+  EIMSK |= (1 << GyroIntNumAtmega);
+  EIMSK |= (1 << AccelIntNumAtmega);
 }
 
