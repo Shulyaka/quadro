@@ -65,6 +65,9 @@ angle gyrogamma=0;
 volatile unsigned long int gyro_time=0;
 volatile unsigned long int accel_time=0;
 
+volatile bool gyro_ready=false;
+volatile bool accel_ready=false;
+
 int gyro_interrupted=0;
 int accel_interrupted=0;
 

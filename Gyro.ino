@@ -119,6 +119,7 @@ void gyro_calibrate(void) // finds gyroZero in background, sets gyro_time to non
   cstep=-2;
   gyro_icnt=0;
   Serial.println("Gyro calibration complete");
+  gyro_ready=true;
   imu_init_orientation();
   disable_sensor_interrupts();
   attachInterrupt(GyroIntNum, gyro_int, RISING);

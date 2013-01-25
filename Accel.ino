@@ -1,6 +1,8 @@
 #define accelAddress 0x40 // page 54 and 61 of datasheet
 int accelADC[3];
 long accelBuf[3];
+volatile bool accel_done=true;
+
 
 void accel_init(void)
 {
@@ -35,6 +37,7 @@ void accel_init(void)
 void accel_calibrate()
 {  //does not calibrate currently
   Serial.println("Accel calibration complete");
+  accel_ready=true;
   imu_init_position();
   attachInterrupt(AccelIntNum, accel_int, RISING);
 }
@@ -113,8 +116,6 @@ void printpoint(long *x)
   Serial.println(x[1]);
   Serial.println(x[2]);
 }
-
-volatile bool accel_done=true;
 
 void accel_calibrate_int_measure_wait(void)
 {

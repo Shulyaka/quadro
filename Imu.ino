@@ -99,7 +99,7 @@ void imu_init_orientation(void)
   fixed grav[3];
   fixed nort[3];
   quaternion q1, q2;
-  while(accel_time==0)
+  while(!accel_ready)
     continue;
 
   disable_sensor_interrupts();

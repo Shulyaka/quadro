@@ -27,7 +27,7 @@ void setup(void)
   TWBR = 12;
   imu_init();
   motor_init();
-  while(gyro_time==0 || accel_time==0)
+  while(!gyro_ready || !accel_ready)
     continue;
   Serial.println("OK");
 
