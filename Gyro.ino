@@ -1,6 +1,6 @@
 #define gyroAddress 0x69
 int gyroADC[3];
-long gyroBuf[3];
+//long gyroBuf[3];
 int gyroZero[3];
 int gyro_icnt;
 
@@ -15,25 +15,25 @@ void gyro_init(void)
 
     updateRegisterI2C(gyroAddress, 0x3E, 0x80); // send a reset to the device
     delay(10);
-    updateRegisterI2C(gyroAddress, 0x15, 0x02); // Sample rate  // 200Hz
+    updateRegisterI2C(gyroAddress, 0x15, 0x0D); // Sample rate  // 200Hz
     updateRegisterI2C(gyroAddress, 0x16, 0x18+0x06); // 10Hz low pass filter
     updateRegisterI2C(gyroAddress, 0x17, 0x31); // enable raw data ready interrupt
     updateRegisterI2C(gyroAddress, 0x3E, 0x02); // use Y gyro oscillator
     
     delay(100); //waiting for gyro to stabilize
 
-    gyro_clear_int();
+    gyro_int_clear();
     attachInterrupt(GyroIntNum, gyro_calibrate, RISING);
     enable_sensor_interrupts();
 }
 
-void gyro_measure(void) //warning: you must call disable_sensor_interrupts() and interrupts() before attempting to call this function
+void gyro_measure(void) //warning: you must call disable_sensor_interrupts() and interrupts() before attempting to call this function to be sure that interrupts are enabled but there is no I2C traffic
 {
   sendByteI2C(gyroAddress, 0x1D);
 
   Wire.requestFrom(gyroAddress, 6);
   for (byte axis = 0; axis < 3; axis++)
-    gyroBuf[axis]+=((Wire.read() << 8) | Wire.read());
+    gyroADC[axis]=((Wire.read() << 8) | Wire.read());
 }
 
 void gyro_measure_temp(void)
@@ -43,6 +43,7 @@ void gyro_measure_temp(void)
   Serial.println((((Wire.read() << 8) | Wire.read())+13200)/280+35);
 }
 
+/*
 void gyro_calibrate(void) // finds gyroZero in background, sets gyro_time to non-zero when ready, to be called within interrupt
 {
   static unsigned long long int findTime;
@@ -123,7 +124,7 @@ void gyro_calibrate(void) // finds gyroZero in background, sets gyro_time to non
   imu_init_orientation();
   disable_sensor_interrupts();
   attachInterrupt(GyroIntNum, gyro_int, RISING);
-  gyro_clear_int();
+  gyro_int_clear();
 
   gyro_interrupted=0;
   digitalWrite(GyroLEDPin, LOW);
@@ -133,8 +134,99 @@ void gyro_calibrate(void) // finds gyroZero in background, sets gyro_time to non
     digitalWrite(StatusLEDPin, HIGH);
   enable_sensor_interrupts();
 }
+*/
 
-void gyro_clear_int(void)
+void gyro_calibrate(void) // finds calibration quaternion in background, sets gyro_ready when ready, to be called within interrupt
+{
+  static unsigned long long int findTime;
+  static unsigned long int gyro_oldtime;
+  static unsigned int cstep=0;
+  unsigned long int gyro_newtime=micros();
+  
+  digitalWrite(GyroLEDPin, HIGH);
+  gyro_interrupted=1;
+  if(accel_interrupted)
+    digitalWrite(AccelLEDPin, LOW);
+  else
+    digitalWrite(StatusLEDPin, LOW);
+
+  gyro_time=micros()-gyro_oldtime;
+  gyro_oldtime=micros();
+
+  disable_sensor_interrupts();
+  interrupts();
+  gyro_measure();
+  enable_sensor_interrupts();
+
+  if(cstep==0)
+  {
+    imu.q=ident;
+    imu.cq=ident;
+
+    findTime=1<<(GYROCNTP-1);
+
+    if(!--gyro_interrupted)
+      digitalWrite(GyroLEDPin, LOW);
+    if(accel_interrupted)
+      digitalWrite(AccelLEDPin, HIGH);
+    else
+      digitalWrite(StatusLEDPin, HIGH);
+
+    cstep++;
+    return; // skipping for the first time because gyro_time value may be wrong
+  }
+
+  imu_updateOrientation(gyroADC[0],gyroADC[1],gyroADC[2]);
+
+  findTime+=gyro_time;
+
+  if(cstep!=1<<GYROCNTP)
+  {
+    gyro_interrupted=0;
+    digitalWrite(GyroLEDPin, LOW);
+    if(accel_interrupted)
+      digitalWrite(AccelLEDPin, HIGH);
+    else
+      digitalWrite(StatusLEDPin, HIGH);
+    cstep++;
+    return;
+  }
+
+  detachInterrupt(GyroIntNum);
+  cstep=0;
+
+  gyro_time=findTime>>GYROCNTP;
+
+  print("q", imu.q);
+  
+  for(char p=0; p<GYROCNTP; p++)
+  {
+    imu.q=half(imu.q);
+    print("q",imu.q);
+  }
+  
+  imu.cq=conjugate(imu.q);
+
+  Serial.println("Gyro calibration complete");
+  print("qc",imu.cq);
+  
+  gyro_ready=true;
+  imu_init_orientation();
+  disable_sensor_interrupts();
+  attachInterrupt(GyroIntNum, gyro_int, RISING);
+  gyro_int_clear();
+
+  gyro_interrupted=0;
+  digitalWrite(GyroLEDPin, LOW);
+  if(accel_interrupted)
+    digitalWrite(AccelLEDPin, HIGH);
+  else
+    digitalWrite(StatusLEDPin, HIGH);
+  enable_sensor_interrupts();  
+}
+
+
+void gyro_int_clear(void)
 {
   sendByteI2C(gyroAddress, 0x1A);
   Wire.requestFrom(gyroAddress, 1);
@@ -155,34 +247,16 @@ void gyro_int(void)
   gyro_measure();
   enable_sensor_interrupts();
 
-  if(++gyro_icnt<1<<GYROCNTP)
-  {
-    if(!--gyro_interrupted)
-      digitalWrite(GyroLEDPin, LOW);
-    if(accel_interrupted)
-      digitalWrite(AccelLEDPin, HIGH);
-    else
-      digitalWrite(StatusLEDPin, HIGH);
-    return;
-  }
-
-  gyro_icnt=0;
-  gyroADC[0]=(gyroBuf[0]-gyroZero[0])>>GYROCNTP;
-  gyroADC[1]=(gyroBuf[1]-gyroZero[1])>>GYROCNTP;
-  gyroADC[2]=(gyroBuf[2]-gyroZero[2])>>GYROCNTP;
-  for (byte i=0; i<3; i++)
-    gyroBuf[i]=0;
-
   imu_updateOrientation(gyroADC[0],gyroADC[1],gyroADC[2]);
   
   if(flight_state==FSTATE_FLY)
     motor_updateControl();
 
-    if(!--gyro_interrupted)
-      digitalWrite(GyroLEDPin, LOW);
-    if(accel_interrupted)
-      digitalWrite(AccelLEDPin, HIGH);
-    else
-      digitalWrite(StatusLEDPin, HIGH);
+  if(!--gyro_interrupted)
+    digitalWrite(GyroLEDPin, LOW);
+  if(accel_interrupted)
+    digitalWrite(AccelLEDPin, HIGH);
+  else
+    digitalWrite(StatusLEDPin, HIGH);
 }
 

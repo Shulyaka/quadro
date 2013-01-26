@@ -25,7 +25,7 @@ void imu_updateOrientation(int alpha, int beta, int gamma)
   casb=imu.cosa*imu.sinb;
   cacb=imu.cosa*imu.cosb;
 //  qr=quaternion(cacb*imu.cosc-sasb*imu.sinc, sacb*imu.cosc+casb*imu.sinc, casb*imu.cosc-sacb*imu.sinc, sasb*imu.cosc+cacb*imu.sinc);
-  imu.q=imu.q*quaternion(cacb*imu.cosc-sasb*imu.sinc, sacb*imu.cosc+casb*imu.sinc, casb*imu.cosc-sacb*imu.sinc, sasb*imu.cosc+cacb*imu.sinc); //qx*qy*qz
+  imu.q=imu.q*quaternion(cacb*imu.cosc-sasb*imu.sinc, sacb*imu.cosc+casb*imu.sinc, casb*imu.cosc-sacb*imu.sinc, sasb*imu.cosc+cacb*imu.sinc)*imu.cq; //qx*qy*qz
 //  if(imu.q.w<0)
 //    imu.q=-imu.q;
 
@@ -107,12 +107,13 @@ void imu_init_orientation(void)
   for(byte i=0; i<3;i++)
     grav[i]=(long)accelADC[i]<<18;
 
-  nort[0]=one; // put real magneto data here;
+  nort[0]=one; // replace with real magneto data;
   nort[1]=0;
   nort[2]=0;
 
-  q2=quaternion((grav[2]>>1)+(one>>1), grav[1]>>1, -grav[0]>>1, 0);   //  grav*(0,0,1)=(grav[1], -grav[0], 0)
-  q2.normalize();
+//  q2=quaternion((grav[2]>>1)+(one>>1), grav[1]>>1, -grav[0]>>1, 0);   //  grav*(0,0,1)=(grav[1], -grav[0], 0)
+//  q2.normalize();
+  q2=half(quaternion(grav[2], grav[1], -grav[0], 0));  //  grav*(0,0,1)=(grav[1], -grav[0], 0)
 
   q1=q2*quaternion(nort[0], nort[1], nort[2])*conjugate(q2);
 
@@ -121,13 +122,14 @@ void imu_init_orientation(void)
   nort[2]=0;
   vectnorm(nort);
 
-  q1=quaternion((nort[0]>>1)+(one>>1), 0, 0, -nort[1]>>1);   //  nort*(1,0,0)=(0, 0, -nort[1]);
-  q1.normalize();
+//  q1=quaternion((nort[0]>>1)+(one>>1), 0, 0, -nort[1]>>1);   //  nort*(1,0,0)=(0, 0, -nort[1]);
+//  q1.normalize();
+  q1=half(quaternion(nort[0], 0, 0, -nort[1]));   //  nort*(1,0,0)=(0, 0, -nort[1]);
   
   imu.q=q1*q2;
   if(imu.q.w<0)
     imu.q=-imu.q;
-  imu.qd=quaternion(one, 0, 0, 0);
+  imu.qd=ident;
 
   enable_sensor_interrupts();
 }

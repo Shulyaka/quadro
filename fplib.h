@@ -491,6 +491,8 @@ fixed sqrt(lfixed x)
   return (x.value/a+a+1)>>1;
 }
 
+//void print(const char *name, lfixed val);
+
 lfixed lsqrt(lfixed x)
 {
   char i;
@@ -504,9 +506,15 @@ lfixed lsqrt(lfixed x)
 //    a=((unsigned long long)l_sqrt[(x.value>>i)-64])>>(4-(i>>1));
   else
     a=((unsigned long long)l_sqrt[(x.value>>i)-64])<<((i>>1)+27);
-  a=(ldiv(x,a)+a+1)>>1;
-  a=(ldiv(x,a)+a+1)>>1;
-  return (ldiv(x,a)+a+1)>>1;
+//  print("da", a);
+//  print("dd",ldiv(x,a));
+  a=(ldiv(x,a)>>1)+(a>>1);
+//  print("da", a);
+//  print("dd",ldiv(x,a));
+  a=(ldiv(x,a)>>1)+(a>>1);
+//  print("da", a);
+//  print("dd",ldiv(x,a));
+  return (ldiv(x,a)>>1)+(a>>1);
 //  return a;
 }
 

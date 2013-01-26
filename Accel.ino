@@ -117,6 +117,9 @@ void printpoint(long *x)
   Serial.println(x[2]);
 }
 
+
+#ifdef ACCELCALIBRATE
+
 void accel_calibrate_int_measure_wait(void)
 {
   int oldval[3];
@@ -162,9 +165,6 @@ void accel_calibrate_int_measure_wait(void)
     }
   }
 }
-
-
-#ifdef ACCELCALIBRATE
 
 void accel_calibrate_manual() //manual accel calibration
 {

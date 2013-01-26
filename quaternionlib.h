@@ -37,6 +37,8 @@ quaternion::quaternion(fixed x, fixed y, fixed z)
   quaternion::z=z;
 }
 
+const quaternion ident=quaternion(one, 0, 0, 0);
+
 bool operator==(quaternion a, quaternion b)
 {return (a.w==b.w && a.x==b.x && a.y==b.y && a.z==b.z) ? true : false;}
 
@@ -75,6 +77,26 @@ quaternion operator*(fixed a, quaternion b)
 
 quaternion operator*(quaternion b, fixed a)
 {return a*b;}
+
+quaternion operator>>(quaternion a, char b)
+{
+  quaternion c;
+  c.w=a.w>>b;
+  c.x=a.x>>b;
+  c.y=a.y>>b;
+  c.z=a.z>>b;
+  return c;
+}
+
+quaternion operator<<(quaternion a, char b)
+{
+  quaternion c;
+  c.w=a.w<<b;
+  c.x=a.x<<b;
+  c.y=a.y<<b;
+  c.z=a.z<<b;
+  return c;
+}
 
 quaternion operator/(quaternion a, fixed b)
 {
@@ -118,9 +140,13 @@ fixed magnitude(quaternion a)
 lfixed lmagnitude(quaternion a)
 {return lsqrt(lnorm(a));}
 
+//void print(const char *name, lfixed val);
+
 void quaternion::normalize(void)
 {
   lfixed nm=lmagnitude(*this);
+//  print("ln",lnorm(*this));
+//  print("nm",nm);
   this->w=this->w%one/nm;
   this->x=this->x%one/nm;
   this->y=this->y%one/nm;
@@ -142,5 +168,13 @@ quaternion inverse(quaternion a)
 
 fixed inner(quaternion a, quaternion b)
 {return a.w*b.w+a.x*b.x+a.y*b.y+a.z*b.z;}
+
+quaternion half(quaternion a)
+{
+  //quaternion z=(a>>1)+(ident>>1);
+  quaternion z=quaternion((a.w>>1)+(one>>1), a.x>>1, a.y>>1, a.z>>1);
+  z.normalize();
+  return z;
+}
 
 #endif
