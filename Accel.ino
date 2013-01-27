@@ -87,19 +87,8 @@ void accel_int(void)
   interrupts();
   accel_measure();
   
-  if(gyro_time==0)
-  {
-    digitalWrite(AccelLEDPin, LOW);
-    if(gyro_interrupted)
-      digitalWrite(GyroLEDPin, HIGH);
-    else
-      digitalWrite(StatusLEDPin, HIGH);
-    accel_interrupted=false;
-    enable_sensor_interrupts();
-    return;
-  }
-  
-  imu_updatePosition((long)accelADC[0]<<18, (long)accelADC[1]<<18, (long)accelADC[2]<<18);
+  if(gyro_ready)
+    imu_updatePosition((long)accelADC[0]<<18, (long)accelADC[1]<<18, (long)accelADC[2]<<18);
   
   digitalWrite(AccelLEDPin, LOW);
   if(gyro_interrupted)
