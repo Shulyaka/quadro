@@ -44,12 +44,6 @@ void setup(void)
 void loop(void)
 {
   static unsigned int i=0;
-  static unsigned int j=0;
-  fixed t1,t2,t3,t4,t5;
-  fixed ax, ay, az;
-  lfixed tm;
-//  angle f,p,t;
-  quaternion qt;
   static fixed az_idle=imu.az;
   static fixed takeoff_speed=0;
   fixed cosg;
@@ -131,8 +125,20 @@ void loop(void)
 
   if(!(i++%10))
   {
-    j++;
+    //if(qt.w==0&&qt.x==0&&qt.y==0&&qt.z==0) Serial.println(" "); //Just making sure the quaternion is calculated
+    //print_debug_info();
+  }
+}
 
+void print_debug_info(void)
+{
+    fixed ax, ay, az;
+    fixed t1,t2,t3,t4,t5;
+    lfixed tm;
+//    angle f,p,t;
+    quaternion qt;
+    static unsigned int j=0;
+    j++;
     ax=imu.ax;
     ay=imu.ay;
     az=imu.az;
@@ -144,8 +150,6 @@ void loop(void)
     tm=imu.tmp;
     qt=imu.q;
 //    f=getangle(qt.x);
-
-  if(qt.w==0&&qt.x==0&&qt.y==0&&qt.z==0) Serial.println(" "); //Just making sure the quaternion is calculated
 
     Serial.println("----------------");
     print("qt",qt);
@@ -188,8 +192,7 @@ void loop(void)
   print("battery", analogRead(BattMonPin));
 
   cmd_gyro();
-  Serial.println(accel_time);
-  }
+  Serial.println(accel_time);  
 }
 
 void error (const char *msg)

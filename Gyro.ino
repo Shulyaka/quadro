@@ -160,8 +160,7 @@ void gyro_calibrate(void) // finds calibration quaternion in background, sets gy
 
   if(cstep==0)
   {
-    imu.q=ident;
-    imu.cq=ident;
+    imu_init_calibrate_orientation();
 
     findTime=1<<(GYROCNTP-1);
 
@@ -197,18 +196,11 @@ void gyro_calibrate(void) // finds calibration quaternion in background, sets gy
 
   gyro_time=findTime>>GYROCNTP;
 
-  print("q", imu.q);
-  
-  for(char p=0; p<GYROCNTP; p++)
-  {
-    imu.q=half(imu.q);
-    print("q",imu.q);
-  }
-
-  imu.cq=conjugate(imu.q);
+  imu_calibrate_orientation();
 
   Serial.println("Gyro calibration complete");
-  print("qc",imu.cq);
+  print("cqs",imu.cqs);
+  print("cql",imu.cql);
   
   gyro_ready=true;
   imu_init_orientation();

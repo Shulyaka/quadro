@@ -23,7 +23,7 @@ const unsigned char MotorPin[]={2, 3, 5, 6};
 bool debug=true;
 
 //#define FINDZERO 128
-#define GYROCNTP 10
+#define GYROCNTP 12
 #define ACCELCNT 32
 
 fixed M[3]={0};
@@ -51,7 +51,8 @@ typedef struct Imu {
   lfixed tmp;
   quaternion q;  //current orientation
   quaternion qd; //desired orientation
-  quaternion cq; //calibration quaternion
+  quaternion cqs; //short-term calibration quaternion
+  quaternion cql; //long-term calibration quaternion
   fixed azd; //desired vertical acceleration
 };
 

@@ -3,6 +3,7 @@ void imu_updateOrientation(int alpha, int beta, int gamma)
 //  quaternion qr;
   fixed sasb,sacb,casb,cacb;
 //  quaternion qt1, qt2, qt3;
+  static unsigned int ccnt=0;
 
 //  alpha=gyroalpha; //uncomment for gyro simulation
 //  beta=gyrobeta;
@@ -25,7 +26,18 @@ void imu_updateOrientation(int alpha, int beta, int gamma)
   casb=imu.cosa*imu.sinb;
   cacb=imu.cosa*imu.cosb;
 //  qr=quaternion(cacb*imu.cosc-sasb*imu.sinc, sacb*imu.cosc+casb*imu.sinc, casb*imu.cosc-sacb*imu.sinc, sasb*imu.cosc+cacb*imu.sinc);
-  imu.q=imu.q*quaternion(cacb*imu.cosc-sasb*imu.sinc, sacb*imu.cosc+casb*imu.sinc, casb*imu.cosc-sacb*imu.sinc, sasb*imu.cosc+cacb*imu.sinc)*imu.cq; //qx*qy*qz
+if(ccnt++!=1<<GYROCNTP)
+{
+  imu.q=imu.q*quaternion(cacb*imu.cosc-sasb*imu.sinc, sacb*imu.cosc+casb*imu.sinc, casb*imu.cosc-sacb*imu.sinc, sasb*imu.cosc+cacb*imu.sinc)*imu.cqs; //qx*qy*qz
+}
+else
+{
+  ccnt=0;
+  imu.q=imu.q*quaternion(cacb*imu.cosc-sasb*imu.sinc, sacb*imu.cosc+casb*imu.sinc, casb*imu.cosc-sacb*imu.sinc, sasb*imu.cosc+cacb*imu.sinc)*imu.cql; //same, but with long-term calibration quaternion
+  print("q", imu.q);
+  imu.q=ident;
+}
+
 //  if(imu.q.w<0)
 //    imu.q=-imu.q;
 
@@ -113,7 +125,7 @@ void imu_init_orientation(void)
 
 //  q2=quaternion((grav[2]>>1)+(one>>1), grav[1]>>1, -grav[0]>>1, 0);   //  grav*(0,0,1)=(grav[1], -grav[0], 0)
 //  q2.normalize();
-  q2=half(quaternion(grav[2], grav[1], -grav[0], 0));  //  grav*(0,0,1)=(grav[1], -grav[0], 0)
+  q2=sqrt(quaternion(grav[2], grav[1], -grav[0], 0));  //  grav*(0,0,1)=(grav[1], -grav[0], 0)
 
   q1=q2*quaternion(nort[0], nort[1], nort[2])*conjugate(q2);
 
@@ -124,7 +136,7 @@ void imu_init_orientation(void)
 
 //  q1=quaternion((nort[0]>>1)+(one>>1), 0, 0, -nort[1]>>1);   //  nort*(1,0,0)=(0, 0, -nort[1]);
 //  q1.normalize();
-  q1=half(quaternion(nort[0], 0, 0, -nort[1]));   //  nort*(1,0,0)=(0, 0, -nort[1]);
+  q1=sqrt(quaternion(nort[0], 0, 0, -nort[1]));   //  nort*(1,0,0)=(0, 0, -nort[1]);
   
   imu.q=q1*q2;
   if(imu.q.w<0)
@@ -134,3 +146,35 @@ void imu_init_orientation(void)
   enable_sensor_interrupts();
 }
 
+void imu_init_calibrate_orientation(void)
+{
+    imu.q=ident;
+    imu.cqs=ident;
+    imu.cql=ident;
+}
+
+void imu_calibrate_orientation(void)
+{
+  print("q", imu.q);
+  
+  imu.cql=imu.q;
+  
+  for(char p=0; p<GYROCNTP; p++)
+  {
+    imu.q=sqrt(imu.q);
+    print("q",imu.q);
+  }
+
+  imu.cqs=conjugate(imu.q);
+
+  for(char p=0; p<GYROCNTP; p++)
+  {
+    imu.q=imu.q*imu.q;
+    print("q",imu.q);
+  }
+
+//  print("1",imu.q*conjugate(imu.cql));
+  imu.cql=imu.cqs;//*imu.q*conjugate(imu.cql);
+  
+  imu.q=ident;
+}

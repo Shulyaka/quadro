@@ -169,7 +169,7 @@ quaternion inverse(quaternion a)
 fixed inner(quaternion a, quaternion b)
 {return a.w*b.w+a.x*b.x+a.y*b.y+a.z*b.z;}
 
-quaternion half(quaternion a)
+quaternion sqrt(quaternion a)
 {
   //quaternion z=(a>>1)+(ident>>1);
   quaternion z=quaternion((a.w>>1)+(one>>1), a.x>>1, a.y>>1, a.z>>1);
