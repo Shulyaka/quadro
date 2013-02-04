@@ -125,8 +125,8 @@ void loop(void)
 
   if(!(i++%10))
   {
-    //if(qt.w==0&&qt.x==0&&qt.y==0&&qt.z==0) Serial.println(" "); //Just making sure the quaternion is calculated
-    //print_debug_info();
+    if(imu.q.w==0&&imu.q.x==0&&imu.q.y==0&&imu.q.z==0) Serial.println(" "); //Just making sure the quaternion is calculated
+    print_debug_info();
   }
 }
 

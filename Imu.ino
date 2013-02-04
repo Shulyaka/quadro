@@ -34,8 +34,11 @@ else
 {
   ccnt=0;
   imu.q=imu.q*quaternion(cacb*imu.cosc-sasb*imu.sinc, sacb*imu.cosc+casb*imu.sinc, casb*imu.cosc-sacb*imu.sinc, sasb*imu.cosc+cacb*imu.sinc)*imu.cql; //same, but with long-term calibration quaternion
-  print("q", imu.q);
-  imu.q=ident;
+//  if(gyro_ready)
+//  {
+//    print("q", imu.q);
+//    imu.q=ident;
+//  }
 }
 
 //  if(imu.q.w<0)
@@ -165,7 +168,7 @@ void imu_calibrate_orientation(void)
     print("q",imu.q);
   }
 
-  imu.cqs=conjugate(imu.q);
+  imu.cqs=imu.cqs*conjugate(imu.q);
 
   for(char p=0; p<GYROCNTP; p++)
   {
@@ -174,7 +177,7 @@ void imu_calibrate_orientation(void)
   }
 
 //  print("1",imu.q*conjugate(imu.cql));
-  imu.cql=imu.cqs;//*imu.q*conjugate(imu.cql);
+  imu.cql=imu.cqs;//*imu.q*conjugate(imu.cql);   //tbd
   
   imu.q=ident;
 }

@@ -23,7 +23,7 @@ const unsigned char MotorPin[]={2, 3, 5, 6};
 bool debug=true;
 
 //#define FINDZERO 128
-#define GYROCNTP 12
+#define GYROCNTP 11
 #define ACCELCNT 32
 
 fixed M[3]={0};
