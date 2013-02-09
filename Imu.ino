@@ -41,8 +41,8 @@ else
 //  }
 }
 
-//  if(imu.q.w<0)
-//    imu.q=-imu.q;
+  if(imu.q.w<0)
+    imu.q=-imu.q;
 
 //imu.tmp1=qr.x;
 //imu.tmp2=qr.y;

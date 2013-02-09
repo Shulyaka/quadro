@@ -23,7 +23,7 @@ const unsigned char MotorPin[]={2, 3, 5, 6};
 bool debug=true;
 
 //#define FINDZERO 128
-#define GYROCNTP 11
+#define GYROCNTP 10  //this value should not be too high because we calibrate the sensor using the shortest arc
 #define ACCELCNT 32
 
 fixed M[3]={0};
