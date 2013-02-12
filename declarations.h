@@ -58,6 +58,8 @@ typedef struct Imu {
 
 Imu imu;
 
+quaternion desired_orientation;
+
 typedef int angle;
 
 angle gyroalpha=0;
