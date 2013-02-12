@@ -34,6 +34,7 @@ fixed MotorAdjust[4]={0};
 fixed MotorSpeed[4]={0};
 fixed MotorAcceleration=gravity;
 
+//defines current instantaneous imu parameters
 typedef struct Imu {
   fixed ax, ay, az;
   fixed vx, vy, vz;
@@ -58,7 +59,19 @@ typedef struct Imu {
 
 Imu imu;
 
+//defines current desired waypoint
 quaternion desired_orientation;
+fixed desired_x;
+fixed desired_y;
+fixed desired_z;
+fixed desired_vx;
+fixed desired_vy;
+fixed desired_vz;
+
+//defines the acceleration needed to achieve the waypoint state
+fixed desired_ax;
+fixed desired_ay;
+fixed desired_az;
 
 typedef int angle;
 

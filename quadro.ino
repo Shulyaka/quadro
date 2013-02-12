@@ -290,7 +290,7 @@ void print(const char *name, quaternion val)
 void dummy_int(void)
   {return;}
 
-void disable_sensor_interrupts() //we call this to prevent sudden I2C traffic caused by sensor interrupts in the middle of transfer but do not disable interrupts completely because I2C functionality relies on them
+void disable_sensor_interrupts() //we call this to prevent sudden I2C traffic caused by sensor interrupts in the middle of transfer but we do not want to disable interrupts completely because I2C functionality relies on them
 {
   EIMSK &= ~(1 << GyroIntNumAtmega);
   EIMSK &= ~(1 << AccelIntNumAtmega);
