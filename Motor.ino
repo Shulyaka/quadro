@@ -1,31 +1,28 @@
 void motor_updateControl(void)
 {
-  fixed h=one>>1; //some constants
-  fixed k=one>>1;
-  fixed k2=k*sinpi4;
   fixed Mt;
   fixed acc;
   quaternion m=imu.q*conjugate(imu.qd);
 
   if(abs(m.w)>sinpi4)
   {
-    M[0]=k*m.w*m.x-h*imu.sina;
-    M[1]=k*m.w*m.y-h*imu.sinb;
-    M[2]=k*m.w*m.z-h*imu.sinc;
+    M[0]=orientation_distance_factor*m.w*m.x-orientation_speed_factor*imu.sina;
+    M[1]=orientation_distance_factor*m.w*m.y-orientation_speed_factor*imu.sinb;
+    M[2]=orientation_distance_factor*m.w*m.z-orientation_speed_factor*imu.sinc;
   }
   else
   {
     if(m.w>0)
     {
-      M[0]=k2*m.x-h*imu.sina;
-      M[1]=k2*m.y-h*imu.sinb;
-      M[2]=k2*m.z-h*imu.sinc;
+      M[0]=orientation_distance_factor_sinpi4*m.x-orientation_speed_factor*imu.sina;
+      M[1]=orientation_distance_factor_sinpi4*m.y-orientation_speed_factor*imu.sinb;
+      M[2]=orientation_distance_factor_sinpi4*m.z-orientation_speed_factor*imu.sinc;
     }
     else
     {
-      M[0]=-k2*m.x-h*imu.sina;
-      M[1]=-k2*m.y-h*imu.sinb;
-      M[2]=-k2*m.z-h*imu.sinc;
+      M[0]=-orientation_distance_factor_sinpi4*m.x-orientation_speed_factor*imu.sina;
+      M[1]=-orientation_distance_factor_sinpi4*m.y-orientation_speed_factor*imu.sinb;
+      M[2]=-orientation_distance_factor_sinpi4*m.z-orientation_speed_factor*imu.sinc;
     }
   }
 

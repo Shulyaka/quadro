@@ -9,7 +9,6 @@ void imu_updateOrientation(int alpha, int beta, int gamma)
 //  beta=gyrobeta;
 //  gamma=gyrogamma;
 
-
   imu.sina=qsin(alpha);
   imu.cosa=qcos(alpha);
   imu.sinb=qsin(beta);
@@ -106,7 +105,6 @@ void imu_init_position(void)
   imu.x=0;
   imu.y=0;
   imu.z=0;
-  imu.azd=gravity;
 }
 
 void imu_init_orientation(void)
@@ -121,13 +119,13 @@ void imu_init_orientation(void)
 
   for(byte i=0; i<3;i++)
     grav[i]=(long)accelADC[i]<<18;
+  vectnorm(grav);
 
   nort[0]=one; // replace with real magneto data;
   nort[1]=0;
   nort[2]=0;
+  vectnorm(nort);
 
-//  q2=quaternion((grav[2]>>1)+(one>>1), grav[1]>>1, -grav[0]>>1, 0);   //  grav*(0,0,1)=(grav[1], -grav[0], 0)
-//  q2.normalize();
   q2=sqrt(quaternion(grav[2], grav[1], -grav[0], 0));  //  grav*(0,0,1)=(grav[1], -grav[0], 0)
 
   q1=q2*quaternion(nort[0], nort[1], nort[2])*conjugate(q2);
@@ -137,10 +135,8 @@ void imu_init_orientation(void)
   nort[2]=0;
   vectnorm(nort);
 
-//  q1=quaternion((nort[0]>>1)+(one>>1), 0, 0, -nort[1]>>1);   //  nort*(1,0,0)=(0, 0, -nort[1]);
-//  q1.normalize();
   q1=sqrt(quaternion(nort[0], 0, 0, -nort[1]));   //  nort*(1,0,0)=(0, 0, -nort[1]);
-  
+
   imu.q=q1*q2;
   if(imu.q.w<0)
     imu.q=-imu.q;
@@ -166,6 +162,8 @@ void imu_calibrate_orientation(void)
   {
     imu.q=sqrt(imu.q);
     print("q",imu.q);
+    //print("n",norm(imu.q));
+    //print("l",lnorm(imu.q));
   }
 
   imu.cqs=imu.cqs*conjugate(imu.q);

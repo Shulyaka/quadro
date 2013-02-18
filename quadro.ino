@@ -109,10 +109,14 @@ void loop(void)
             if(abs(M[k])>MotorAcceleration)
               MotorAcceleration=abs(M[k]); //or at least minimum to get out of this state
         }
-        else if(imu.azd>=cosg)
+        else if(control_az>=cosg)
           MotorAcceleration=one; //we are almost 90 degree rotated, not enough to hold altitude but do what we can with full acceleration
         else
-          MotorAcceleration=imu.azd%one/cosg;   //normal operation
+          MotorAcceleration=control_az%one/cosg;   //normal operation
+
+        control_ax=horizontal_distance_factor*(desired_x-imu.x)-horizontal_speed_factor*imu.vx;
+        control_ay=horizontal_distance_factor*(desired_y-imu.y)-horizontal_speed_factor*imu.vy;
+        control_az=vertical_distance_factor*(desired_z-imu.z)-vertical_speed_factor*imu.vz+gravity;
 
         // put the main flight control logic here
         break;

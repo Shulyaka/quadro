@@ -29,6 +29,7 @@ bool debug=true;
 fixed M[3]={0};
 
 const fixed gravity=0x40000000; //   1/2
+const fixed sinpi4 = 1518500250L;
 
 fixed MotorAdjust[4]={0};
 fixed MotorSpeed[4]={0};
@@ -51,27 +52,38 @@ typedef struct Imu {
   fixed tmp1, tmp2, tmp3, tmp4, tmp5;
   lfixed tmp;
   quaternion q;  //current orientation
-  quaternion qd; //desired orientation
+  quaternion qd; //desired temporary orientation
   quaternion cqs; //short-term calibration quaternion
   quaternion cql; //long-term calibration quaternion
-  fixed azd; //desired vertical acceleration
 };
 
 Imu imu;
 
 //defines current desired waypoint
-quaternion desired_orientation;
-fixed desired_x;
-fixed desired_y;
-fixed desired_z;
-fixed desired_vx;
-fixed desired_vy;
-fixed desired_vz;
+quaternion desired_q=ident; //only heading is currently supported
+fixed desired_x=0;
+fixed desired_y=0;
+fixed desired_z=10;
+fixed desired_vx=0; //not supported yet
+fixed desired_vy=0; //not supported yet
+fixed desired_vz=0; //not supported yet
 
 //defines the acceleration needed to achieve the waypoint state
-fixed desired_ax;
-fixed desired_ay;
-fixed desired_az;
+fixed control_ax=0;
+fixed control_ay=0;
+fixed control_az=gravity;
+quaternion control_q=ident;
+
+//the following values adjust control parameters, subject to calibrate:
+const fixed orientation_distance_factor=one>>1;
+const fixed orientation_speed_factor=one>>1;
+const fixed vertical_distance_factor=one>>1;
+const fixed vertical_speed_factor=one>>1;
+const fixed horizontal_distance_factor=one>>1;
+const fixed horizontal_speed_factor=one>>1;
+
+
+const fixed orientation_distance_factor_sinpi4=orientation_distance_factor*sinpi4;
 
 typedef int angle;
 

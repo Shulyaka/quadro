@@ -203,6 +203,7 @@ void gyro_calibrate(void) // finds calibration quaternion in background, sets gy
     else
       digitalWrite(StatusLEDPin, HIGH);
     cstep++;
+    noInterrupts();
     enable_sensor_interrupts();
     return;
   }
@@ -227,6 +228,7 @@ void gyro_calibrate(void) // finds calibration quaternion in background, sets gy
     else
       digitalWrite(StatusLEDPin, HIGH);
     cstep++;
+    noInterrupts();
     enable_sensor_interrupts();
     return;
   }
@@ -251,6 +253,7 @@ void gyro_calibrate(void) // finds calibration quaternion in background, sets gy
     else
       digitalWrite(StatusLEDPin, HIGH);
     cstep++;
+    noInterrupts();
     enable_sensor_interrupts();
     return;
   }
@@ -278,6 +281,7 @@ void gyro_calibrate(void) // finds calibration quaternion in background, sets gy
     else
       digitalWrite(StatusLEDPin, HIGH);
     cstep=0;
+    noInterrupts();
     enable_sensor_interrupts();
     return;
   }

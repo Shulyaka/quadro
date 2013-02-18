@@ -630,7 +630,7 @@ int findAverage2(int *data, int arraySize)
 }
 
 
-const fixed sinpi4 = 1518500250L;
+//const fixed sinpi4 = 1518500250L;
 
 angle asin(fixed sinx)
 {

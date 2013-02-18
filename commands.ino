@@ -47,7 +47,7 @@ void cmd_zero(void)
   imu.q.x=0;
   imu.q.y=0;
   imu.q.z=0;
-  imu.azd=gravity;
+  control_az=gravity;
 }
 
 void cmd_takeoff(void)

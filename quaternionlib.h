@@ -144,9 +144,9 @@ lfixed lmagnitude(quaternion a)
 
 void quaternion::normalize(void)
 {
+  //print("ln",lnorm(*this));
   lfixed nm=lmagnitude(*this);
-//  print("ln",lnorm(*this));
-//  print("nm",nm);
+  //print("nm",nm);
   this->w=this->w%one/nm;
   this->x=this->x%one/nm;
   this->y=this->y%one/nm;

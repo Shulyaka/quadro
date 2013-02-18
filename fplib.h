@@ -462,8 +462,9 @@ unsigned long usqrt(lfixed x)
 {
   char i;
   unsigned long a=0;
-  if(x.value<=0) return 0;
-  for(i=2; x.value>>i!=0; i+=2); i-=8;
+  long long t=x.value;
+  if(t<=0) return 0;
+  for(i=2; (t=t>>2)!=0; i+=2); i-=8;
   if(i<0)
     a=((unsigned long)l_sqrt[(x.value<<(-i))-64])>>(4+((-i)>>1));
   else if (i<8)
@@ -478,8 +479,9 @@ fixed sqrt(lfixed x)
 {
   char i;
   unsigned long a=0;
-  if(x.value<=0) return 0;
-  for(i=2; x.value>>i!=0; i+=2); i-=8;
+  long long t=x.value;
+  if(t<=0) return 0;
+  for(i=2; (t=t>>2)!=0; i+=2); i-=8;
   if(i<0)
     a=((unsigned long)l_sqrt[(x.value<<(-i))-64])>>(4+((-i)>>1));
   else if (i<8)
@@ -498,8 +500,11 @@ lfixed lsqrt(lfixed x)
   char i;
   long long temp=0;
   lfixed a=0;
-  if(x<=0) return 0;
-  for(i=2; x>>i!=0; i+=2); i-=8;
+  long long t=x.value;
+//  print("sq",x);
+  if(t<=0) return 0;
+  for(i=2; (t=t>>2)!=0; i+=2); i-=8;
+//  print("i",i);
   if(i<0)
     a=((unsigned long long)l_sqrt[(x.value<<(-i))-64])<<(27-((-i)>>1));
 //  else if (i<8)
