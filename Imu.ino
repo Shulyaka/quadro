@@ -179,3 +179,12 @@ void imu_calibrate_orientation(void)
   
   imu.q=ident;
 }
+
+quaternion imu_control(quaternion heading)
+{
+  fixed top[3];
+  
+  
+  return ident;
+}
+
