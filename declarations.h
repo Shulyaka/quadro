@@ -52,7 +52,7 @@ typedef struct Imu {
   fixed tmp1, tmp2, tmp3, tmp4, tmp5;
   lfixed tmp;
   quaternion q;  //current orientation
-  quaternion qd; //desired temporary orientation
+//  quaternion qd; //desired temporary orientation
   quaternion cqs; //short-term calibration quaternion
   quaternion cql; //long-term calibration quaternion
 };

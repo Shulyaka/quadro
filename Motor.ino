@@ -2,7 +2,7 @@ void motor_updateControl(void)
 {
   fixed Mt;
   fixed acc;
-  quaternion m=imu.q*conjugate(imu.qd);
+  quaternion m=imu.q*conjugate(control_q);
 
   if(abs(m.w)>sinpi4)
   {

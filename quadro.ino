@@ -116,7 +116,7 @@ void loop(void)
 
         control_ax=horizontal_distance_factor*(desired_x-imu.x)-horizontal_speed_factor*imu.vx;
         control_ay=horizontal_distance_factor*(desired_y-imu.y)-horizontal_speed_factor*imu.vy;
-        control_az=vertical_distance_factor*(desired_z-imu.z)-vertical_speed_factor*imu.vz+gravity;
+        control_az=+vertical_distance_factor*(desired_z-imu.z)-vertical_speed_factor*imu.vz;
 
         control_q=imu_control(desired_q);
         // put the main flight control logic here
@@ -159,8 +159,8 @@ void print_debug_info(void)
     Serial.println("----------------");
     print("qt",qt);
 //    print("Nq",norm(qt));
-    print("qd",imu.qd);
-    print("mi",qt*conjugate(imu.qd));
+    print("qd",control_q);
+//    print("mi",qt*conjugate(control_q));
     print("Mx",M[0]);
     print("My",M[1]);
     print("Mz",M[2]);
@@ -180,16 +180,23 @@ void print_debug_info(void)
 //  print("z1",imu.z1);
 //  print("z2",imu.z2);
 //  print("z3",imu.z3);
-  print("ax",ax);
+/*  print("ax",ax);
   print("ay",ay);
   print("az",az);
-/*  print("vx",imu.vx);
+  print("vx",imu.vx);
   print("vy",imu.vy);
   print("vz",imu.vz);
   print(" x",imu.x);
   print(" y",imu.y);
   print(" z",imu.z);
 */
+  print("MotorAcceleration",MotorAcceleration);
+
+  print("MotorAdjust0", MotorAdjust[0]);
+  print("MotorAdjust1", MotorAdjust[1]);
+  print("MotorAdjust2", MotorAdjust[2]);
+  print("MotorAdjust3", MotorAdjust[3]);
+
   print("Motor0", MotorSpeed[0]);
   print("Motor1", MotorSpeed[1]);
   print("Motor2", MotorSpeed[2]);

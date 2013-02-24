@@ -140,7 +140,7 @@ void imu_init_orientation(void)
   imu.q=q1*q2;
   if(imu.q.w<0)
     imu.q=-imu.q;
-  imu.qd=ident;
+  //imu.qd=ident;
 
   enable_sensor_interrupts();
 }
@@ -193,5 +193,6 @@ quaternion imu_control(quaternion heading)
   }
   
   return sqrt(quaternion(top[2], -top[1], top[0], 0)) * heading;   // (0,0,1)*top=(-top[1], top[0], 0)
+  //return ident;
 }
 
