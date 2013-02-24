@@ -267,7 +267,7 @@ fixed operator*(fixed x, fixed y) //multiply and conquer!
     return one;
   else
     //z.value=(x.value>0) ? ((long long)(y.value)*((unsigned long)(x.value)<<1)+0x80000000)>>32 : -(((long long)(y.value)*((unsigned long)(-x.value)<<1)+0x80000000)>>32);
-    asm volatile (
+    asm (    // 160 cycles
     "clr %[Z] \n\t"
     "movw %A[C], r0 \n\t" //back up r0 and r1 registers
     "fmuls %D[X], %D[Y] \n\t"
@@ -402,7 +402,7 @@ fixed operator*(fixed x, fixed y) //multiply and conquer!
     "adc %B[R], %[Z]  \n\t"
     "adc %C[R], %[Z]  \n\t"
     "adc %D[R], %[Z]  \n\t"
-    "mov %A[T], r0  ; not needed for fixed \n\t"
+//    "mov %A[T], r0  ; not needed for fixed multiplication \n\t"
     "add %B[T], r1  \n\t"
     "adc %C[T], %[Z]  \n\t"
     "adc %D[T], %[Z]  \n\t"

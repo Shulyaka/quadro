@@ -62,7 +62,7 @@ void loop(void)
       {
         if(debug) Serial.println("Flying");
         for(byte k=0; k<4; k++)
-          MotorAdjust[k]=takeoff_speed-0x1000000-gravity;
+          MotorAdjust[k]=takeoff_speed-0x400000-gravity;
         takeoff_speed=0;
         flight_state=FSTATE_FLY;
         break;
@@ -72,7 +72,7 @@ void loop(void)
           MotorAdjust[k]=0;
       setMotorSpeed(takeoff_speed);
       if(debug) print("takeoff_speed", takeoff_speed);
-      takeoff_speed=takeoff_speed+0x1000000; //  1/128
+      takeoff_speed=takeoff_speed+0x400000; //  1/128
       if (takeoff_speed<0)
       {
         takeoff_speed=0;
@@ -158,7 +158,7 @@ void print_debug_info(void)
 
     Serial.println("----------------");
     print("qt",qt);
-    print("Nq",norm(qt));
+//    print("Nq",norm(qt));
     print("qd",imu.qd);
     print("mi",qt*conjugate(imu.qd));
     print("Mx",M[0]);

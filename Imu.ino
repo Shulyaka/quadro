@@ -135,7 +135,7 @@ void imu_init_orientation(void)
   nort[2]=0;
   vectnorm(nort);
 
-  q1=sqrt(quaternion(nort[0], 0, 0, -nort[1]));   //  nort*(1,0,0)=(0, 0, -nort[1]);
+  q1=sqrt(quaternion(nort[0], 0, 0, -nort[1]));   //  nort*(1,0,0)=(0, 0, -nort[1])
 
   imu.q=q1*q2;
   if(imu.q.w<0)
@@ -182,9 +182,16 @@ void imu_calibrate_orientation(void)
 
 quaternion imu_control(quaternion heading)
 {
-  fixed top[3];
+  fixed top[3]={control_ax, control_ay, control_az};
+  vectnorm(top);
   
+  if(heading.x!=0 || heading.y!=0)
+  {
+    heading.x=0;
+    heading.y=0;
+    heading.normalize();
+  }
   
-  return ident;
+  return sqrt(quaternion(top[2], -top[1], top[0], 0)) * heading;   // (0,0,1)*top=(-top[1], top[0], 0)
 }
 
