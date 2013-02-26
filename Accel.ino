@@ -6,7 +6,6 @@ volatile bool accel_done=true;
 
 void accel_init(void)
 {
-    byte data;
 //    int accelAddress = 0x40; // page 54 and 61 of datasheet
     
     disable_sensor_interrupts();

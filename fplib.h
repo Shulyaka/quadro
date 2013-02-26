@@ -258,7 +258,6 @@ fixed operator*(fixed x, fixed y) //multiply and conquer!
   fixed z;
   uint32_t tmp;
   uint8_t zero;
-  uint16_t cache;
   if(y==one)
     return x;
   else if(x==one)
@@ -269,7 +268,6 @@ fixed operator*(fixed x, fixed y) //multiply and conquer!
     //z.value=(x.value>0) ? ((long long)(y.value)*((unsigned long)(x.value)<<1)+0x80000000)>>32 : -(((long long)(y.value)*((unsigned long)(-x.value)<<1)+0x80000000)>>32);
     asm (    // 160 cycles
     "clr %[Z] \n\t"
-    "movw %A[C], r0 \n\t" //back up r0 and r1 registers
     "fmuls %D[X], %D[Y] \n\t"
     "movw %C[R], r0 \n\t"
     "fmulsu %D[Y], %B[X]  \n\t"
@@ -410,8 +408,8 @@ fixed operator*(fixed x, fixed y) //multiply and conquer!
     "adc %B[R], %[Z]  \n\t"
     "adc %C[R], %[Z]  \n\t"
     "adc %D[R], %[Z]  \n\t"
-    "movw r0, %A[C]  \n\t"
-    : [R]"=&r"(z.value), [T]"=&r"(tmp), [Z]"=&r"(zero), [C]"=&r"(cache)
+    "clr r1  \n\t"
+    : [R]"=&r"(z.value), [T]"=&r"(tmp), [Z]"=&r"(zero)
     : [X]"a"(x.value), [Y]"a"(y.value)
     );
   return z;
@@ -650,7 +648,6 @@ fixed sqrt(lfixed x)
 lfixed lsqrt(lfixed x)
 {
   char i;
-  long long temp=0;
   lfixed a=0;
   long long t=x.value;
 //  print("sq",x);

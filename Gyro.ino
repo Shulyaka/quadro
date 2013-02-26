@@ -6,7 +6,6 @@ int gyro_icnt;
 
 void gyro_init(void)
 {
-    int x;
     // Check if gyro is connected
     disable_sensor_interrupts();
     gyro_time=0;
@@ -59,8 +58,8 @@ void gyro_calibrate(void) // finds calibration quaternion in background, sets gy
 
   if(cstep<=1<<GYROCNTP)
   {
-    gyro_time=micros()-gyro_oldtime;
-    gyro_oldtime=micros();
+    gyro_time=gyro_newtime-gyro_oldtime;
+    gyro_oldtime=gyro_newtime;
   }
 
   disable_sensor_interrupts();

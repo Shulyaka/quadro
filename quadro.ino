@@ -116,7 +116,7 @@ void loop(void)
 
         control_ax=horizontal_distance_factor*(desired_x-imu.x)-horizontal_speed_factor*imu.vx;
         control_ay=horizontal_distance_factor*(desired_y-imu.y)-horizontal_speed_factor*imu.vy;
-        control_az=+vertical_distance_factor*(desired_z-imu.z)-vertical_speed_factor*imu.vz;
+        control_az=gravity+vertical_distance_factor*(desired_z-imu.z)-vertical_speed_factor*imu.vz;
 
         control_q=imu_control(desired_q);
         // put the main flight control logic here
