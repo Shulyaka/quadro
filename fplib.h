@@ -415,6 +415,21 @@ fixed operator*(fixed x, fixed y) //multiply and conquer!
   return z;
 }
 
+fixed pow2(fixed x)
+{
+  return x*x;
+}
+
+fixed pow3(fixed x)
+{
+  return x*x*x;
+}
+
+fixed pow4(fixed x)
+{
+  return x*x*x*x;
+}
+
 lfixed operator%(fixed x, fixed y) //NOTE that it is NOT a division
 {
   lfixed z;

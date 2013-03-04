@@ -34,7 +34,7 @@ void setup(void)
 #ifdef ACCELCALIBRATE
   accel_calibrate_manual();
 #endif
-
+accel_calibrate_manual_2();
   Serial.print("Gyro time is ");
   Serial.println(gyro_time);
   Serial.print("Accel time is ");
