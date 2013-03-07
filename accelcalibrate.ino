@@ -1,3 +1,15 @@
+void matrixtest(void)
+{
+  fixed a[5][5];
+  a[0][0]=one; a[0][1]=0; a[0][2]=0; a[0][3]=0; a[0][4]=0;
+  a[1][0]=0; a[1][1]=one; a[1][2]=0; a[1][3]=0; a[1][4]=0;
+  a[2][0]=0; a[2][1]=0; a[2][2]=one; a[2][3]=0; a[2][4]=0;
+  a[3][0]=0; a[3][1]=0; a[3][2]=0; a[3][3]=one; a[3][4]=0;
+  a[4][0]=0; a[4][1]=0; a[4][2]=0; a[4][3]=0; a[4][4]=one;
+  printmatrix("a",a);
+  print("det",det(a));
+}
+
 void printpoint(fixed a[3])
 {
   print(a[0]);
@@ -12,14 +24,130 @@ void printpoint(const char *name, fixed a[3])
 {
   Serial.print(name);
   Serial.print(":");
+  printpoint(a);
+}
+
+void printrow(fixed a[6])
+{
   print(a[0]);
   Serial.print(",");
   print(a[1]);
   Serial.print(",");
   print(a[2]);
+  Serial.print(",");
+  print(a[3]);
+  Serial.print(",");
+  print(a[4]);
+  Serial.print(",");
+  print(a[5]);
   Serial.println("");
 }
 
+void printrow(const char *name, fixed a[6])
+{
+  Serial.print(name);
+  Serial.print(":");
+  printrow(a);
+}
+
+void printmatrix(fixed a[3][3])
+{
+  printpoint(a[0]);
+  printpoint(a[1]);
+  printpoint(a[2]);
+}
+
+void printmatrix(const char *name, fixed a[3][3])
+{
+  Serial.print(name);
+  Serial.println(":");
+  printmatrix(a);
+}
+
+void printmatrix(fixed a[4][4])
+{
+  print(a[0][0]);
+  Serial.print(",");
+  print(a[0][1]);
+  Serial.print(",");
+  print(a[0][2]);
+  Serial.print(",");
+  print(a[0][3]);
+  Serial.println("");
+  print(a[1][0]);
+  Serial.print(",");
+  print(a[1][1]);
+  Serial.print(",");
+  print(a[1][2]);
+  Serial.print(",");
+  print(a[1][3]);
+  Serial.println("");
+  print(a[2][0]);
+  Serial.print(",");
+  print(a[2][1]);
+  Serial.print(",");
+  print(a[2][2]);
+  Serial.print(",");
+  print(a[2][3]);
+  Serial.println("");
+  print(a[3][0]);
+  Serial.print(",");
+  print(a[3][1]);
+  Serial.print(",");
+  print(a[3][2]);
+  Serial.print(",");
+  print(a[3][3]);
+  Serial.println("");
+}
+
+void printmatrix(const char *name, fixed a[4][4])
+{
+  Serial.print(name);
+  Serial.println(":");
+  printmatrix(a);
+}
+
+void printmatrix(fixed a[5][5])
+{
+  const byte n=5;
+  for(byte i=0; i<n; i++)
+    for(byte j=0; j<n; j++)
+    {
+      print(a[i][j]);
+      if(j!=n-1)
+        Serial.print(",");
+      else
+        Serial.println("");
+    }
+}
+
+void printmatrix(const char *name, fixed a[5][5])
+{
+  Serial.print(name);
+  Serial.println(":");
+  printmatrix(a);
+}
+
+void printmatrix(fixed a[6][6])
+{
+  const byte n=6;
+  for(byte i=0; i<n; i++)
+    for(byte j=0; j<n; j++)
+    {
+      print(a[i][j]);
+      if(j!=n-1)
+        Serial.print(",");
+      else
+        Serial.println("");
+    }
+}
+
+void printmatrix(const char *name, fixed a[6][6])
+{
+  Serial.print(name);
+  Serial.println(":");
+  printmatrix(a);
+}
 
 fixed det(fixed a[3][3])
 { return a[0][0]*a[1][1]*a[2][2]-a[0][2]*a[1][1]*a[2][0]+a[0][1]*a[1][2]*a[2][0]-a[0][1]*a[1][0]*a[2][2]+a[0][2]*a[1][0]*a[2][1]-a[0][0]*a[1][2]*a[2][1]; }
@@ -140,6 +268,7 @@ bool lsolve(fixed a[6][6], fixed r[6], fixed x[6])
   fixed m[n][n];
   fixed d=det(a);
   byte i, j;
+  print("det a",d);
   if(d==0)
   {
     for(i=0; i<n; i++)
@@ -156,6 +285,7 @@ bool lsolve(fixed a[6][6], fixed r[6], fixed x[6])
     for(i=0; i<n; i++)
       m[i][j]=r[i];
 
+    print("det x",det(m));
     x[j]=det(m)%one/d;
 
     if(j!=n-1)
@@ -163,13 +293,30 @@ bool lsolve(fixed a[6][6], fixed r[6], fixed x[6])
         m[i][j]=a[i][j];
   }
 
-  return true;
+  return lcheck(a, r, x);
 }
 
 bool lcheck(fixed a[6][6], fixed r[6], fixed x[6])
 {
+  fixed delta=2147484L;
+  fixed s=0, e;
+  for(byte i=0; i<6; i++)
+  {
+    e=-r[i];
+    for(byte j=0; j<6; j++)
+      e=e+a[i][j]*r[j];
+    s=s+sq(e);
+  }
   
-  
+  if(s>delta || s<0)
+  {
+    print("lcheck failed", s);
+    printmatrix("matrix", a);
+    printrow("r", r);
+    printrow("x", x);
+    return false;
+  }
+  print("lcheck", s);
   return true;
 }
 
@@ -271,7 +418,7 @@ fixed Fg(fixed a[6][3], fixed k[6])
 {
   fixed x[3];
   center (a[0], a[1], a[2], a[3], k, x);
-  return pow2(k[0]*sq(a[0][0])+k[3]*a[0][0]+a[0][0]-x[0]) + pow2(k[1]*sq(a[0][1])+k[4]*a[0][1]+a[0][1]-x[1]) + pow2(k[2]*sq(a[0][2])+k[5]*a[0][2]+a[0][2]-x[2]) - sq(gravity);
+  return pow2(k[0]*sq(a[0][0])+k[3]*a[0][0]+a[0][0]-x[0]) + pow2(k[1]*sq(a[0][1])+k[4]*a[0][1]+a[0][1]-x[1]) + pow2(k[2]*sq(a[0][2])+k[5]*a[0][2]+a[0][2]-x[2]) - 33554432L;//sq(gravity);
 }
 
 fixed Fg(fixed a[6][3], fixed k[6], fixed h0, fixed h1, fixed h2, fixed h3, fixed h4, fixed h5)
@@ -434,8 +581,8 @@ void accel_calibrate_manual_2() //manual accel calibration
   fixed k1[3];
   fixed k0[3];
   int n=0;
-//  Serial.println("Manual accel calibration\nThis algorithm will estimate accel zero values\nby measuring gravity in 4 different positions.\nThe more the positions differ, the better estimation.\nThe positions are not required to be exactly aligned to gravity in any way.\nPlease do not move your quadro.");
-
+//  Serial.println("Manual accel calibration\nThis algorithm will estimate accel zero values\nby measuring gravity in 6 different positions.\nThe more the positions differ, the better estimation.\nThe positions are not required to be exactly aligned to gravity in any way.\nPlease do not move your quadro.");
+//matrixtest(); return;
   attachInterrupt(4, accel_calibrate_int_measure_wait, RISING);
 
 /*
@@ -476,7 +623,7 @@ point[5][2]=2365;
     delay(5000);
     for(accel_done=false; accel_done!=true;);
     for(byte j=0;j<3;j++)
-      point[i][j]=(accelBuf[j]/ACCELCNT)<<18;
+      point[i][j]=(accelBuf[j]/ACCELCNT)<<16;//<<18;
     printpoint(point[i]);
     print("sqrt", sqrt(point[i][0]%point[i][0]+point[i][1]%point[i][1]+point[i][2]%point[i][2]));
   }
