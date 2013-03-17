@@ -100,3 +100,17 @@ void cmd_setc(int c)
   Serial.print(".\n");
 }
 
+void cmd_usr1(void)
+{
+  accel_offset[2]=accel_offset[2]+100000;
+  accel_cum=0;
+  print("accel_offset[2]",accel_offset[2]);
+}
+
+void cmd_usr2(void)
+{
+  accel_offset[2]=accel_offset[2]-100000;
+  accel_cum=0;
+  print("accel_offset[2]",accel_offset[2]);
+}
+

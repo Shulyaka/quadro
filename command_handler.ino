@@ -11,6 +11,8 @@
 #define CMDSETA    10
 #define CMDSETB    11
 #define CMDSETC    12
+#define CMDUSR1    13
+#define CMDUSR2    14
 
 #define cmdBufLen 127
 char cmdBuf[cmdBufLen];
@@ -22,8 +24,8 @@ void check_cmd(void)
   int param=0;
   while(Serial.available())
   {
-      cmdBuf[cmdPos++]=(char)Serial.read();
-    if (cmdBuf[cmdPos-1]=='\n')
+    cmdBuf[cmdPos++]=(char)Serial.read();
+    if ((cmdBuf[cmdPos-1]=='\n') || (cmdBuf[cmdPos-1]=='\r'))
       break;
     if (cmdPos==cmdBufLen)
     {
@@ -33,7 +35,7 @@ void check_cmd(void)
       break;
     }
   }
-  if (cmdPos==0 || cmdBuf[cmdPos-1]!='\n')
+  if (cmdPos==0 || ((cmdBuf[cmdPos-1]!='\n') && (cmdBuf[cmdPos-1]!='\r')))
     return;
   if(debug) print_cmdBuf();
   cmd=parse_cmd(&param);
@@ -85,6 +87,12 @@ void check_cmd(void)
       break;
     case CMDSETC:
       cmd_setc(param);
+      break;
+    case CMDUSR1:
+      cmd_usr1();
+      break;
+    case CMDUSR2:
+      cmd_usr2();
       break;
     
     case CMDUNKNOWN:
@@ -148,6 +156,10 @@ unsigned char parse_cmd(int *param)
     sscanf(cmdBuf+2,"%d",param);
     return CMDSETC;
   }
+  if (!memcmp(cmdBuf,"z",1))
+    return CMDUSR1;
+  if (!memcmp(cmdBuf,"Z",1))
+    return CMDUSR2;
   
   return CMDUNKNOWN;
 }

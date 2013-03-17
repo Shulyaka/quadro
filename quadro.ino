@@ -1,3 +1,4 @@
+#define ACFIXED
 #include <Wire.h>
 #include "declarations.h"
 
@@ -34,7 +35,7 @@ void setup(void)
 #ifdef ACCELCALIBRATE
   accel_calibrate_manual();
 #endif
-accel_calibrate_manual_2();
+//accel_calibrate_manual_2();
   Serial.print("Gyro time is ");
   Serial.println(gyro_time);
   Serial.print("Accel time is ");
@@ -56,6 +57,7 @@ void loop(void)
   {
     case FSTATE_IDLE:
       az_idle=imu.az;
+      delay(50);
       break;
     case FSTATE_TAKEOFF:
       if(imu.az>az_idle+0x28F5C29) //takeoff condition: last known idle z acceleration plus 0.02 to be above noise
@@ -161,9 +163,9 @@ void print_debug_info(void)
 //    print("Nq",norm(qt));
     print("qd",control_q);
 //    print("mi",qt*conjugate(control_q));
-    print("Mx",M[0]);
-    print("My",M[1]);
-    print("Mz",M[2]);
+//    print("Mx",M[0]);
+//    print("My",M[1]);
+//    print("Mz",M[2]);
 //    print("t1",t1);
 //    print("t2",t2);
 //    print("t3",t3);
@@ -180,7 +182,7 @@ void print_debug_info(void)
 //  print("z1",imu.z1);
 //  print("z2",imu.z2);
 //  print("z3",imu.z3);
-/*  print("ax",ax);
+  print("ax",ax);
   print("ay",ay);
   print("az",az);
   print("vx",imu.vx);
@@ -189,7 +191,7 @@ void print_debug_info(void)
   print(" x",imu.x);
   print(" y",imu.y);
   print(" z",imu.z);
-*/
+
   print("MotorAcceleration",MotorAcceleration);
 
   print("MotorAdjust0", MotorAdjust[0]);

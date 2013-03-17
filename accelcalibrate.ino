@@ -1,3 +1,4 @@
+#ifdef ACFIXED
 void matrixtest(void)
 {
   fixed a[5][5];
@@ -152,6 +153,9 @@ void printmatrix(const char *name, fixed a[6][6])
 fixed det(fixed a[3][3])
 { return a[0][0]*a[1][1]*a[2][2]-a[0][2]*a[1][1]*a[2][0]+a[0][1]*a[1][2]*a[2][0]-a[0][1]*a[1][0]*a[2][2]+a[0][2]*a[1][0]*a[2][1]-a[0][0]*a[1][2]*a[2][1]; }
 
+fixed qdet(fixed a[3][3])
+{ return ((a[0][0]*a[1][1]*a[2][2])>>4)-((a[0][2]*a[1][1]*a[2][0])>>4)+((a[0][1]*a[1][2]*a[2][0])>>4)-((a[0][1]*a[1][0]*a[2][2])>>4)+((a[0][2]*a[1][0]*a[2][1])>>4)-((a[0][0]*a[1][2]*a[2][1])>>4); }
+
 fixed det(fixed a[4][4])
 {
   fixed m[3][3];
@@ -159,19 +163,19 @@ fixed det(fixed a[4][4])
   m[0][0]=a[1][1]; m[0][1]=a[1][2]; m[0][2]=a[1][3];
   m[1][0]=a[2][1]; m[1][1]=a[2][2]; m[1][2]=a[2][3];
   m[2][0]=a[3][1]; m[2][1]=a[3][2]; m[2][2]=a[3][3];
-  d=a[0][0]*det(m);
+  d=a[0][0]*qdet(m);
   m[0][0]=a[1][0];
   m[1][0]=a[2][0];
   m[2][0]=a[3][0];
-  d=d-a[0][1]*det(m);
+  d=d-a[0][1]*qdet(m);
   m[0][1]=a[1][1];
   m[1][1]=a[2][1];
   m[2][1]=a[3][1];
-  d=d+a[0][2]*det(m);
+  d=d+a[0][2]*qdet(m);
   m[0][2]=a[1][2];
   m[1][2]=a[2][2];
   m[2][2]=a[3][2];
-  return d-a[0][3]*det(m);
+  return d-a[0][3]*qdet(m);
 }
 
 fixed det(fixed a[5][5])
@@ -304,7 +308,7 @@ bool lcheck(fixed a[6][6], fixed r[6], fixed x[6])
   {
     e=-r[i];
     for(byte j=0; j<6; j++)
-      e=e+a[i][j]*r[j];
+      e=e+a[i][j]*x[j];
     s=s+sq(e);
   }
   
@@ -418,7 +422,7 @@ fixed Fg(fixed a[6][3], fixed k[6])
 {
   fixed x[3];
   center (a[0], a[1], a[2], a[3], k, x);
-  return pow2(k[0]*sq(a[0][0])+k[3]*a[0][0]+a[0][0]-x[0]) + pow2(k[1]*sq(a[0][1])+k[4]*a[0][1]+a[0][1]-x[1]) + pow2(k[2]*sq(a[0][2])+k[5]*a[0][2]+a[0][2]-x[2]) - 33554432L;//sq(gravity);
+  return pow2(k[0]*sq(a[0][0])+k[3]*a[0][0]+a[0][0]-x[0]) + pow2(k[1]*sq(a[0][1])+k[4]*a[0][1]+a[0][1]-x[1]) + pow2(k[2]*sq(a[0][2])+k[5]*a[0][2]+a[0][2]-x[2]) - sq(gravity);
 }
 
 fixed Fg(fixed a[6][3], fixed k[6], fixed h0, fixed h1, fixed h2, fixed h3, fixed h4, fixed h5)
@@ -508,7 +512,7 @@ for(byte j=0; j<10; j++)
   Serial.print(": ");
   for(i=0; i<6; i++)
   {
-    k[i]=k[i]+kn[i];
+    k[i]=k[i]-kn[i];
     print(k[i]);
   }
   Serial.println(";");
@@ -573,7 +577,7 @@ void accel_calibrate_int_measure_wait(void)
     }
   }
 }
-
+fixed accel_cum=0;
 void accel_calibrate_manual_2() //manual accel calibration
 {
   fixed point[6][3];
@@ -619,13 +623,21 @@ point[5][2]=2365;
 
   for(byte i=0;i<6;i++)
   {
+    i=0;
+    check_cmd();
     Serial.print("Waiting for position "); Serial.print(i+1); Serial.println("...");
-    delay(5000);
+    delay(500);
     for(accel_done=false; accel_done!=true;);
     for(byte j=0;j<3;j++)
-      point[i][j]=(accelBuf[j]/ACCELCNT)<<16;//<<18;
+    {
+      point[i][j]=(accelBuf[j]/ACCELCNT)<<18;
+      point[i][j]=point[i][j]+point[i][j]*accel_gain[j]+accel_offset[j];
+    }
     printpoint(point[i]);
     print("sqrt", sqrt(point[i][0]%point[i][0]+point[i][1]%point[i][1]+point[i][2]%point[i][2]));
+    print("sq-g", sqrt(point[i][0]%point[i][0]+point[i][1]%point[i][1]+point[i][2]%point[i][2]) - gravity);
+    accel_cum=accel_cum+(sqrt(point[i][0]%point[i][0]+point[i][1]%point[i][1]+point[i][2]%point[i][2])-gravity);
+    print("acum",accel_cum);
   }
   Serial.println("Done. Thanks. Now calculating...");
 
@@ -651,3 +663,4 @@ for(byte i=0; i<6; i++)
   delay(1500);
   attachInterrupt(4, accel_int, RISING); //not necessery if we call accel_init
 }
+#endif

@@ -85,6 +85,15 @@ const fixed horizontal_speed_factor=one>>1;
 
 const fixed orientation_distance_factor_sinpi4=orientation_distance_factor*sinpi4;
 
+fixed accel_offset[3]={-2000000, -9900000, -2000000};
+fixed accel_gain[3]={-6000000, -1800000, 1000000};     //-2500000
+//0,500698491931
+//-0,498835846782
+
+//-3500000
+// -500000
+//
+
 typedef int angle;
 
 angle gyroalpha=0;

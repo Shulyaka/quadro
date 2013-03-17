@@ -51,7 +51,7 @@ int lsolve(long long a[3][3], long long *r, long *x)
   return 0;
 }
 
-int lsolve(float a[3][3], float *r, float *x)
+int lsolve_bak(float a[3][3], float *r, float *x)
 {
   float den=det(a);
   if(den==0)

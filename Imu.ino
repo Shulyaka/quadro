@@ -69,7 +69,7 @@ imu.tmp3=qt3.w;
 
 void imu_updatePosition(fixed i, fixed j, fixed k)
 {
-  quaternion acc=imu.q*quaternion(i,j,k)*conjugate(imu.q);
+  quaternion acc=imu.q*quaternion(i+i*accel_gain[0]+accel_offset[0], j+j*accel_gain[1]+accel_offset[1], k+k*accel_gain[2]+accel_offset[2])*conjugate(imu.q);
   imu.ax=acc.x;
   imu.ay=acc.y;
   imu.az=acc.z-gravity;
@@ -78,12 +78,12 @@ void imu_updatePosition(fixed i, fixed j, fixed k)
   imu.ay=imu.y1*i+imu.y2*j+imu.y3*k;
   imu.az=imu.z1*i+imu.z2*j+imu.z3*k+gravity;
   */
-  imu.vx=imu.vx+imu.ax*(accel_time<<9);
-  imu.vy=imu.vy+imu.ay*(accel_time<<9);
-  imu.vz=imu.vz+imu.az*(accel_time<<9);
-  imu.x=imu.x+imu.vx*(accel_time<<9);
-  imu.y=imu.y+imu.vy*(accel_time<<9);
-  imu.z=imu.z+imu.vz*(accel_time<<9);
+  imu.vx=imu.vx+imu.ax*(accel_time<<8);
+  imu.vy=imu.vy+imu.ay*(accel_time<<8);
+  imu.vz=imu.vz+imu.az*(accel_time<<8);
+  imu.x=imu.x+imu.vx*(accel_time<<8);
+  imu.y=imu.y+imu.vy*(accel_time<<8);
+  imu.z=imu.z+imu.vz*(accel_time<<8);
 }
 
 void imu_init(void)
@@ -118,7 +118,10 @@ void imu_init_orientation(void)
   disable_sensor_interrupts();
 
   for(byte i=0; i<3;i++)
+  {
     grav[i]=(long)accelADC[i]<<18;
+    grav[i]=grav[i]+grav[i]*accel_gain[i]+accel_offset[i];
+  }
   vectnorm(grav);
 
   nort[0]=one; // replace with real magneto data;
