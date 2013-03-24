@@ -258,8 +258,6 @@ fixed operator*(fixed x, fixed y) //multiply and conquer!
   fixed z;
   uint32_t tmp;
   uint8_t zero;
-  uint64_t input;
-  uint32_t *inpt=(uint32_t *)&input;
   if(y==one)
     return x;
   else if(x==one)
@@ -268,22 +266,20 @@ fixed operator*(fixed x, fixed y) //multiply and conquer!
     return one;
   else
     //z.value=(x.value>0) ? ((long long)(y.value)*((unsigned long)(x.value)<<1)+0x80000000)>>32 : -(((long long)(y.value)*((unsigned long)(-x.value)<<1)+0x80000000)>>32);
-    inpt[0]=y.value;
-    inpt[1]=x.value;
     asm (    // 160 cycles
     "clr %[Z] \n\t"
-    "fmuls %D[X], %H[X] \n\t"
+    "fmuls %D[X], %D[Y] \n\t"
     "movw %C[R], r0 \n\t"
-    "fmulsu %H[X], %B[X]  \n\t"
+    "fmulsu %D[Y], %B[X]  \n\t"
     "sbc %C[R], %[Z]  \n\t"
     "sbc %D[R], %[Z]  \n\t"
     "movw %A[R], r0  \n\t"
-    "fmulsu %H[X], %C[X]  \n\t"
+    "fmulsu %D[Y], %C[X]  \n\t"
     "sbc %D[R], %[Z]  \n\t"
     "add %B[R], r0  \n\t"
     "adc %C[R], r1  \n\t"
     "adc %D[R], %[Z]  \n\t"
-    "fmulsu %H[X], %A[X]  \n\t"
+    "fmulsu %D[Y], %A[X]  \n\t"
     "sbc %B[R], %[Z]  \n\t"
     "sbc %C[R], %[Z]  \n\t"
     "sbc %D[R], %[Z]  \n\t"
@@ -292,19 +288,19 @@ fixed operator*(fixed x, fixed y) //multiply and conquer!
     "adc %B[R], %[Z]  \n\t"
     "adc %C[R], %[Z]  \n\t"
     "adc %D[R], %[Z]  \n\t"
-    "fmulsu %D[X], %G[X]  \n\t"
+    "fmulsu %D[X], %C[Y]  \n\t"
     "sbc %D[R], %[Z]  \n\t"
     "add %B[R], r0  \n\t"
     "adc %C[R], r1  \n\t"
     "adc %D[R], %[Z]  \n\t"
-    "fmul %C[X], %G[X]  \n\t"
+    "fmul %C[X], %C[Y]  \n\t"
     "adc %C[R], %[Z]  \n\t"
     "adc %D[R], %[Z]  \n\t"
     "add %A[R], r0  \n\t"
     "adc %B[R], r1  \n\t"
     "adc %C[R], %[Z]  \n\t"
     "adc %D[R], %[Z]  \n\t"
-    "fmul %B[X], %G[X]  \n\t"
+    "fmul %B[X], %C[Y]  \n\t"
     "adc %B[R], %[Z]  \n\t"
     "adc %C[R], %[Z]  \n\t"
     "adc %D[R], %[Z]  \n\t"
@@ -313,7 +309,7 @@ fixed operator*(fixed x, fixed y) //multiply and conquer!
     "adc %B[R], %[Z]  \n\t"
     "adc %C[R], %[Z]  \n\t"
     "adc %D[R], %[Z]  \n\t"
-    "fmul %A[X], %G[X]   \n\t"
+    "fmul %A[X], %C[Y]   \n\t"
     "adc %A[R], %[Z]  \n\t"
     "adc %B[R], %[Z]  \n\t"
     "adc %C[R], %[Z]  \n\t"
@@ -324,14 +320,14 @@ fixed operator*(fixed x, fixed y) //multiply and conquer!
     "adc %B[R], %[Z]  \n\t"
     "adc %C[R], %[Z]  \n\t"
     "adc %D[R], %[Z]  \n\t"
-    "fmulsu %D[X], %F[X]  \n\t"
+    "fmulsu %D[X], %B[Y]  \n\t"
     "sbc %C[R], %[Z]  \n\t"
     "sbc %D[R], %[Z]  \n\t"
     "add %A[R], r0  \n\t"
     "adc %B[R], r1  \n\t"
     "adc %C[R], %[Z]  \n\t"
     "adc %D[R], %[Z]  \n\t"
-    "fmul %C[X], %F[X]  \n\t"
+    "fmul %C[X], %B[Y]  \n\t"
     "adc %B[R], %[Z]  \n\t"
     "adc %C[R], %[Z]  \n\t"
     "adc %D[R], %[Z]  \n\t"
@@ -340,7 +336,7 @@ fixed operator*(fixed x, fixed y) //multiply and conquer!
     "adc %B[R], %[Z]  \n\t"
     "adc %C[R], %[Z]  \n\t"
     "adc %D[R], %[Z]  \n\t"
-    "fmul %B[X], %F[X]  \n\t"
+    "fmul %B[X], %B[Y]  \n\t"
     "adc %A[R], %[Z]  \n\t"
     "adc %B[R], %[Z]  \n\t"
     "adc %C[R], %[Z]  \n\t"
@@ -351,7 +347,7 @@ fixed operator*(fixed x, fixed y) //multiply and conquer!
     "adc %B[R], %[Z]  \n\t"
     "adc %C[R], %[Z]  \n\t"
     "adc %D[R], %[Z]  \n\t"
-    "fmul %A[X], %F[X]  \n\t"
+    "fmul %A[X], %B[Y]  \n\t"
     "adc %D[T], %[Z]  \n\t"
     "adc %A[R], %[Z]  \n\t"
     "adc %B[R], %[Z]  \n\t"
@@ -364,7 +360,7 @@ fixed operator*(fixed x, fixed y) //multiply and conquer!
     "adc %B[R], %[Z]  \n\t"
     "adc %C[R], %[Z]  \n\t"
     "adc %D[R], %[Z]  \n\t"
-    "fmulsu %D[X], %E[X]  \n\t"
+    "fmulsu %D[X], %A[Y]  \n\t"
     "sbc %B[R], %[Z]  \n\t"
     "sbc %C[R], %[Z]  \n\t"
     "sbc %D[R], %[Z]  \n\t"
@@ -373,7 +369,7 @@ fixed operator*(fixed x, fixed y) //multiply and conquer!
     "adc %B[R], %[Z]  \n\t"
     "adc %C[R], %[Z]  \n\t"
     "adc %D[R], %[Z]  \n\t"
-    "fmul %C[X], %E[X]  \n\t"
+    "fmul %C[X], %A[Y]  \n\t"
     "adc %A[R], %[Z]  \n\t"
     "adc %B[R], %[Z]  \n\t"
     "adc %C[R], %[Z]  \n\t"
@@ -384,7 +380,7 @@ fixed operator*(fixed x, fixed y) //multiply and conquer!
     "adc %B[R], %[Z]  \n\t"
     "adc %C[R], %[Z]  \n\t"
     "adc %D[R], %[Z]  \n\t"
-    "fmul %B[X], %E[X]  \n\t"
+    "fmul %B[X], %A[Y]  \n\t"
     "adc %D[T], %[Z]  \n\t"
     "adc %A[R], %[Z]  \n\t"
     "adc %B[R], %[Z]  \n\t"
@@ -397,7 +393,7 @@ fixed operator*(fixed x, fixed y) //multiply and conquer!
     "adc %B[R], %[Z]  \n\t"
     "adc %C[R], %[Z]  \n\t"
     "adc %D[R], %[Z]  \n\t"
-    "fmul %A[X], %E[X]  \n\t"
+    "fmul %A[X], %A[Y]  \n\t"
     "adc %C[T], %[Z]  \n\t"
     "adc %D[T], %[Z]  \n\t"
     "adc %A[R], %[Z]  \n\t"
@@ -414,7 +410,7 @@ fixed operator*(fixed x, fixed y) //multiply and conquer!
     "adc %D[R], %[Z]  \n\t"
     "clr r1  \n\t"
     : [R]"=&r"(z.value), [T]"=&r"(tmp), [Z]"=&r"(zero)
-    : [X]"a"(input)
+    : [X]"a"(x.value), [Y]"a"(y.value)
     );
   return z;
 }
