@@ -66,6 +66,7 @@ void cmd_emerg(void)
 {
   Serial.println("Emergency landing!\nMight be dangerous and damaging!\nAaaaaaa!");
   setMotorSpeed(0);
+  flight_state=FSTATE_IDLE;
 }
 
 void cmd_debug(int flag)
@@ -112,5 +113,11 @@ void cmd_usr2(void)
   accel_offset[2]=accel_offset[2]-100000;
   accel_cum=0;
   print("accel_offset[2]",accel_offset[2]);
+}
+
+void cmd_usr3(void)
+{
+  Serial.println("Manual takeoff");
+  manual_takeoff=true;
 }
 

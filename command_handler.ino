@@ -13,6 +13,7 @@
 #define CMDSETC    12
 #define CMDUSR1    13
 #define CMDUSR2    14
+#define CMDUSR3    15
 
 #define cmdBufLen 127
 char cmdBuf[cmdBufLen];
@@ -94,6 +95,9 @@ void check_cmd(void)
     case CMDUSR2:
       cmd_usr2();
       break;
+    case CMDUSR3:
+      cmd_usr3();
+      break;
     
     case CMDUNKNOWN:
       error("Unknown command");
@@ -160,6 +164,10 @@ unsigned char parse_cmd(int *param)
     return CMDUSR1;
   if (!memcmp(cmdBuf,"Z",1))
     return CMDUSR2;
+  if (!memcmp(cmdBuf,"f",1))
+    return CMDUSR3;
+  if (!memcmp(cmdBuf,"e",1))
+    return CMDEMERG;
   
   return CMDUNKNOWN;
 }

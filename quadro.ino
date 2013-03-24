@@ -46,6 +46,7 @@ void loop(void)
 {
   static unsigned int i=0;
   static fixed az_idle=imu.az;
+  static quaternion q_idle=conjugate(imu.q);
   static fixed takeoff_speed=0;
   fixed cosg;
   
@@ -53,19 +54,24 @@ void loop(void)
 
   check_cmd(); //to be rewritten using serialEvent() //or may be not...
 
+//if(i==500) flight_state=FSTATE_TAKEOFF; //auto take off
+
   switch(flight_state)
   {
     case FSTATE_IDLE:
       az_idle=imu.az;
+      q_idle=conjugate(imu.q);
       delay(50);
       break;
     case FSTATE_TAKEOFF:
-      if(imu.az>az_idle+0x28F5C29) //takeoff condition: last known idle z acceleration plus 0.02 to be above noise
+      if((imu.az>az_idle+0x28F5C23) || (abs((imu.q*q_idle).w)<2145336164L) || manual_takeoff) //takeoff condition: last known idle z acceleration plus 0.02 to be above noise or the real part of the mismatch quaternion is less than 0.999
       {
         if(debug) Serial.println("Flying");
+        print("az",imu.az-az_idle);
         for(byte k=0; k<4; k++)
-          MotorAdjust[k]=takeoff_speed-0x400000-gravity;
+          MotorAdjust[k]=takeoff_speed-0x200000-gravity;
         takeoff_speed=0;
+        manual_takeoff=false;
         flight_state=FSTATE_FLY;
         break;
       }
@@ -74,7 +80,7 @@ void loop(void)
           MotorAdjust[k]=0;
       setMotorSpeed(takeoff_speed);
       if(debug) print("takeoff_speed", takeoff_speed);
-      takeoff_speed=takeoff_speed+0x400000; //  1/128
+      takeoff_speed=takeoff_speed+0x200000; //  1/256
       if (takeoff_speed<0)
       {
         takeoff_speed=0;
@@ -102,6 +108,7 @@ void loop(void)
       delay(20);
       break;
     case FSTATE_FLY:
+        print("idle",imu.q*q_idle);
         cosg=imu.q.x*imu.q.x+imu.q.y*imu.q.y;
         cosg=one-cosg-cosg;
         if(cosg<0)

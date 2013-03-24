@@ -23,7 +23,7 @@ const unsigned char MotorPin[]={2, 3, 5, 6};
 bool debug=true;
 
 //#define FINDZERO 128
-#define GYROCNTP 10  //this value should not be too high because we calibrate the sensor using the shortest arc
+#define GYROCNTP 9  //this value should not be too high because we calibrate the sensor using the shortest arc
 #define ACCELCNT 32
 
 fixed M[3]={0};
@@ -79,7 +79,7 @@ const fixed orientation_distance_factor=one>>1;
 const fixed orientation_speed_factor=one>>1;
 const fixed vertical_distance_factor=one>>1;
 const fixed vertical_speed_factor=one>>1;
-const fixed horizontal_distance_factor=one>>1;
+const fixed horizontal_distance_factor=0;//one>>1;
 const fixed horizontal_speed_factor=one>>1;
 
 
@@ -115,5 +115,7 @@ int accel_interrupted=0;
 #define FSTATE_FLY     3
 
 unsigned char flight_state=FSTATE_IDLE;
+
+bool manual_takeoff=false;
 
 #endif
