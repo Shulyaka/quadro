@@ -259,7 +259,7 @@ fixed operator*(fixed x, fixed y) //multiply and conquer!
   uint32_t tmp;
   uint8_t zero;
   uint64_t input;
-  uint32_t *inpt=(uint32_t *)&input;
+  //uint32_t *inpt=(uint32_t *)&input;
   if(y==one)
     return x;
   else if(x==one)
@@ -268,8 +268,9 @@ fixed operator*(fixed x, fixed y) //multiply and conquer!
     return one;
   else
     //z.value=(x.value>0) ? ((long long)(y.value)*((unsigned long)(x.value)<<1)+0x80000000)>>32 : -(((long long)(y.value)*((unsigned long)(-x.value)<<1)+0x80000000)>>32);
-    inpt[0]=y.value;
-    inpt[1]=x.value;
+    memcpy((char*)&input, &y.value, sizeof(uint32_t));
+    memcpy((char*)&input+sizeof(uint32_t), &x.value, sizeof(uint32_t));
+
     asm (    // 160 cycles
     "clr %[Z] \n\t"
     "fmuls %D[X], %H[X] \n\t"
