@@ -69,7 +69,7 @@ void loop(void)
         if(debug) Serial.println("Flying");
         print("az",imu.az-az_idle);
         for(byte k=0; k<4; k++)
-          MotorAdjust[k]=takeoff_speed-0x200000-gravity;
+          MotorAdjust[k]=takeoff_speed-0x400000-gravity;
         takeoff_speed=0;
         manual_takeoff=false;
         flight_state=FSTATE_FLY;
@@ -80,7 +80,7 @@ void loop(void)
           MotorAdjust[k]=0;
       setMotorSpeed(takeoff_speed);
       if(debug) print("takeoff_speed", takeoff_speed);
-      takeoff_speed=takeoff_speed+0x200000; //  1/256
+      takeoff_speed=takeoff_speed+0x400000; //  1/128
       if (takeoff_speed<0)
       {
         takeoff_speed=0;
