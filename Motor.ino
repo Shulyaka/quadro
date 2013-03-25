@@ -26,7 +26,7 @@ void motor_updateControl(void)
     }
   }
 
-  Mt=-M[0]+M[1]+M[2];
+  Mt=-M[0]+M[1]-M[2];
   acc=MotorAcceleration+Mt;
   if(acc<0)
   {
@@ -37,7 +37,7 @@ void motor_updateControl(void)
   }
   setMotorSpeed(0, acc);
 
-  Mt=M[0]+M[1]-M[2];
+  Mt=M[0]+M[1]+M[2];
   acc=MotorAcceleration+Mt;
   if(acc<0)
   {
@@ -48,7 +48,7 @@ void motor_updateControl(void)
   }
   setMotorSpeed(1, acc);
 
-  Mt=M[0]-M[1]+M[2];
+  Mt=M[0]-M[1]-M[2];
   acc=MotorAcceleration+Mt;
   if(acc<0)
   {
@@ -59,7 +59,7 @@ void motor_updateControl(void)
   }
   setMotorSpeed(2, acc);
 
-  Mt=-M[0]-M[1]-M[2];
+  Mt=-M[0]-M[1]+M[2];
   acc=MotorAcceleration+Mt;
   if(acc<0)
   {
