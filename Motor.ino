@@ -1,3 +1,6 @@
+const fixed orientation_distance_factor_sinpi4=orientation_distance_factor*sinpi4;
+const fixed orientation_distance_factor_z_sinpi4=orientation_distance_factor_z*sinpi4;
+
 void motor_updateControl(void)
 {
   fixed Mt;
@@ -8,7 +11,7 @@ void motor_updateControl(void)
   {
     M[0]=orientation_distance_factor*m.w*m.x-orientation_speed_factor*imu.sina;
     M[1]=orientation_distance_factor*m.w*m.y-orientation_speed_factor*imu.sinb;
-    M[2]=orientation_distance_factor*m.w*m.z-orientation_speed_factor*imu.sinc;
+    M[2]=orientation_distance_factor_z*m.w*m.z-orientation_speed_factor_z*imu.sinc;
   }
   else
   {
@@ -16,13 +19,13 @@ void motor_updateControl(void)
     {
       M[0]=orientation_distance_factor_sinpi4*m.x-orientation_speed_factor*imu.sina;
       M[1]=orientation_distance_factor_sinpi4*m.y-orientation_speed_factor*imu.sinb;
-      M[2]=orientation_distance_factor_sinpi4*m.z-orientation_speed_factor*imu.sinc;
+      M[2]=orientation_distance_factor_z_sinpi4*m.z-orientation_speed_factor_z*imu.sinc;
     }
     else
     {
       M[0]=-orientation_distance_factor_sinpi4*m.x-orientation_speed_factor*imu.sina;
       M[1]=-orientation_distance_factor_sinpi4*m.y-orientation_speed_factor*imu.sinb;
-      M[2]=-orientation_distance_factor_sinpi4*m.z-orientation_speed_factor*imu.sinc;
+      M[2]=-orientation_distance_factor_z_sinpi4*m.z-orientation_speed_factor_z*imu.sinc;
     }
   }
 

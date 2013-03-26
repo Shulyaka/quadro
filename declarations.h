@@ -75,15 +75,15 @@ fixed control_az=gravity;
 quaternion control_q=ident;
 
 //the following values adjust control parameters, subject to calibrate:
-const fixed orientation_distance_factor=one>>1;
+const fixed orientation_distance_factor=one>>4;
 const fixed orientation_speed_factor=one>>1;
+const fixed orientation_distance_factor_z=one>>4;
+const fixed orientation_speed_factor_z=one>>1;
+
 const fixed vertical_distance_factor=one>>1;
 const fixed vertical_speed_factor=one>>1;
 const fixed horizontal_distance_factor=0;//one>>1;
 const fixed horizontal_speed_factor=one>>1;
-
-
-const fixed orientation_distance_factor_sinpi4=orientation_distance_factor*sinpi4;
 
 fixed accel_offset[3]={-2000000, -9900000, -2000000};
 fixed accel_gain[3]={-6000000, -1800000, 1000000};     //-2500000
