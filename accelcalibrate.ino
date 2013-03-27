@@ -624,7 +624,7 @@ point[5][2]=2365;
   for(byte i=0;i<6;i++)
   {
     i=0;
-    check_cmd();
+    serialEvent();
     Serial.print("Waiting for position "); Serial.print(i+1); Serial.println("...");
     delay(500);
     for(accel_done=false; accel_done!=true;);

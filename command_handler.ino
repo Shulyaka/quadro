@@ -19,7 +19,7 @@
 char cmdBuf[cmdBufLen];
 unsigned char cmdPos=0;
 
-void check_cmd(void)
+void serialEvent(void)
 {
   unsigned char cmd;
   int param=0;
@@ -106,7 +106,7 @@ void check_cmd(void)
       error("The command has been disabled");
   }
   if(Serial.available())
-    check_cmd();
+    serialEvent();
 }
 
 unsigned char parse_cmd(int *param)

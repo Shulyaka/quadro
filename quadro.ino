@@ -52,7 +52,7 @@ void loop(void)
   
   delay(10);
 
-  check_cmd(); //to be rewritten using serialEvent() //or may be not...
+//  check_cmd(); //to be rewritten using serialEvent() //or may be not...
 
 //if(i==500) flight_state=FSTATE_TAKEOFF; //auto take off
 
