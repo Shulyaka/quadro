@@ -3,11 +3,8 @@ int accelADC[3];
 long accelBuf[3];
 volatile bool accel_done=true;
 
-
 void accel_init(void)
 {
-//    int accelAddress = 0x40; // page 54 and 61 of datasheet
-    
     disable_sensor_interrupts();
     accel_time=0;
     // Check if accel is connected
