@@ -15,6 +15,7 @@ void setup(void)
   pinMode(MotorPin[2], OUTPUT);
   pinMode(MotorPin[3], OUTPUT);
   Serial.begin(9600);
+  Serial2.begin(125200);
   Serial.print("AT+NAMEp01quadro");
   delay(2000);
   Serial.print("AT+BAUD8");
@@ -23,7 +24,7 @@ void setup(void)
   Serial.begin(115200);
   Serial.println("\nInitializing... ");
   digitalWrite(StatusLEDPin, HIGH);
-  clear_cmdBuf();
+//  clear_cmdBuf();
   Wire.begin();
   TWBR = 12;
   imu_init();
