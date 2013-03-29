@@ -9,9 +9,19 @@ void motor_updateControl(void)
 
   if(abs(m.w)>sinpi4)
   {
+/*
     M[0]=orientation_distance_factor*m.w*m.x-orientation_speed_factor*imu.sina;
     M[1]=orientation_distance_factor*m.w*m.y-orientation_speed_factor*imu.sinb;
     M[2]=orientation_distance_factor_z*m.w*m.z-orientation_speed_factor_z*imu.sinc;
+*/
+    M[0]=orientation_distance_factor*m.w*m.x+(imu.sina<<3);
+    M[1]=orientation_distance_factor*m.w*m.y+(imu.sinb<<3);
+    M[2]=orientation_distance_factor_z*m.w*m.z+(imu.sinc<<3);
+/*
+    M[0]=imu.sina<<4;
+    M[1]=imu.sinb<<4;
+    M[2]=imu.sinc<<4;
+*/
   }
   else
   {

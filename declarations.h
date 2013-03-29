@@ -23,7 +23,7 @@ const unsigned char MotorPin[]={2, 3, 5, 6};
 bool debug=true;
 
 //#define FINDZERO 128
-#define GYROCNTP 9  //this value should not be too high because we calibrate the sensor using the shortest arc
+#define GYROCNTP 8  //this value should not be too high because we calibrate the sensor using the shortest arc
 #define ACCELCNT 32
 
 fixed M[3]={0};
@@ -75,9 +75,9 @@ fixed control_az=gravity;
 quaternion control_q=ident;
 
 //the following values adjust control parameters, subject to calibrate:
-const fixed orientation_distance_factor=one>>4;
+const fixed orientation_distance_factor=one>>1;
 const fixed orientation_speed_factor=one>>1;
-const fixed orientation_distance_factor_z=one>>4;
+const fixed orientation_distance_factor_z=one>>1;
 const fixed orientation_speed_factor_z=one>>1;
 
 const fixed vertical_distance_factor=one>>1;

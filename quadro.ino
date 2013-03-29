@@ -109,7 +109,7 @@ void loop(void)
       delay(20);
       break;
     case FSTATE_FLY:
-        print("idle",imu.q*q_idle);
+        //print("idle",imu.q*q_idle);
         cosg=imu.q.x*imu.q.x+imu.q.y*imu.q.y;
         cosg=one-cosg-cosg;
         if(cosg<0)
@@ -171,14 +171,17 @@ void print_debug_info(void)
 //    print("Nq",norm(qt));
     print("qd",control_q);
 //    print("mi",qt*conjugate(control_q));
-//    print("Mx",M[0]);
-//    print("My",M[1]);
-//    print("Mz",M[2]);
+    print("Mx",M[0]);
+    print("My",M[1]);
+    print("Mz",M[2]);
 //    print("t1",t1);
 //    print("t2",t2);
 //    print("t3",t3);
 //    print("t4",t4);
 //    print("t5",t5);
+    print("sa",imu.sina<<4);
+    print("sb",imu.sinb<<4);
+    print("sc",imu.sinc<<4);
     
 //    print(" s",t1%t1+t2%t2+t3%t3);
 //    print("ss",lsqrt(t1%t1+t2%t2+t3%t3));
@@ -190,22 +193,22 @@ void print_debug_info(void)
 //  print("z1",imu.z1);
 //  print("z2",imu.z2);
 //  print("z3",imu.z3);
-  print("ax",ax);
-  print("ay",ay);
-  print("az",az);
-  print("vx",imu.vx);
-  print("vy",imu.vy);
-  print("vz",imu.vz);
-  print(" x",imu.x);
-  print(" y",imu.y);
-  print(" z",imu.z);
+//  print("ax",ax);
+//  print("ay",ay);
+//  print("az",az);
+//  print("vx",imu.vx);
+//  print("vy",imu.vy);
+//  print("vz",imu.vz);
+//  print(" x",imu.x);
+//  print(" y",imu.y);
+//  print(" z",imu.z);
 
-  print("MotorAcceleration",MotorAcceleration);
+//  print("MotorAcceleration",MotorAcceleration);
 
-  print("MotorAdjust0", MotorAdjust[0]);
-  print("MotorAdjust1", MotorAdjust[1]);
-  print("MotorAdjust2", MotorAdjust[2]);
-  print("MotorAdjust3", MotorAdjust[3]);
+//  print("MotorAdjust0", MotorAdjust[0]);
+//  print("MotorAdjust1", MotorAdjust[1]);
+//  print("MotorAdjust2", MotorAdjust[2]);
+//  print("MotorAdjust3", MotorAdjust[3]);
 
   print("Motor0", MotorSpeed[0]);
   print("Motor1", MotorSpeed[1]);
@@ -213,7 +216,7 @@ void print_debug_info(void)
   print("Motor3", MotorSpeed[3]);
   print("battery", analogRead(BattMonPin));
 
-  cmd_gyro();
+//  cmd_gyro();
   Serial.println(accel_time);  
 }
 
