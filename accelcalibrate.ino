@@ -535,7 +535,7 @@ for(byte j=0; j<10; j++)
 void accel_calibrate_int_measure_wait(void)
 {
   int oldval[3];
-  int delta=30;
+  int delta=50;
   static int icount=0;
   static int dcount=0;
   for (byte axis = 0; axis < 3; axis++)
@@ -577,7 +577,33 @@ void accel_calibrate_int_measure_wait(void)
     }
   }
 }
+
 fixed accel_cum=0;
+
+void manualcalibrate(void)
+{
+  fixed point[3];
+//  fixed k0[3]={0};
+//  fixed k1[3]={0};
+//  fixed k2[3]={0};
+  byte i=0;
+  
+  while(true)
+  {
+    Serial.print("Waiting for position "); Serial.print(++i); Serial.println("...");
+    delay(5000);
+    for(accel_done=false; accel_done!=true;);
+    for(byte j=0;j<3;j++)
+      point[j]=accelBuf[j]<<8;
+    printpoint(point);
+    print("sqrt", sqrt(point[0]%point[0]+point[1]%point[1]+point[2]%point[2]));
+    for(byte j=0; j<3; j++)
+      point[j]=point[j]+accel_square[j]*point[j]*point[j]+accel_gain[j]*point[j]+accel_offset[j];
+    printpoint(point);
+    print("sqrt", sqrt(point[0]%point[0]+point[1]%point[1]+point[2]%point[2]));
+  }
+}
+
 void accel_calibrate_manual_2() //manual accel calibration
 {
   fixed point[6][3];
@@ -589,6 +615,7 @@ void accel_calibrate_manual_2() //manual accel calibration
 //matrixtest(); return;
   attachInterrupt(4, accel_calibrate_int_measure_wait, RISING);
 
+  manualcalibrate();
 /*
 point[0][0]=-4096;
 point[0][1]=0;

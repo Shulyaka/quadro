@@ -1,4 +1,4 @@
-#define ACFIXED
+//#define ACFIXED
 #include <Wire.h>
 #include "declarations.h"
 
@@ -15,6 +15,7 @@ void setup(void)
   pinMode(MotorPin[2], OUTPUT);
   pinMode(MotorPin[3], OUTPUT);
   Serial.begin(9600);
+  motor_init();
   Serial2.begin(125200);
   Serial.print("AT+NAMEp01quadro");
   delay(2000);
@@ -28,7 +29,6 @@ void setup(void)
   Wire.begin();
   TWBR = 12;
   imu_init();
-  motor_init();
   while(!gyro_ready || !accel_ready)
     continue;
   Serial.println("OK");
@@ -193,12 +193,12 @@ void print_debug_info(void)
 //  print("z1",imu.z1);
 //  print("z2",imu.z2);
 //  print("z3",imu.z3);
-//  print("ax",ax);
-//  print("ay",ay);
-//  print("az",az);
-//  print("vx",imu.vx);
-//  print("vy",imu.vy);
-//  print("vz",imu.vz);
+  print("ax",ax);
+  print("ay",ay);
+  print("az",az);
+  print("vx",imu.vx);
+  print("vy",imu.vy);
+  print("vz",imu.vz);
 //  print(" x",imu.x);
 //  print(" y",imu.y);
 //  print(" z",imu.z);

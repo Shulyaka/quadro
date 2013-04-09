@@ -27,12 +27,12 @@ void imu_updateOrientation(int alpha, int beta, int gamma)
 //  qr=quaternion(cacb*imu.cosc-sasb*imu.sinc, sacb*imu.cosc+casb*imu.sinc, casb*imu.cosc-sacb*imu.sinc, sasb*imu.cosc+cacb*imu.sinc);
 if(ccnt++!=1<<GYROCNTP)
 {
-  imu.q=imu.q*quaternion(cacb*imu.cosc-sasb*imu.sinc, sacb*imu.cosc+casb*imu.sinc, casb*imu.cosc-sacb*imu.sinc, sasb*imu.cosc+cacb*imu.sinc)*imu.cqs; //qx*qy*qz
+  imu.qg=imu.qg*quaternion(cacb*imu.cosc-sasb*imu.sinc, sacb*imu.cosc+casb*imu.sinc, casb*imu.cosc-sacb*imu.sinc, sasb*imu.cosc+cacb*imu.sinc)*imu.cqs; //qx*qy*qz
 }
 else
 {
   ccnt=0;
-  imu.q=imu.q*quaternion(cacb*imu.cosc-sasb*imu.sinc, sacb*imu.cosc+casb*imu.sinc, casb*imu.cosc-sacb*imu.sinc, sasb*imu.cosc+cacb*imu.sinc)*imu.cql; //same, but with long-term calibration quaternion
+  imu.qg=imu.qg*quaternion(cacb*imu.cosc-sasb*imu.sinc, sacb*imu.cosc+casb*imu.sinc, casb*imu.cosc-sacb*imu.sinc, sasb*imu.cosc+cacb*imu.sinc)*imu.cql; //same, but with long-term calibration quaternion
 //  if(gyro_ready)
 //  {
 //    print("q", imu.q);
@@ -40,8 +40,13 @@ else
 //  }
 }
 
+  imu.q=imu.qg*gyro_orientation;
+
   if(imu.q.w<0)
+  {
+    imu.qg=-imu.qg;
     imu.q=-imu.q;
+  }
 
 //imu.tmp1=qr.x;
 //imu.tmp2=qr.y;
@@ -120,7 +125,7 @@ void imu_init_orientation(void)
   for(byte i=0; i<3;i++)
   {
     grav[i]=(long)accelADC[i]<<18;
-    grav[i]=grav[i]+grav[i]*accel_gain[i]+accel_offset[i];
+    grav[i]=grav[i]+grav[i]*grav[i]*accel_square[i]+grav[i]*accel_gain[i]+accel_offset[i];
   }
   vectnorm(grav);
 
@@ -143,44 +148,47 @@ void imu_init_orientation(void)
   imu.q=q1*q2;
   if(imu.q.w<0)
     imu.q=-imu.q;
-  //imu.qd=ident;
+
+  imu.qg=imu.q*conjugate(gyro_orientation);
+  if(imu.qg.w<0)
+    imu.qg=-imu.qg;
 
   enable_sensor_interrupts();
 }
 
 void imu_init_calibrate_orientation(void)
 {
-    imu.q=ident;
+    imu.qg=ident;
     imu.cqs=ident;
     imu.cql=ident;
 }
 
 void imu_calibrate_orientation(void)
 {
-  print("q", imu.q);
+  print("qg", imu.qg);
   
-  imu.cql=imu.q;
+  imu.cql=imu.qg;
   
   for(char p=0; p<GYROCNTP; p++)
   {
-    imu.q=sqrt(imu.q);
-    print("q",imu.q);
+    imu.qg=sqrt(imu.qg);
+    print("qg",imu.qg);
     //print("n",norm(imu.q));
     //print("l",lnorm(imu.q));
   }
 
-  imu.cqs=imu.cqs*conjugate(imu.q);
+  imu.cqs=imu.cqs*conjugate(imu.qg);
 
   for(char p=0; p<GYROCNTP; p++)
   {
-    imu.q=imu.q*imu.q;
-    print("q",imu.q);
+    imu.qg=imu.qg*imu.qg;
+    print("qg",imu.qg);
   }
 
 //  print("1",imu.q*conjugate(imu.cql));
   imu.cql=imu.cqs;//*imu.q*conjugate(imu.cql);   //tbd
   
-  imu.q=ident;
+  imu.qg=ident;
 }
 
 quaternion imu_control(quaternion heading)

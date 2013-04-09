@@ -43,10 +43,8 @@ void cmd_zero(void)
   imu.x=0;
   imu.y=0;
   imu.z=0;
-  imu.q.w=one;
-  imu.q.x=0;
-  imu.q.y=0;
-  imu.q.z=0;
+  imu.q=ident;
+  imu.qg=conjugate(gyro_orientation);
   control_az=gravity;
 }
 
@@ -104,14 +102,14 @@ void cmd_setc(int c)
 void cmd_usr1(void)
 {
   accel_offset[2]=accel_offset[2]+100000;
-  accel_cum=0;
+//  accel_cum=0;
   print("accel_offset[2]",accel_offset[2]);
 }
 
 void cmd_usr2(void)
 {
   accel_offset[2]=accel_offset[2]-100000;
-  accel_cum=0;
+//  accel_cum=0;
   print("accel_offset[2]",accel_offset[2]);
 }
 

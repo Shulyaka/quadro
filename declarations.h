@@ -1,6 +1,6 @@
 #ifndef DECLARATIONS_H
 #define DECLARATIONS_H
-
+                                                   //TODO:  to rename all this mess to something more logical
 //#include <Arduino.h>
 #include "fplib.h"
 #include "quaternionlib.h"
@@ -24,7 +24,7 @@ bool debug=true;
 
 //#define FINDZERO 128
 #define GYROCNTP 8  //this value should not be too high because we calibrate the sensor using the shortest arc
-#define ACCELCNT 32
+#define ACCELCNT 4096
 
 fixed M[3]={0};
 
@@ -36,7 +36,7 @@ fixed MotorSpeed[4]={0};
 fixed MotorAcceleration=gravity;
 
 //defines current instantaneous imu parameters
-typedef struct Imu {
+typedef struct {
   fixed ax, ay, az;
   fixed vx, vy, vz;
   fixed x, y, z;
@@ -52,10 +52,11 @@ typedef struct Imu {
   fixed tmp1, tmp2, tmp3, tmp4, tmp5;
   lfixed tmp;
   quaternion q;  //current orientation
+  quaternion qg;  //actual orientation in the gyro axis
 //  quaternion qd; //desired temporary orientation
   quaternion cqs; //short-term calibration quaternion
   quaternion cql; //long-term calibration quaternion
-};
+} Imu;
 
 Imu imu;
 
@@ -85,14 +86,16 @@ const fixed vertical_speed_factor=one>>1;
 const fixed horizontal_distance_factor=0;//one>>1;
 const fixed horizontal_speed_factor=one>>1;
 
+//sensor calibration parameters             -- TODO: to store them in EEPROM
+quaternion gyro_orientation=ident;   //gyro misalignment compensation
+/*
 fixed accel_offset[3]={-2000000, -9900000, -2000000};
-fixed accel_gain[3]={-6000000, -1800000, 1000000};     //-2500000
-//0,500698491931
-//-0,498835846782
+fixed accel_gain[3]={-6000000, -1800000, 1000000};
+*/
+fixed accel_offset[3]={-26000000, -9900000, -2000000};
+fixed accel_gain[3]={21500000, -1800000, 1000000};
+fixed accel_square[3]={108000000, 0, 0};
 
-//-3500000
-// -500000
-//
 
 typedef int angle;
 

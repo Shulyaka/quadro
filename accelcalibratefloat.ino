@@ -577,12 +577,52 @@ for(byte j=0; j<32; j++)
   return true;
 }
 
+void math_nonmagic(float a[3][3], float k2[3], float k1[3], float k0[3])
+{
+  int t=1;
+  float k[3];
+  float m[3][3];
+  float r[3]={-0.5+sqrt(sq(a[0][0])+sq(a[0][1])+sq(a[0][2])), -a[1][t], 0.5-sqrt(sq(a[2][0])+sq(a[2][1])+sq(a[2][2]))};
+  
+  m[0][0]=1; m[0][1]=-sqrt(sq(a[0][0])+sq(a[0][1])+sq(a[0][2])); m[0][2]=sq(a[0][0])+sq(a[0][1])+sq(a[0][2]);
+  m[1][0]=1; m[1][1]=a[1][t]; m[1][2]=sq(a[1][t]);
+  m[2][0]=1; m[2][1]=sqrt(sq(a[2][0])+sq(a[2][1])+sq(a[2][2])); m[2][2]=sq(a[2][0])+sq(a[2][1])+sq(a[2][2]);
+  
+  lsolve(m, r, k);
+  
+  k2[0]=0;
+  k2[1]=0;
+  k2[2]=0;
+  k1[0]=0;
+  k1[1]=0;
+  k1[2]=0;
+  k0[0]=0;
+  k0[1]=0;
+  k0[2]=0;
+  
+  k0[t]=k[0];
+  k1[t]=k[1];
+  k2[t]=k[2];
+}
+
+long long accelQBuf[3]={0};
+
 void accel_calibrate_int_measure_wait(void)
 {
   int oldval[3];
-  int delta=30;
+  int delta=120;
   static int icount=0;
   static int dcount=0;
+  quaternion acc;
+  fixed i, j, k;
+  
+  accel_interrupted=true;
+  digitalWrite(AccelLEDPin, HIGH);
+  if(gyro_interrupted)
+    digitalWrite(GyroLEDPin, LOW);
+  else
+    digitalWrite(StatusLEDPin, LOW);
+    
   for (byte axis = 0; axis < 3; axis++)
     oldval[axis]=accelADC[axis];
   disable_sensor_interrupts();
@@ -592,7 +632,10 @@ void accel_calibrate_int_measure_wait(void)
 
   if(icount==0 && accel_done==false)
     for (byte axis = 0; axis < 3; axis++)
-      accelBuf[axis]=ACCELCNT>>1;
+    {
+      accelBuf[axis]=0;
+      accelQBuf[axis]=0;
+    }
 
   if (abs(accelADC[0]-oldval[0])+abs(accelADC[1]-oldval[1])+abs(accelADC[2]-oldval[2])>delta)
   {
@@ -606,6 +649,12 @@ void accel_calibrate_int_measure_wait(void)
         Serial.println("");
       }
     }
+    digitalWrite(AccelLEDPin, LOW);
+    if(gyro_interrupted)
+      digitalWrite(GyroLEDPin, HIGH);
+    else
+      digitalWrite(StatusLEDPin, HIGH);
+    accel_interrupted=false;
     return;
   }
 
@@ -613,6 +662,16 @@ void accel_calibrate_int_measure_wait(void)
   {
     for (byte axis = 0; axis < 3; axis++)
       accelBuf[axis]+=accelADC[axis];
+      
+    i=(long)accelADC[0]<<18;
+    j=(long)accelADC[1]<<18;
+    k=(long)accelADC[2]<<18;
+        
+    quaternion acc=imu.q*quaternion(i+i*i*accel_square[0]+i*accel_gain[0]+accel_offset[0], j+j*j*accel_square[1]+j*accel_gain[1]+accel_offset[1], k+k*k*accel_square[2]+k*accel_gain[2]+accel_offset[2])*conjugate(imu.q);
+    accelQBuf[0]+=acc.x.value;
+    accelQBuf[0]+=acc.y.value;
+    accelQBuf[0]+=(acc.z-gravity).value;
+    
     if(++icount==ACCELCNT)
     {
       accel_done=true;
@@ -621,6 +680,13 @@ void accel_calibrate_int_measure_wait(void)
       Serial.println("");
     }
   }
+  
+  digitalWrite(AccelLEDPin, LOW);
+  if(gyro_interrupted)
+    digitalWrite(GyroLEDPin, HIGH);
+  else
+    digitalWrite(StatusLEDPin, HIGH);
+  accel_interrupted=false;
 }
 
 void manualcalibrate(void)
@@ -637,7 +703,7 @@ void manualcalibrate(void)
     delay(5000);
     for(accel_done=false; accel_done!=true;);
     for(byte j=0;j<3;j++)
-      point[j]=(float)(accelBuf[j]/ACCELCNT)/8192.0;
+      point[j]=(float)accelBuf[j]/(8192.0*ACCELCNT);
     printpoint(point);
     print("sqrt", sqrt(sq(point[0])+sq(point[1])+sq(point[2])));
     for(byte j=0; j<3; j++)
@@ -649,13 +715,17 @@ void manualcalibrate(void)
 
 void accel_calibrate_manual_2() //manual accel calibration
 {
-  float point[6][3]={0};
+  float point[3][3]={0};
   float k2[3];
   float k1[3];
   float k0[3];
   float kt[6]={0};
   float pt[3]={0};
   int n=0;
+  float f_accel_offset[3]={0.0, 0.0, -0.015};
+  float f_accel_gain[3]={0.0, 0.0, 0.0005};
+  float f_accel_square[3]={0.0, 0.0, 0.06};
+
 //  Serial.println("Manual accel calibration\nThis algorithm will estimate accel zero values\nby measuring gravity in 6 different positions.\nThe more the positions differ, the better estimation.\nThe positions are not required to be exactly aligned to gravity in any way.\nPlease do not move your quadro.");
 //matrixtest(); return;
   attachInterrupt(4, accel_calibrate_int_measure_wait, RISING);
@@ -694,56 +764,67 @@ point[5][2]=2365;
 //3996^2   0    3996^2
 */
 
-  for(byte i=0;i<6;i++)
+  for(byte i=0;i<3;i++)
   {
     Serial.print("Waiting for position "); Serial.print(i+1); Serial.println("...");
     delay(5000);
-    for(byte k=0; k<20; k++)
-    {
-      Serial.println(k);
+//    for(byte k=0; k<20; k++)
+//    {
+//      Serial.println(k);
       for(accel_done=false; accel_done!=true;);
       for(byte j=0;j<3;j++)
-        point[i][j]+=(float)(accelBuf[j]/ACCELCNT)/8192.0;
-    }
-    for(byte j=0;j<3;j++)
-      point[i][j]/=20.0;
+        point[i][j]=(float)accelBuf[j]/(8192.0*ACCELCNT);
+//    }
+//    for(byte j=0;j<3;j++)
+//      point[i][j]/=20.0;
     printpoint(point[i]);
     print("sqrt", sqrt(sq(point[i][0])+sq(point[i][1])+sq(point[i][2])));
-
+    for(byte j=0;j<3;j++)
+      point[i][j]+=f_accel_square[j]*sq(point[i][j])+f_accel_gain[j]*point[i][j]+f_accel_offset[j];
+    printpoint("calibrated", point[i]);
+    print("sqrt", sqrt(sq(point[i][0])+sq(point[i][1])+sq(point[i][2])));
   }
+//point[1][1]=0.015;
 
-  Serial.println("Waiting for position 7...");
+  Serial.println("Waiting for position 0...");
   delay(5000);
-  for(byte k=0; k<20; k++)
-  {
-    Serial.println(k);
+//  for(byte k=0; k<20; k++)
+//  {
+//    Serial.println(k);
     for(accel_done=false; accel_done!=true;);
     for(byte j=0;j<3;j++)
       pt[j]+=(float)(accelBuf[j]/ACCELCNT)/8192.0;
-  }
-  for(byte j=0;j<3;j++)
-    pt[j]/=20.0;
+//  }
+//  for(byte j=0;j<3;j++)
+//    pt[j]/=20.0;
   printpoint(pt);
+  print("sqrt", sqrt(sq(pt[0])+sq(pt[1])+sq(pt[2])));
+
+  for(byte j=0;j<3;j++)
+    pt[j]+=f_accel_square[j]*sq(pt[j])+f_accel_gain[j]*pt[j]+f_accel_offset[j];
+  printpoint("calibrated", pt);
   print("sqrt", sqrt(sq(pt[0])+sq(pt[1])+sq(pt[2])));
 
   Serial.println("Done. Thanks. Now calculating...");
 
-  if(!math_magic(point, k2, k1, k0)) // find gain to be applied for the 5 points to be on a sphere
+/*  if(!math_magic(point, k2, k1, k0)) // find gain to be applied for the 5 points to be on a sphere
     {Serial.println("Error: Non-singular matrix. Possible reasons: programmer was drunk. Please try again.");
     return;
     }
+*/
+math_nonmagic(point, k2, k1, k0);
 
 printpoint("k2",k2);
 printpoint("k1",k1);
 printpoint("k0",k0);
 
-for(byte i=0; i<6; i++)
+for(byte i=0; i<3; i++)
   for(byte j=0; j<3; j++)
-    point[i][j]=k2[j]*sq(point[i][j])+(1+k1[j])*point[i][j]+k0[j];
+    point[i][j]+=k2[j]*sq(point[i][j])+k1[j]*point[i][j]+k0[j];
 for(byte j=0; j<3; j++)
-  pt[j]=k2[j]*sq(pt[j])+(1+k1[j])*pt[j]+k0[j];
+  pt[j]+=k2[j]*sq(pt[j])+k1[j]*pt[j]+k0[j];
 
-for(byte i=0; i<6; i++)
+for(byte i=0; i<3; i++)
 {
   printpoint("point", point[i]);
   print("sqrt", sqrt(sq(point[i][0])+sq(point[i][1])+sq(point[i][2])));
@@ -752,7 +833,7 @@ for(byte i=0; i<6; i++)
 printpoint("point", pt);
 print("sqrt", sqrt(sq(pt[0])+sq(pt[1])+sq(pt[2])));
 
-
+/*
 center(point[0], point[1], point[2], point[3], kt, k0);
 printpoint("center0", k0);
 
@@ -761,7 +842,18 @@ printpoint("center4", k0);
 
 center(point[0], point[1], point[2], point[5], kt, k0);
 printpoint("center5", k0);
+*/
 
+for(byte i=0; i<3; i++)
+{
+  k2[i]*=2147483648.0;
+  k1[i]*=2147483648.0;
+  k0[i]*=2147483648.0;
+}
+
+printpoint("k2",k2);
+printpoint("k1",k1);
+printpoint("k0",k0);
 
 
   delay(1500);
@@ -830,7 +922,70 @@ k0: -0.1392, -0.0340, -0.0093
 k2: 0.0070, -0.0083, -0.0062
 k1: 0.0133, 0.0033, -0.0205
 k0: 0.0040, -0.0057, -0.0073
+-------------
+k2: 0.0090, -0.0127, -0.0079
+k1: 0.0138, -0.0046, -0.0042
+k0: 0.0057, 0.0016, 0.0009
 
+k2: 0.0258, -0.0412, 0.0179
+k1: -0.0220, -0.0070, 0.0056
+k0: -0.0176, 0.0063, -0.0045
+
+
+
+-------------
+k2: 0.0396, 0.0000, 0.0000
+k1: -0.0002, 0.0000, 0.0000
+k0: -0.0089, 0.0000, 0.0000
+
+k2: 0.0515, 0.0000, 0.0000
+k1: 0.0013, 0.0000, 0.0000
+k0: -0.0124, 0.0000, 0.0000
+
+k2: 0.0522, 0.0000, 0.0000
+k1: 0.0011, 0.0000, 0.0000
+k0: -0.0129, 0.0000, 0.0000
+
+k2: 0.0456, 0.0000, 0.0000
+k1: -0.0008, 0.0000, 0.0000
+k0: -0.0109, 0.0000, 0.0000
+
+k2: 0.0488, 0.0000, 0.0000
+k1: 0.0010, 0.0000, 0.0000
+k0: -0.0137, 0.0000, 0.0000
+
+k2: 0.0318, 0.0000, 0.0000
+k1: -0.0026, 0.0000, 0.0000
+k0: -0.0080, 0.0000, 0.0000
+
+k2: -0.0230, 0.0000, 0.0000
+k1: 0.0004, 0.0000, 0.0000
+k0: 0.0047, 0.0000, 0.0000
+
+-----------------
+k2: 0.0000, 0.0000, 0.0864
+k1: 0.0000, 0.0000, -0.0001
+k0: 0.0000, 0.0000, -0.0222
+
+k2: 0.0000, 0.0000, 0.1151
+k1: 0.0000, 0.0000, 0.0005
+k0: 0.0000, 0.0000, -0.0290
+
+k2: 0.0000, 0.0000, 0.0832
+k1: 0.0000, 0.0000, 0.0018
+k0: 0.0000, 0.0000, -0.0207
+
+k2: 0.0000, 0.0000, 0.0691
+k1: 0.0000, 0.0000, -0.0001
+k0: 0.0000, 0.0000, -0.0171
+
+k2: 0.0000, 0.0000, 0.1170
+k1: 0.0000, 0.0000, 0.0005
+k0: 0.0000, 0.0000, -0.0295
+
+k2: 0.0000, 0.0000, 0.0599
+k1: 0.0000, 0.0000, 0.0004
+k0: 0.0000, 0.0000, -0.0150
 
 
 */
