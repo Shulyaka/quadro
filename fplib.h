@@ -265,8 +265,8 @@ fixed operator*(fixed x, fixed y) //multiply and conquer!
   else if(x==-one && y==-one)
     return one;
   else
-    //z.value=(x.value>0) ? ((long long)(y.value)*((unsigned long)(x.value)<<1)+0x80000000)>>32 : -(((long long)(y.value)*((unsigned long)(-x.value)<<1)+0x80000000)>>32);
-    asm (    // 160 cycles
+    z.value=(x.value>0) ? ((long long)(y.value)*((unsigned long)(x.value)<<1)+0x80000000)>>32 : -(((long long)(y.value)*((unsigned long)(-x.value)<<1)+0x80000000)>>32);
+/*    asm (    // 160 cycles
     "clr %[Z] \n\t"
     "fmuls %D[X], %D[Y] \n\t"
     "movw %C[R], r0 \n\t"
@@ -411,7 +411,7 @@ fixed operator*(fixed x, fixed y) //multiply and conquer!
     "clr r1  \n\t"
     : [R]"=&r"(z.value), [T]"=&r"(tmp), [Z]"=&r"(zero)
     : [X]"a"(x.value), [Y]"a"(y.value)
-    );
+    );*/
   return z;
 }
 

@@ -88,6 +88,7 @@ const fixed horizontal_speed_factor=one>>1;
 
 //sensor calibration parameters             -- TODO: to store them in EEPROM
 quaternion gyro_orientation=ident;   //gyro misalignment compensation
+quaternion accel_orientation=ident;   //accel misalignment compensation
 /*
 fixed accel_offset[3]={-2000000, -9900000, -2000000};
 fixed accel_gain[3]={-6000000, -1800000, 1000000};
