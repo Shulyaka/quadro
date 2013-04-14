@@ -680,6 +680,7 @@ inline fixed cosbysin(fixed& x)
 int vectnorm(fixed x[3])
 {
   fixed l=vectlen(x[0], x[1], x[2]);
+//  print("vectlen",l);
   if(l==0)
     return -1;
 
