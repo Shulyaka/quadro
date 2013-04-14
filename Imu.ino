@@ -74,7 +74,7 @@ imu.tmp3=qt3.w;
 
 void imu_updatePosition(fixed i, fixed j, fixed k)
 {
-  quaternion acc=imu.q*quaternion(i+i*accel_gain[0]+accel_offset[0], j+j*accel_gain[1]+accel_offset[1], k+k*accel_gain[2]+accel_offset[2])*conjugate(imu.q);
+  quaternion acc=imu.q*quaternion(i+i*i*accel_square[0]+i*accel_gain[0]+accel_offset[0], j+j*j*accel_square[1]+j*accel_gain[1]+accel_offset[1], k+k*k*accel_square[2]+k*accel_gain[2]+accel_offset[2])*conjugate(imu.q);
   imu.ax=acc.x;
   imu.ay=acc.y;
   imu.az=acc.z-gravity;
@@ -206,4 +206,14 @@ quaternion imu_control(quaternion heading)
   return sqrt(quaternion(top[2], -top[1], top[0], 0)) * heading;   // (0,0,1)*top=(-top[1], top[0], 0)
   //return ident;
 }
+
+quaternion imu_get_orientation(void)       // to be called outside of gyro interrupt
+{
+  quaternion orientation;
+  disable_sensor_interrupts();
+  orientation=imu.q;
+  enable_sensor_interrupts();
+  return orientation;
+}
+
 
