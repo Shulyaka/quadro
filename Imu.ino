@@ -120,8 +120,6 @@ void imu_init_orientation(void)
   while(!accel_ready)
     continue;
 
-  disable_sensor_interrupts();
-
 //  for(byte i=0; i<3;i++)
 //  {
 //    grav[i]=(long)accelADC[i]<<18;
@@ -147,6 +145,8 @@ void imu_init_orientation(void)
 
   q1=sqrt(quaternion(arr[0], 0, 0, -arr[1]));   //  arr*(1,0,0)=(0, 0, -arr[1])
 
+  disable_sensor_interrupts();
+  
   imu.q=q1*q2;
   imu.q.normalize();
   if(imu.q.w<0)
