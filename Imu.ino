@@ -153,6 +153,9 @@ void imu_init_orientation(void)
   if(imu.qg.w<0)
     imu.qg=-imu.qg;
 
+  imu.qg.normalize();
+  imu.q.normalize();
+  
   enable_sensor_interrupts();
 }
 

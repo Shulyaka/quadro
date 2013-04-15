@@ -24,6 +24,7 @@ bool debug=true;
 
 //#define FINDZERO 128
 #define GYROCNTP 8  //this value should not be too high because we calibrate the sensor using the shortest arc
+#define GYROSTEPS 8 //the number of calibration iterations
 #define ACCELCNT 4096
 #define ACCELCNTP 8 //to replace the above one
 

@@ -1,7 +1,10 @@
 #define accelAddress 0x40 // page 54 and 61 of datasheet
+#define accel_capture_delta 100
 int accelADC[3];
 long accelBuf[3];
 volatile bool accel_done=true;
+volatile bool accel_capture_flag=false;
+fixed accel_captured[3]=0;
 
 void accel_init(void)
 {
@@ -47,6 +50,13 @@ void accel_measure(void) //warning: you must call disable_sensor_interrupts() an
       accelADC[axis] = (Wire.read()|(Wire.read() << 8)) >> 2;
   }
 
+void accel_capture_wait(void)
+{
+  accel_capture_flag=true;
+  while(accel_capture_flag)
+    continue;
+}
+
 void accel_clear_int(void)
 {
   accel_measure();
@@ -67,6 +77,7 @@ void accel_update_eeprom(void)
   accel_init();
 }
 
+/*  // The below is the old accel interrupt without position capturing support:
 void accel_int(void)
 {
   static unsigned long int accel_oldtime=0;
@@ -85,6 +96,87 @@ void accel_int(void)
   
   if(gyro_ready)
     imu_updatePosition((long)accelADC[0]<<18, (long)accelADC[1]<<18, (long)accelADC[2]<<18);
+  
+  digitalWrite(AccelLEDPin, LOW);
+  if(gyro_interrupted)
+    digitalWrite(GyroLEDPin, HIGH);
+  else
+    digitalWrite(StatusLEDPin, HIGH);
+  accel_interrupted=false;
+
+  enable_sensor_interrupts();
+}
+*/
+
+void accel_int(void)
+{
+  int oldval[3];
+  static int icount=0;
+  static int dcount=0;
+  static unsigned long int accel_oldtime=0;
+  accel_interrupted=true;
+  digitalWrite(AccelLEDPin, HIGH);
+  if(gyro_interrupted)
+    digitalWrite(GyroLEDPin, LOW);
+  else
+    digitalWrite(StatusLEDPin, LOW);
+  accel_time=micros()-accel_oldtime;
+  accel_oldtime=micros();
+
+  if(accel_capture_flag)
+    for (byte axis = 0; axis < 3; axis++)
+      oldval[axis]=accelADC[axis];
+
+  disable_sensor_interrupts();
+  interrupts();
+  accel_measure();
+  
+  if(gyro_ready)
+    imu_updatePosition((long)accelADC[0]<<18, (long)accelADC[1]<<18, (long)accelADC[2]<<18);
+
+  if(accel_capture_flag)
+  {
+    if(icount==0)
+      for (byte axis = 0; axis < 3; axis++)
+        accelBuf[axis]=0;//1<<(ACCELCNTP-1);
+
+    if(abs(accelADC[0]-oldval[0])+abs(accelADC[1]-oldval[1])+abs(accelADC[2]-oldval[2])>accel_capture_delta)
+    {
+      icount=0;
+      Serial.print("|");
+      if(++dcount>79)
+      {
+        dcount=0;
+        Serial.println("");
+      }
+    
+      digitalWrite(AccelLEDPin, LOW);
+      if(gyro_interrupted)
+        digitalWrite(GyroLEDPin, HIGH);
+      else
+        digitalWrite(StatusLEDPin, HIGH);
+      accel_interrupted=false;
+
+      enable_sensor_interrupts();
+
+      return;
+    }
+  
+    for (byte axis = 0; axis < 3; axis++)
+      accelBuf[axis]+=accelADC[axis];
+    if(++icount==1<<ACCELCNTP)
+    {
+      accel_capture_flag=false;
+      icount=0;
+      dcount=0;
+      for (byte axis = 0; axis < 3; axis++)
+      {
+        accel_captured[axis]=accelBuf[axis]<<(18-ACCELCNTP);
+        accel_captured[axis]=accel_captured[axis]+accel_captured[axis]*accel_captured[axis]*accel_square[axis]+accel_captured[axis]*accel_gain[axis]+accel_offset[axis];
+      }
+      Serial.println("");
+    }
+  }
   
   digitalWrite(AccelLEDPin, LOW);
   if(gyro_interrupted)
