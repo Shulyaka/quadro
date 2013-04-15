@@ -9,7 +9,7 @@ class quaternion
   quaternion(void);
   quaternion(fixed, fixed, fixed, fixed);
   quaternion(fixed, fixed, fixed);
-  void normalize(void);
+  quaternion normalize(void);
   fixed w, x, y, z;
 };
 
@@ -142,7 +142,7 @@ lfixed lmagnitude(quaternion a)
 
 //void print(const char *name, lfixed val);
 
-void quaternion::normalize(void)
+quaternion quaternion::normalize(void)
 {
   //print("ln",lnorm(*this));
   lfixed nm=lmagnitude(*this);
@@ -151,6 +151,8 @@ void quaternion::normalize(void)
   this->x=this->x%one/nm;
   this->y=this->y%one/nm;
   this->z=this->z%one/nm;
+  
+  return *this;
 }
 
 quaternion conjugate(quaternion a)
@@ -172,8 +174,7 @@ fixed inner(quaternion a, quaternion b)
 quaternion sqrt(quaternion a)
 {
   //quaternion z=(a>>1)+(ident>>1);
-  quaternion z=quaternion((a.w>>1)+(one>>1), a.x>>1, a.y>>1, a.z>>1);
-  z.normalize();
+  quaternion z=quaternion((a.w>>1)+(one>>1), a.x>>1, a.y>>1, a.z>>1).normalize();
   return z;
 }
 

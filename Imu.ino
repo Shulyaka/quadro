@@ -114,48 +114,47 @@ void imu_init_position(void)
 
 void imu_init_orientation(void)
 {
-  fixed grav[3];
-  fixed nort[3];
+//  fixed grav[3];
+  fixed arr[3];
   quaternion q1, q2;
   while(!accel_ready)
     continue;
 
   disable_sensor_interrupts();
 
-  for(byte i=0; i<3;i++)
-  {
-    grav[i]=(long)accelADC[i]<<18;
-    grav[i]=grav[i]+grav[i]*grav[i]*accel_square[i]+grav[i]*accel_gain[i]+accel_offset[i];
-  }
-  vectnorm(grav);
+//  for(byte i=0; i<3;i++)
+//  {
+//    grav[i]=(long)accelADC[i]<<18;
+//    grav[i]=grav[i]+grav[i]*grav[i]*accel_square[i]+grav[i]*accel_gain[i]+accel_offset[i];
+//  }
+  Serial.println("Capturing position. Please don't move the quadro");
+  accel_capture_wait();
+  vectnorm(accel_captured);
 
-  nort[0]=one; // replace with real magneto data;
-  nort[1]=0;
-  nort[2]=0;
-  vectnorm(nort);
+  arr[0]=one; // replace with real magneto data;
+  arr[1]=0;
+  arr[2]=0;
+  vectnorm(arr);
 
-  q2=sqrt(quaternion(grav[2], grav[1], -grav[0], 0));  //  grav*(0,0,1)=(grav[1], -grav[0], 0)
+  q2=sqrt(quaternion(accel_captured[2], accel_captured[1], -accel_captured[0], 0));  //  accel_captured*(0,0,1)=(accel_captured[1], -accel_captured[0], 0)
 
-  q1=q2*quaternion(nort[0], nort[1], nort[2])*conjugate(q2);
+  q1=q2*quaternion(arr[0], arr[1], arr[2])*conjugate(q2);
 
-  nort[0]=q1.x;
-  nort[1]=q1.y;
-  nort[2]=0;
-  vectnorm(nort);
+  arr[0]=q1.x;
+  arr[1]=q1.y;
+  arr[2]=0;
+  vectnorm(arr);
 
-  q1=sqrt(quaternion(nort[0], 0, 0, -nort[1]));   //  nort*(1,0,0)=(0, 0, -nort[1])
+  q1=sqrt(quaternion(arr[0], 0, 0, -arr[1]));   //  arr*(1,0,0)=(0, 0, -arr[1])
 
-  imu.q=q1*q2;
+  imu.q=(q1*q2).normalize();
   if(imu.q.w<0)
     imu.q=-imu.q;
 
-  imu.qg=imu.q*conjugate(gyro_orientation);
+  imu.qg=(imu.q*conjugate(gyro_orientation)).normalize();
   if(imu.qg.w<0)
     imu.qg=-imu.qg;
 
-  imu.qg.normalize();
-  imu.q.normalize();
-  
   enable_sensor_interrupts();
 }
 
