@@ -147,11 +147,13 @@ void imu_init_orientation(void)
 
   q1=sqrt(quaternion(arr[0], 0, 0, -arr[1]));   //  arr*(1,0,0)=(0, 0, -arr[1])
 
-  imu.q=(q1*q2).normalize();
+  imu.q=q1*q2;
+  imu.q.normalize();
   if(imu.q.w<0)
     imu.q=-imu.q;
 
-  imu.qg=(imu.q*conjugate(gyro_orientation)).normalize();
+  imu.qg=imu.q*conjugate(gyro_orientation);
+  imu.qg.normalize();
   if(imu.qg.w<0)
     imu.qg=-imu.qg;
 

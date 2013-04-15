@@ -16,7 +16,8 @@ void calibrate_orientation(void)
   
   Serial.println("Waiting for the position 1");
   accel_capture_wait();
-  gyroq=imu_get_orientation().normalize();
+  gyroq=imu_get_orientation();
+  gyroq.normalize();
   vectnorm(accel_captured);
   print("gyrop1", gyroq);
   
@@ -40,7 +41,8 @@ void calibrate_orientation(void)
   
   Serial.println("Waiting for the position 2");
   accel_capture_wait();
-  tmp=imu_get_orientation().normalize();
+  tmp=imu_get_orientation();
+  tmp.normalize();
   vectnorm(accel_captured);
   print("gyrop2", tmp);
   gyroq=tmp*conjugate(gyroq);
