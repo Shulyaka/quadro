@@ -164,12 +164,12 @@ void print_debug_info(void)
     t4=imu.tmp4;
     t5=imu.tmp5;
     tm=imu.tmp;
-    qt=imu.q;
+    qt=imu_get_orientation();
 //    f=getangle(qt.x);
 
     Serial.println("----------------");
     print("qt",qt);
-//    print("Nq",norm(qt));
+    print("Nq",norm(qt));
     print("qd",control_q);
 //    print("mi",qt*conjugate(control_q));
     print("Mx",M[0]);

@@ -67,16 +67,16 @@ bool operator!=(fixed x, fixed y)
 {return x.value!=y.value ? true : false;}
 
 bool operator>(fixed x, fixed y)
-{return (x.value>y.value)||((x==one)&&(y!=one)) ? true : false;}
+{return (((x.value>y.value)||(x==one))&&(y!=one)) ? true : false;}
 
 bool operator>=(fixed x, fixed y)
-{return (x.value>=y.value)||(x==one) ? true : false;}
+{return ((x.value>=y.value)&&(y!=one))||(x==one) ? true : false;}
 
 bool operator<(fixed x, fixed y)
-{return (x.value<y.value)||((y==one)&&(x!=one)) ? true : false;}
+{return (((x.value<y.value)||(y==one))&&(x!=one)) ? true : false;}
 
 bool operator<=(fixed x, fixed y)
-{return (x.value<=y.value)||(y==one) ? true : false;}
+{return ((x.value<=y.value)&&(x!=one))||(y==one) ? true : false;}
 
 
 bool operator==(lfixed x, lfixed y)

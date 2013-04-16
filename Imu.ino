@@ -182,7 +182,8 @@ void imu_calibrate_orientation(void)
   }
 
   imu.cqs=imu.cqs*conjugate(imu.qg);
-
+  imu.cqs.normalize();
+  
   for(char p=0; p<GYROCNTP; p++)
   {
     imu.qg=imu.qg*imu.qg;
@@ -190,7 +191,7 @@ void imu_calibrate_orientation(void)
   }
 
 //  print("1",imu.q*conjugate(imu.cql));
-  imu.cql=imu.cqs;//*imu.q*conjugate(imu.cql);   //tbd
+  imu.cql=imu.cqs;//*imu.q*conjugate(imu.cql).normalize();   //tbd
   
   imu.qg=ident;
 }

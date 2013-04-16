@@ -140,7 +140,7 @@ fixed magnitude(quaternion a)
 lfixed lmagnitude(quaternion a)
 {return lsqrt(lnorm(a));}
 
-//void print(const char *name, lfixed val);
+//void print(const char *name, fixed val);
 
 void quaternion::normalize(void)
 {
@@ -153,6 +153,13 @@ void quaternion::normalize(void)
   this->y=this->y%one/nm;
   this->z=this->z%one/nm;
   
+  if(this->w<0)
+  {
+    this->w=-this->w;
+    this->x=-this->x;
+    this->y=-this->y;
+    this->z=-this->z;
+  }
   //return *this;
 }
 
