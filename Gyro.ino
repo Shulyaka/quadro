@@ -46,7 +46,7 @@ void gyro_calibrate(void) // finds calibration quaternion in background, sets gy
 {
   static unsigned long long int findTime;
   static unsigned long int gyro_oldtime;
-  static unsigned int cstep=0;
+  static unsigned long cstep=0;
   unsigned long int gyro_newtime=micros();
   
   digitalWrite(GyroLEDPin, HIGH);
@@ -56,7 +56,7 @@ void gyro_calibrate(void) // finds calibration quaternion in background, sets gy
   else
     digitalWrite(StatusLEDPin, LOW);
 
-  if(cstep<=1<<GYROCNTP)
+  if(cstep<=1L<<GYROCNTP)
   {
     gyro_time=gyro_newtime-gyro_oldtime;
     gyro_oldtime=gyro_newtime;
@@ -69,7 +69,7 @@ void gyro_calibrate(void) // finds calibration quaternion in background, sets gy
 
   if(cstep==0)
   {
-    findTime=1<<(GYROCNTP-1);
+    findTime=1L<<(GYROCNTP-1);
 
     for (byte axis = 0; axis < 3; axis++)
       gyroBuf[axis]=1<<(GYROCNTP-1);
@@ -87,19 +87,19 @@ void gyro_calibrate(void) // finds calibration quaternion in background, sets gy
 
   imu_updateOrientation(gyroADC[0],gyroADC[1],gyroADC[2]);
 
-  if(cstep<=1<<GYROCNTP)
+  if(cstep<=1L<<GYROCNTP)
   {
     findTime+=gyro_time;
     for (byte axis = 0; axis < 3; axis++)
       gyroBuf[axis]+=gyroADC[axis];
   }
 
-  if(cstep==1<<GYROCNTP)
+  if(cstep==1L<<GYROCNTP)
   {
     gyro_time=findTime>>GYROCNTP;
     
-    for (byte axis = 0; axis < 3; axis++)
-      gyroZero[axis]=gyroBuf[axis]>>GYROCNTP;
+    //for (byte axis = 0; axis < 3; axis++)
+    //  gyroZero[axis]=gyroBuf[axis]>>GYROCNTP;
     
     imu_init_calibrate_orientation();
     
@@ -117,7 +117,11 @@ void gyro_calibrate(void) // finds calibration quaternion in background, sets gy
     print("cql",imu.cql);
   
     gyro_ready=true;
-    imu_init_orientation();
+    if(accel_ready)
+    {
+      imu_init_orientation();
+      imu_init_position();
+    }
     disable_sensor_interrupts();
     attachInterrupt(GyroIntNum, gyro_int, RISING);
     gyro_int_clear();
@@ -134,7 +138,7 @@ void gyro_calibrate(void) // finds calibration quaternion in background, sets gy
     return;
   }
   
-  if(cstep>1<<GYROCNTP && (cstep>>GYROCNTP)<<GYROCNTP==cstep)
+  if(cstep>1L<<GYROCNTP && (cstep>>GYROCNTP)<<GYROCNTP==cstep)
   {
     detachInterrupt(GyroIntNum);
     

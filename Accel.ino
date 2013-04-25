@@ -5,6 +5,7 @@ long accelBuf[3];
 volatile bool accel_done=true;
 volatile bool accel_capture_flag=false;
 fixed accel_captured[3]=0;
+quaternion accel_captured_imu=ident;
 
 void accel_init(void)
 {
@@ -37,7 +38,11 @@ void accel_calibrate()
 {  //does not calibrate currently
   Serial.println("Accel calibration complete");
   accel_ready=true;
-  imu_init_position();
+  if(gyro_ready)
+  {
+    imu_init_orientation();
+    imu_init_position();
+  }
   attachInterrupt(AccelIntNum, accel_int, RISING);
 }
 
@@ -138,8 +143,11 @@ void accel_int(void)
   if(accel_capture_flag)
   {
     if(icount==0)
+    {
       for (byte axis = 0; axis < 3; axis++)
         accelBuf[axis]=0;//1<<(ACCELCNTP-1);
+      accel_captured_imu=imu.q;
+    }
 
     if(abs(accelADC[0]-oldval[0])+abs(accelADC[1]-oldval[1])+abs(accelADC[2]-oldval[2])>accel_capture_delta)
     {

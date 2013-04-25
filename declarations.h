@@ -23,10 +23,10 @@ const unsigned char MotorPin[]={2, 3, 5, 6};
 bool debug=true;
 
 //#define FINDZERO 128
-#define GYROCNTP 12  //this value should not be too high because we calibrate the sensor using the shortest arc
-#define GYROSTEPS 8 //the number of calibration iterations
+#define GYROCNTP 10L  //this value should not be too high because we calibrate the sensor using the shortest arc
+#define GYROSTEPS 3L //the number of calibration iterations
 #define ACCELCNT 4096
-#define ACCELCNTP 8 //to replace the above one
+#define ACCELCNTP 9 //to replace the above one
 
 fixed M[3]={0};
 
@@ -89,15 +89,15 @@ const fixed horizontal_distance_factor=0;//one>>1;
 const fixed horizontal_speed_factor=one>>1;
 
 //sensor calibration parameters             -- TODO: to store them in EEPROM
-quaternion gyro_orientation=ident;   //gyro misalignment compensation
+quaternion gyro_orientation=quaternion(2147277277, -26095309, -13909796, -3444716);//ident;   //gyro misalignment compensation               //const
 quaternion accel_orientation=ident;   //accel misalignment compensation
 /*
 fixed accel_offset[3]={-2000000, -9900000, -2000000};
 fixed accel_gain[3]={-6000000, -1800000, 1000000};
 */
-fixed accel_offset[3]={-26000000, -9900000, -2000000};
-fixed accel_gain[3]={21500000, -1800000, 1000000};
-fixed accel_square[3]={108000000, 0, 0};
+fixed accel_offset[3]={2150000, -750000, 1200000};
+fixed accel_gain[3]={-3420000, -2850000, -5200000};
+fixed accel_square[3]={0, 0, 0};
 
 
 typedef int angle;

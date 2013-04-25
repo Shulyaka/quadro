@@ -37,7 +37,11 @@ void setup(void)
   accel_calibrate_manual();
 #endif
 //accel_calibrate_manual_2();
-calibrate_orientation();
+//accel_calibrate_manual_2();
+//accel_calibrate_manual_2();
+//accel_calibrate_manual_2();
+//accel_calibrate_manual_2();
+//calibrate_orientation();
   Serial.print("Gyro time is ");
   Serial.println(gyro_time);
   Serial.print("Accel time is ");
@@ -200,9 +204,9 @@ void print_debug_info(void)
   print("vx",imu.vx);
   print("vy",imu.vy);
   print("vz",imu.vz);
-//  print(" x",imu.x);
-//  print(" y",imu.y);
-//  print(" z",imu.z);
+  print(" x",imu.x);
+  print(" y",imu.y);
+  print(" z",imu.z);
 
 //  print("MotorAcceleration",MotorAcceleration);
 

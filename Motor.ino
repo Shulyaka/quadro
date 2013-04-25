@@ -111,8 +111,8 @@ void motor_init(void)
 
 void setMotorSpeed(unsigned char number, fixed rpm)
 {
-  const int baserange=120;
-  int v=baserange+128;
+  const int baserange=125;//120;
+  int v=245;//baserange+128;
 
   MotorSpeed[number]=rpm;
 
@@ -129,9 +129,13 @@ void setMotorSpeed(unsigned char number, fixed rpm)
       if(MotorAdjust[number]<0)
         v=baserange;
       else
-        v=baserange+128;
+        v=245;//baserange+128;
     else
+    {
       v=(rpm.value>>24)+baserange; //our range is 120-248
+      if(v>245)                    //well, actually 125-245
+        v=245;
+    }
   }
   
   analogWrite(MotorPin[number], v);
