@@ -55,6 +55,7 @@ typedef struct {
   lfixed tmp;
   quaternion q;  //current orientation
   quaternion qg;  //actual orientation in the gyro axis
+  quaternion angv; //angual velocity
 //  quaternion qd; //desired temporary orientation
   quaternion cqs; //short-term calibration quaternion
   quaternion cql; //long-term calibration quaternion

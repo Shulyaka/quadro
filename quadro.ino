@@ -51,29 +51,37 @@ void setup(void)
 void loop(void)
 {
   static unsigned int i=0;
-  static fixed az_idle=imu.az;
-  static quaternion q_idle=conjugate(imu.q);
+  static fixed az=imu.az;
+  static quaternion tmpq=conjugate(imu.q);
   static fixed takeoff_speed=0;
   fixed cosg;
+  quaternion imu_q;
+  fixed imu_x, imu_y, imu_z, imu_vx, imu_vy, imu_vz, imu_az;
   
-  delay(10);
-
-//  check_cmd(); //to be rewritten using serialEvent() //or may be not...
-
+  disable_sensor_interrupts();
+  imu_q=imu.q;
+  imu_x=imu.x;
+  imu_y=imu.y;
+  imu_z=imu.z;
+  imu_vx=imu.vx;
+  imu_vy=imu.vy;
+  imu_vz=imu.vz;
+  imu_az=imu.az;
+  enable_sensor_interrupts();
 //if(i==500) flight_state=FSTATE_TAKEOFF; //auto take off
 
   switch(flight_state)
   {
     case FSTATE_IDLE:
-      az_idle=imu.az;
-      q_idle=conjugate(imu.q);
+      az=imu.az;
+      tmpq=conjugate(imu_q);
       delay(50);
       break;
     case FSTATE_TAKEOFF:
-      if((imu.az>az_idle+0x28F5C23) || (abs((imu.q*q_idle).w)<2145336164L) || manual_takeoff) //takeoff condition: last known idle z acceleration plus 0.02 to be above noise or the real part of the mismatch quaternion is less than 0.999
+      if((imu_az>az+0x28F5C23) || (abs((imu_q*tmpq).w)<2145336164L) || manual_takeoff) //takeoff condition: last known idle z acceleration plus 0.02 to be above noise or the real part of the mismatch quaternion is less than 0.999
       {
         if(debug) Serial.println("Flying");
-        print("az",imu.az-az_idle);
+        print("az",imu_az-az);
         for(byte k=0; k<4; k++)
           MotorAdjust[k]=takeoff_speed-0x400000-gravity;
         takeoff_speed=0;
@@ -90,7 +98,7 @@ void loop(void)
       if (takeoff_speed<0)
       {
         takeoff_speed=0;
-        setMotorSpeed(0);
+        stopAllMotors();
         flight_state=FSTATE_IDLE; //failure to launch
       }
       delayMicroseconds(accel_time); //making sure that we wait enough
@@ -99,7 +107,7 @@ void loop(void)
       if (MotorSpeed[0]<0 && MotorSpeed[1]<0 && MotorSpeed[2]<0 && MotorSpeed[3]<0) //landing condition
       {
         if(debug) Serial.println("On the ground");
-        setMotorSpeed(0);
+        stopAllMotors();
         flight_state=FSTATE_IDLE;
         break;
       }
@@ -115,25 +123,31 @@ void loop(void)
       break;
     case FSTATE_FLY:
         //print("idle",imu.q*q_idle);
-        cosg=imu.q.x*imu.q.x+imu.q.y*imu.q.y;
+        cosg=imu_q.x*imu_q.x+imu_q.y*imu_q.y;
         cosg=one-cosg-cosg;
         if(cosg<0)
         {
-          MotorAcceleration=0; //we are upside-down, no acceleration
+          az=0; //we are upside-down, no acceleration
           for(byte k=0; k<3; k++)
-            if(abs(M[k])>MotorAcceleration)
-              MotorAcceleration=abs(M[k]); //or at least minimum to get out of this state
+            if(abs(M[k])>az)
+              az=abs(M[k]); //or at least minimum to get out of this state
         }
         else if(control_az>=cosg)
-          MotorAcceleration=one; //we are almost 90 degree rotated, not enough to hold altitude but do what we can with full acceleration
+          az=one; //we are almost 90 degree rotated, not enough to hold altitude but do what we can with full acceleration
         else
-          MotorAcceleration=control_az%one/cosg;   //normal operation
+          az=control_az%one/cosg;   //normal operation
 
-        control_ax=horizontal_distance_factor*(desired_x-imu.x)-horizontal_speed_factor*imu.vx;
-        control_ay=horizontal_distance_factor*(desired_y-imu.y)-horizontal_speed_factor*imu.vy;
-        control_az=gravity+vertical_distance_factor*(desired_z-imu.z)-vertical_speed_factor*imu.vz;
+        control_ax=horizontal_distance_factor*(desired_x-imu_x)-horizontal_speed_factor*imu_vx;
+        control_ay=horizontal_distance_factor*(desired_y-imu_y)-horizontal_speed_factor*imu_vy;
+        control_az=gravity+vertical_distance_factor*(desired_z-imu_z)-vertical_speed_factor*imu_vz;
 
-        control_q=imu_control(desired_q);
+        tmpq=imu_control(desired_q);
+        
+        disable_sensor_interrupts();  //we have to be sure that a gyro interrupt does not occur in the middle of copying
+        MotorAcceleration=az;
+        control_q=tmpq;
+        enable_sensor_interrupts();
+        
         // put the main flight control logic here
         break;
 
@@ -175,7 +189,7 @@ void print_debug_info(void)
     print("qt",qt);
     print("Nq",norm(qt));
     print("qd",control_q);
-//    print("mi",qt*conjugate(control_q));
+    print("mi",qt*conjugate(control_q));
     print("Mx",M[0]);
     print("My",M[1]);
     print("Mz",M[2]);
@@ -219,7 +233,11 @@ void print_debug_info(void)
   print("Motor1", MotorSpeed[1]);
   print("Motor2", MotorSpeed[2]);
   print("Motor3", MotorSpeed[3]);
-  print("battery", analogRead(BattMonPin));
+  print("battery", analogRead(BattMonPin));   // 690
+  // 304:  3.95V
+  // 815: 11.86V
+  // 809: 11.80V
+  //0.01456
 
 //  cmd_gyro();
   Serial.println(accel_time);  

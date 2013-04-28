@@ -92,7 +92,7 @@ void serialEvent(void)
       cmd_setc(param);
       break;
     case CMDUSR1:
-      cmd_usr1();
+      cmd_usr1(param);
       break;
     case CMDUSR2:
       cmd_usr2();
@@ -182,7 +182,7 @@ void serialEvent2(void)
       cmd_setc(param);
       break;
     case CMDUSR1:
-      cmd_usr1();
+      cmd_usr1(param);
       break;
     case CMDUSR2:
       cmd_usr2();
@@ -253,10 +253,13 @@ unsigned char parse_cmd(int *param)
     sscanf(cmdBuf+2,"%d",param);
     return CMDSETC;
   }
-  if (!memcmp(cmdBuf,"z",1))
+  if (!memcmp(cmdBuf,"m ",2))
+  {
+    sscanf(cmdBuf+2,"%d",param);
     return CMDUSR1;
-  if (!memcmp(cmdBuf,"Z",1))
-    return CMDUSR2;
+  }
+//  if (!memcmp(cmdBuf,"Z",1))
+//    return CMDUSR2;
   if (!memcmp(cmdBuf,"f",1))
     return CMDUSR3;
   if (!memcmp(cmdBuf,"e",1))

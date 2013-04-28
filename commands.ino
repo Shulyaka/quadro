@@ -63,7 +63,7 @@ void cmd_land(void)
 void cmd_emerg(void)
 {
   Serial.println("Emergency landing!\nMight be dangerous and damaging!\nAaaaaaa!");
-  setMotorSpeed(0);
+  stopAllMotors();
   flight_state=FSTATE_IDLE;
 }
 
@@ -99,11 +99,9 @@ void cmd_setc(int c)
   Serial.print(".\n");
 }
 
-void cmd_usr1(void)
+void cmd_usr1(int x)
 {
-  accel_offset[2]=accel_offset[2]+100000;
-//  accel_cum=0;
-  print("accel_offset[2]",accel_offset[2]);
+  analogWrite(MotorPin[0], x);
 }
 
 void cmd_usr2(void)

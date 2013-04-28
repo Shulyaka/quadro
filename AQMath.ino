@@ -683,11 +683,19 @@ int vectnorm(fixed x[3])
 //  print("vectlen",l);
   if(l==0)
     return -1;
-
-  x[0]=x[0]%one/l;
-  x[1]=x[1]%one/l;
-  x[2]=x[2]%one/l;
-  
+  if(l>0)
+  {
+    x[0]=x[0]%one/l;
+    x[1]=x[1]%one/l;
+    x[2]=x[2]%one/l;
+  }
+  else
+  {
+    l=l-l*l+l*l*l; //should be enough
+    x[0]=x[0]+x[0]*l;
+    x[1]=x[1]+x[1]*l;
+    x[2]=x[2]+x[2]*l;
+  }
   return 0;
 }
 

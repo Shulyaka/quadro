@@ -1,5 +1,5 @@
 #define accelAddress 0x40 // page 54 and 61 of datasheet
-#define accel_capture_delta 100
+#define accel_capture_delta 200
 int accelADC[3];
 long accelBuf[3];
 volatile bool accel_done=true;
@@ -153,6 +153,9 @@ void accel_int(void)
     {
       icount=0;
       Serial.print("|");
+      //Serial.println(accelADC[0]-oldval[0]);
+      //Serial.println(accelADC[1]-oldval[1]);
+      //Serial.println(accelADC[2]-oldval[2]);
       if(++dcount>79)
       {
         dcount=0;

@@ -27,19 +27,15 @@ void imu_updateOrientation(int alpha, int beta, int gamma)
 //  qr=quaternion(cacb*imu.cosc-sasb*imu.sinc, sacb*imu.cosc+casb*imu.sinc, casb*imu.cosc-sacb*imu.sinc, sasb*imu.cosc+cacb*imu.sinc);
 if(ccnt++!=1<<GYROCNTP)
 {
-  imu.qg=imu.qg*quaternion(cacb*imu.cosc-sasb*imu.sinc, sacb*imu.cosc+casb*imu.sinc, casb*imu.cosc-sacb*imu.sinc, sasb*imu.cosc+cacb*imu.sinc)*imu.cqs; //qx*qy*qz
+  imu.angv=quaternion(cacb*imu.cosc-sasb*imu.sinc, sacb*imu.cosc+casb*imu.sinc, casb*imu.cosc-sacb*imu.sinc, sasb*imu.cosc+cacb*imu.sinc)*imu.cqs; //qx*qy*qz
 }
 else
 {
   ccnt=0;
-  imu.qg=imu.qg*quaternion(cacb*imu.cosc-sasb*imu.sinc, sacb*imu.cosc+casb*imu.sinc, casb*imu.cosc-sacb*imu.sinc, sasb*imu.cosc+cacb*imu.sinc)*imu.cql; //same, but with long-term calibration quaternion
-//  if(gyro_ready)
-//  {
-//    print("q", imu.q);
-//    imu.q=ident;
-//  }
+  imu.angv=quaternion(cacb*imu.cosc-sasb*imu.sinc, sacb*imu.cosc+casb*imu.sinc, casb*imu.cosc-sacb*imu.sinc, sasb*imu.cosc+cacb*imu.sinc)*imu.cql; //same, but with long-term calibration quaternion
 }
 
+  imu.qg=imu.qg*imu.angv;
   imu.q=imu.qg*gyro_orientation;
 
   if(imu.q.w<0)
@@ -199,6 +195,7 @@ void imu_calibrate_orientation(void)
 quaternion imu_control(quaternion heading)
 {
   fixed top[3]={control_ax, control_ay, control_az};
+  quaternion result;
   vectnorm(top);
   
   if(heading.x!=0 || heading.y!=0)
@@ -208,8 +205,22 @@ quaternion imu_control(quaternion heading)
     heading.normalize();
   }
   
-  return sqrt(quaternion(top[2], -top[1], top[0], 0)) * heading;   // (0,0,1)*top=(-top[1], top[0], 0)
-  //return ident;
+  result=sqrt(quaternion(top[2], -top[1], top[0], 0)) * heading;   // (0,0,1)*top=(-top[1], top[0], 0)
+/*  if(abs(result.w)<sinpi4)
+  {
+    Serial.println("w<sinpi4==========================================================================================");
+    print("control_q", result);
+    print("heading", heading);
+    print("top[0]", top[0]);
+    print("top[1]", top[1]);
+    print("top[2]", top[2]);
+    print("control_ax", control_ax);
+    print("control_ay", control_ay);
+    print("control_az", control_az);
+    print("vectlen", vectlen(control_ax, control_ay, control_az));
+  }
+*/
+  return result;
 }
 
 quaternion imu_get_orientation(void)       // to be called outside of gyro interrupt
