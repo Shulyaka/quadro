@@ -691,7 +691,7 @@ int vectnorm(fixed x[3])
   }
   else
   {
-    l=l-l*l+l*l*l; //should be enough
+    l=l+l*l+l*l*l; //should be enough
     x[0]=x[0]+x[0]*l;
     x[1]=x[1]+x[1]*l;
     x[2]=x[2]+x[2]*l;

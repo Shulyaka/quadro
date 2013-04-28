@@ -24,9 +24,9 @@ void motor_updateControl(void)
     M[1]=m.w*m.y+(imu.sinb<<4);
     M[2]=m.w*m.z+(imu.sinc<<4);
 */
-    M[0]=m.w*m.x+imu.angv.x;
-    M[1]=m.w*m.y+imu.angv.y;
-    M[2]=m.w*m.z+imu.angv.z;
+    M[0]=m.w*m.x+(imu.angv.x<<6);
+    M[1]=m.w*m.y+(imu.angv.y<<6);
+    M[2]=(m.w*m.z>>1)+(imu.angv.z<<5);
 /*
     M[0]=imu.sina<<5;
     M[1]=imu.sinb<<5;
@@ -37,15 +37,15 @@ void motor_updateControl(void)
   {
     if(m.w>0)
     {
-      M[0]=orientation_distance_factor_sinpi4*m.x+orientation_speed_factor*imu.sina;
-      M[1]=orientation_distance_factor_sinpi4*m.y+orientation_speed_factor*imu.sinb;
-      M[2]=orientation_distance_factor_z_sinpi4*m.z+orientation_speed_factor_z*imu.sinc;
+      M[0]=sinpi4*m.x+(imu.angv.x<<6);
+      M[1]=sinpi4*m.y+(imu.angv.y<<6);
+      M[2]=(sinpi4*m.z>>1)+(imu.angv.z<<5);
     }
     else
     {
-      M[0]=-orientation_distance_factor_sinpi4*m.x+orientation_speed_factor*imu.sina;
-      M[1]=-orientation_distance_factor_sinpi4*m.y+orientation_speed_factor*imu.sinb;
-      M[2]=-orientation_distance_factor_z_sinpi4*m.z+orientation_speed_factor_z*imu.sinc;
+      M[0]=-sinpi4*m.x+(imu.angv.x<<6);
+      M[1]=-sinpi4*m.y+(imu.angv.y<<6);
+      M[2]=-(sinpi4*m.z>>1)+(imu.angv.z<<5);
     }
   }
   
@@ -57,10 +57,10 @@ void motor_updateControl(void)
     M[1]=Mmax;
   if(M[1]<-Mmax)
     M[1]=-Mmax;
-  if(M[2]>Mmax)
-    M[2]=Mmax;
-  if(M[2]<-Mmax)
-    M[2]=-Mmax;
+  if(M[2]>(Mmax>>1))
+    M[2]=(Mmax>>1);
+  if(M[2]<-(Mmax>>1))
+    M[2]=-(Mmax>>1);
 
   Mt=-M[0]+M[1]-M[2];
   acc=MotorAcceleration+Mt;
