@@ -1,6 +1,5 @@
 void imu_updateOrientation(int alpha, int beta, int gamma)
 {
-//  quaternion qr;
   fixed sasb,sacb,casb,cacb;
 //  quaternion qt1, qt2, qt3;
   static unsigned int ccnt=0;
@@ -24,16 +23,18 @@ void imu_updateOrientation(int alpha, int beta, int gamma)
   sacb=imu.sina*imu.cosb;
   casb=imu.cosa*imu.sinb;
   cacb=imu.cosa*imu.cosb;
-//  qr=quaternion(cacb*imu.cosc-sasb*imu.sinc, sacb*imu.cosc+casb*imu.sinc, casb*imu.cosc-sacb*imu.sinc, sasb*imu.cosc+cacb*imu.sinc);
-if(ccnt++!=1<<GYROCNTP)
-{
+
+//if(ccnt++!=1<<GYROCNTP)
+//{
   imu.angv=quaternion(cacb*imu.cosc-sasb*imu.sinc, sacb*imu.cosc+casb*imu.sinc, casb*imu.cosc-sacb*imu.sinc, sasb*imu.cosc+cacb*imu.sinc)*imu.cqs; //qx*qy*qz
-}
-else
-{
-  ccnt=0;
-  imu.angv=quaternion(cacb*imu.cosc-sasb*imu.sinc, sacb*imu.cosc+casb*imu.sinc, casb*imu.cosc-sacb*imu.sinc, sasb*imu.cosc+cacb*imu.sinc)*imu.cql; //same, but with long-term calibration quaternion
-}
+  //imu.angv=quaternion(imu.cosa*imu.cosb*imu.cosc, imu.sina*imu.cosb*imu.cosc, imu.sinb*imu.cosa*imu.cosc, imu.sinc*imu.cosa*imu.cosb)*imu.cqs;
+//}
+//else
+//{
+//  ccnt=0;
+  //imu.angv=quaternion(cacb*imu.cosc-sasb*imu.sinc, sacb*imu.cosc+casb*imu.sinc, casb*imu.cosc-sacb*imu.sinc, sasb*imu.cosc+cacb*imu.sinc)*imu.cql; //same, but with long-term calibration quaternion
+//  imu.angv=quaternion(cacb*imu.cosc, imu.sina*(imu.cosb*imu.cosc), imu.sinb*(imu.cosa*imu.cosc), imu.sinc*cacb)*imu.cql;
+//}
 
   imu.qg=imu.qg*imu.angv;
   imu.q=imu.qg*gyro_orientation;

@@ -19,33 +19,29 @@ void motor_updateControl(void)
     M[1]=orientation_distance_factor*m.w*m.y+(imu.sinb<<3);
     M[2]=orientation_distance_factor_z*m.w*m.z+(imu.sinc<<3);
 */
-/*
-    M[0]=m.w*m.x+(imu.sina<<4);
-    M[1]=m.w*m.y+(imu.sinb<<4);
-    M[2]=m.w*m.z+(imu.sinc<<4);
-*/
+
+    //m=m.w*m+(imu.angv<<6);
+    //M[0]=m.x;
+    //M[1]=m.y;
+    //M[2]=m.z;
+
     M[0]=m.w*m.x+(imu.angv.x<<6);
     M[1]=m.w*m.y+(imu.angv.y<<6);
-    M[2]=(m.w*m.z>>1)+(imu.angv.z<<5);
-/*
-    M[0]=imu.sina<<5;
-    M[1]=imu.sinb<<5;
-    M[2]=imu.sinc<<5;
-*/
+    M[2]=m.w*m.z+(imu.angv.z<<6);
   }
   else
   {
     if(m.w>0)
     {
-      M[0]=sinpi4*m.x+(imu.angv.x<<6);
-      M[1]=sinpi4*m.y+(imu.angv.y<<6);
-      M[2]=(sinpi4*m.z>>1)+(imu.angv.z<<5);
+      M[0]=(sinpi4>>1)*m.x+(imu.angv.x<<6);
+      M[1]=(sinpi4>>1)*m.y+(imu.angv.y<<6);
+      M[2]=(sinpi4>>1)*m.z+(imu.angv.z<<6);
     }
     else
     {
-      M[0]=-sinpi4*m.x+(imu.angv.x<<6);
-      M[1]=-sinpi4*m.y+(imu.angv.y<<6);
-      M[2]=-(sinpi4*m.z>>1)+(imu.angv.z<<5);
+      M[0]=-(sinpi4>>1)*m.x+(imu.angv.x<<6);
+      M[1]=-(sinpi4>>1)*m.y+(imu.angv.y<<6);
+      M[2]=-(sinpi4>>1)*m.z+(imu.angv.z<<6);
     }
   }
   
@@ -57,10 +53,12 @@ void motor_updateControl(void)
     M[1]=Mmax;
   if(M[1]<-Mmax)
     M[1]=-Mmax;
-  if(M[2]>(Mmax>>1))
-    M[2]=(Mmax>>1);
-  if(M[2]<-(Mmax>>1))
-    M[2]=-(Mmax>>1);
+  if(M[2]>Mmax)
+    M[2]=Mmax;
+  if(M[2]<-Mmax)
+    M[2]=-Mmax;
+
+  //M[2]=M[2]>>1;
 
   Mt=-M[0]+M[1]-M[2];
   acc=MotorAcceleration+Mt;
@@ -116,6 +114,8 @@ void motor_init(void)
 void stopAllMotors(void)
 {
   const int idleval=110;
+  if(gyro_ready)
+    disable_sensor_interrupts();
   analogWrite(MotorPin[0], idleval);
   analogWrite(MotorPin[1], idleval);
   analogWrite(MotorPin[2], idleval);
@@ -124,6 +124,8 @@ void stopAllMotors(void)
   MotorSpeed[1]=0;
   MotorSpeed[2]=0;
   MotorSpeed[3]=0;
+  if(gyro_ready)
+    enable_sensor_interrupts();
 }
 
 void setMotorSpeed(unsigned char number, fixed rpm)

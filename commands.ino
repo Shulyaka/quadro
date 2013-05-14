@@ -50,8 +50,15 @@ void cmd_zero(void)
 
 void cmd_takeoff(void)
 {
+  quaternion imu_q=imu_get_orientation();
   Serial.println("Taking off");
-  flight_state=FSTATE_TAKEOFF;
+  manual_takeoff=false;
+  if(abs((imu_q*conjugate(imu_q)).w)<2145336164L)
+  {
+    error("Flying condition is true. Takeoff disabled for safety reasons. Please check your quaternions!");
+  }
+  else
+    flight_state=FSTATE_TAKEOFF;
 }
 
 void cmd_land(void)
@@ -62,9 +69,9 @@ void cmd_land(void)
 
 void cmd_emerg(void)
 {
-  Serial.println("Emergency landing!\nMight be dangerous and damaging!\nAaaaaaa!");
-  stopAllMotors();
+  Serial.println("Emergency landing!\nMight be dangerous and damaging!\nMayday Mayday Mayday!\nAaaaaaa!");
   flight_state=FSTATE_IDLE;
+  stopAllMotors();
 }
 
 void cmd_debug(int flag)

@@ -15,6 +15,11 @@
 #define AccelIntNum  4
 #define GyroIntNumAtmega  INT3 // must match *IntNum Arduino interrupt number
 #define AccelIntNumAtmega INT2 // please see attachInterrupt() sources for the interrupt number assignment
+#define XBEE_DH "13A200"
+#define XBEE_DL "40983FF3"
+
+//#define XBEE_DL "0000FFFF"
+//#define XBEE_DH "00000000"
 
 const unsigned char MotorPin[]={2, 3, 5, 6};
 
@@ -59,6 +64,7 @@ typedef struct {
 //  quaternion qd; //desired temporary orientation
   quaternion cqs; //short-term calibration quaternion
   quaternion cql; //long-term calibration quaternion
+  quaternion heading; //quaternion representing the nearest horizontal orientation
 } Imu;
 
 Imu imu;

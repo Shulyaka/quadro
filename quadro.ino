@@ -19,10 +19,25 @@ void setup(void)
   Serial2.begin(125200);
   Serial.print("AT+NAMEp01quadro");
   delay(2000);
-  Serial.print("AT+BAUD8");
-  delay(2000);
+  Serial.print("AT+BAUD7");
+  delay(10000);
+  Serial.print("+++");
+  delay(1500);
+  Serial.println("ATBD6");
+  delay(500);
+  Serial.print("ATDH");
+  Serial.println(XBEE_DH);
+  delay(500);
+  Serial.print("ATDL");
+  Serial.println(XBEE_DL);
+  delay(500);
+  Serial.println("ATWR");
+  delay(500);
+  Serial.println("ATCN");
+  delay(1000);
   Serial.flush();
-  Serial.begin(115200);
+  Serial.begin(57600);
+
   Serial.println("\nInitializing... ");
   digitalWrite(StatusLEDPin, HIGH);
 //  clear_cmdBuf();
@@ -55,11 +70,12 @@ void loop(void)
   static quaternion tmpq=conjugate(imu.q);
   static fixed takeoff_speed=0;
   fixed cosg;
-  quaternion imu_q;
+  quaternion imu_q, imu_angv;
   fixed imu_x, imu_y, imu_z, imu_vx, imu_vy, imu_vz, imu_az;
   
   disable_sensor_interrupts();
   imu_q=imu.q;
+  imu_angv=imu.angv;
   imu_x=imu.x;
   imu_y=imu.y;
   imu_z=imu.z;
@@ -75,6 +91,8 @@ void loop(void)
     case FSTATE_IDLE:
       az=imu.az;
       tmpq=conjugate(imu_q);
+      //print("tmpq", tmpq);
+      //print("angv", imu_angv);
       delay(50);
       break;
     case FSTATE_TAKEOFF:
@@ -82,6 +100,10 @@ void loop(void)
       {
         if(debug) Serial.println("Flying");
         print("az",imu_az-az);
+        print("w",abs((imu_q*tmpq).w)-2145336164L);
+        print("tmp", imu_q*tmpq);
+        print("tmpq", tmpq);
+        print("imuq", imu_q);
         for(byte k=0; k<4; k++)
           MotorAdjust[k]=takeoff_speed-0x400000-gravity;
         takeoff_speed=0;
@@ -144,8 +166,8 @@ void loop(void)
         tmpq=imu_control(desired_q);
         
         disable_sensor_interrupts();  //we have to be sure that a gyro interrupt does not occur in the middle of copying
-        MotorAcceleration=az;
-        control_q=tmpq;
+        MotorAcceleration=gravity;//control_az;//az;
+        control_q=ident;//tmpq;
         enable_sensor_interrupts();
         
         // put the main flight control logic here
@@ -157,11 +179,11 @@ void loop(void)
 
 
 
-  if(!(i++%10))
-  {
-    if(imu.q.w==0&&imu.q.x==0&&imu.q.y==0&&imu.q.z==0) Serial.println(" "); //Just making sure the quaternion is calculated
+//  if(!(i++%10))
+//  {
+//    if(imu.q.w==0&&imu.q.x==0&&imu.q.y==0&&imu.q.z==0) Serial.println(" "); //Just making sure the quaternion is calculated
     print_debug_info();
-  }
+//  }
 }
 
 void print_debug_info(void)
@@ -171,6 +193,9 @@ void print_debug_info(void)
     lfixed tm;
 //    angle f,p,t;
     quaternion qt;
+    quaternion heading;
+    int battery=analogRead(BattMonPin);
+    
     static unsigned int j=0;
     j++;
     ax=imu.ax;
@@ -185,11 +210,18 @@ void print_debug_info(void)
     qt=imu_get_orientation();
 //    f=getangle(qt.x);
 
+    heading=qt;
+    heading.x=0;
+    heading.y=0;
+    heading.normalize();
+    
     Serial.println("----------------");
-    print("qt",qt);
-    print("Nq",norm(qt));
-    print("qd",control_q);
-    print("mi",qt*conjugate(control_q));
+    print("imu.q", qt);
+    print("heading", heading);
+    print("pitch", qt*conjugate(heading));
+//    print("Nq",norm(qt));
+//    print("qd",control_q);
+//    print("mi",qt*conjugate(control_q));
     print("Mx",M[0]);
     print("My",M[1]);
     print("Mz",M[2]);
@@ -198,9 +230,9 @@ void print_debug_info(void)
 //    print("t3",t3);
 //    print("t4",t4);
 //    print("t5",t5);
-    print("sa",imu.sina<<4);
-    print("sb",imu.sinb<<4);
-    print("sc",imu.sinc<<4);
+    print("angv.x",imu.angv.x);
+    print("angv.y",imu.angv.y);
+    print("angv.z",imu.angv.z);
     
 //    print(" s",t1%t1+t2%t2+t3%t3);
 //    print("ss",lsqrt(t1%t1+t2%t2+t3%t3));
@@ -212,15 +244,15 @@ void print_debug_info(void)
 //  print("z1",imu.z1);
 //  print("z2",imu.z2);
 //  print("z3",imu.z3);
-  print("ax",ax);
-  print("ay",ay);
-  print("az",az);
-  print("vx",imu.vx);
-  print("vy",imu.vy);
-  print("vz",imu.vz);
-  print(" x",imu.x);
-  print(" y",imu.y);
-  print(" z",imu.z);
+//  print("ax",ax);
+//  print("ay",ay);
+//  print("az",az);
+//  print("vx",imu.vx);
+//  print("vy",imu.vy);
+//  print("vz",imu.vz);
+//  print(" x",imu.x);
+//  print(" y",imu.y);
+//  print(" z",imu.z);
 
 //  print("MotorAcceleration",MotorAcceleration);
 
@@ -233,14 +265,16 @@ void print_debug_info(void)
   print("Motor1", MotorSpeed[1]);
   print("Motor2", MotorSpeed[2]);
   print("Motor3", MotorSpeed[3]);
-  print("battery", analogRead(BattMonPin));   // 690
+  print("battery", battery);
+  if(battery < 690)
+    Serial.println("Warning! Battery is too low!");
   // 304:  3.95V
   // 815: 11.86V
   // 809: 11.80V
   //0.01456
 
 //  cmd_gyro();
-  Serial.println(accel_time);  
+//  Serial.println(accel_time);  
 }
 
 void error (const char *msg)

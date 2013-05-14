@@ -196,7 +196,7 @@ void gyro_int(void)
   gyro_measure();
   enable_sensor_interrupts();
 
-  imu_updateOrientation(gyroADC[0],gyroADC[1],gyroADC[2]);
+  imu_updateOrientation(gyroADC[0], gyroADC[1], gyroADC[2]);
   
   if(flight_state==FSTATE_FLY)
     motor_updateControl();
