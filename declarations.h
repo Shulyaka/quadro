@@ -83,6 +83,7 @@ fixed control_ax=0;
 fixed control_ay=0;
 fixed control_az=gravity;
 quaternion control_q=ident;
+quaternion control_heading=ident;
 
 //the following values adjust control parameters, subject to calibrate:
 const fixed orientation_distance_factor=one>>1;

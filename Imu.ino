@@ -114,6 +114,7 @@ void imu_init_orientation(void)
 //  fixed grav[3];
   fixed arr[3];
   quaternion q1, q2;
+  imu.heading=ident;
   while(!accel_ready)
     continue;
 
@@ -221,7 +222,7 @@ quaternion imu_control(quaternion heading)
     print("vectlen", vectlen(control_ax, control_ay, control_az));
   }
 */
-  return result;
+  return heading;//result;
 }
 
 quaternion imu_get_orientation(void)       // to be called outside of gyro interrupt

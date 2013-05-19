@@ -14,6 +14,7 @@ void setup(void)
   pinMode(MotorPin[1], OUTPUT);
   pinMode(MotorPin[2], OUTPUT);
   pinMode(MotorPin[3], OUTPUT);
+  digitalWrite(StatusLEDPin, HIGH);
   Serial.begin(9600);
   motor_init();
   Serial2.begin(125200);
@@ -70,7 +71,9 @@ void loop(void)
   static quaternion tmpq=conjugate(imu.q);
   static fixed takeoff_speed=0;
   fixed cosg;
+  fixed hw, hz;
   quaternion imu_q, imu_angv;
+  quaternion cntrl_h;
   fixed imu_x, imu_y, imu_z, imu_vx, imu_vy, imu_vz, imu_az;
   
   disable_sensor_interrupts();
@@ -163,11 +166,29 @@ void loop(void)
         control_ay=horizontal_distance_factor*(desired_y-imu_y)-horizontal_speed_factor*imu_vy;
         control_az=gravity+vertical_distance_factor*(desired_z-imu_z)-vertical_speed_factor*imu_vz;
 
-        tmpq=imu_control(desired_q);
+        cntrl_h=desired_q;
+        cntrl_h.x=0;
+        cntrl_h.y=0;
+        cntrl_h.normalize();
+
+        hw=imu_q.w*cntrl_h.w-imu_q.z*cntrl_h.z;
+        hz=imu_q.w*cntrl_h.z+imu_q.z*cntrl_h.w;
+
+        if(abs(hw)>sinpi4)
+          hz=((hw*hz)>>1)+(imu_angv.z<<5);
+        else
+          if(hw>0)
+            hz=(sinpi4>>1)*hz+(imu_angv.z<<5);
+          else
+            hz=-(sinpi4>>1)*hz+(imu_angv.z<<5);
+      
+        tmpq=imu_control(imu_q);//(desired_q);
         
         disable_sensor_interrupts();  //we have to be sure that a gyro interrupt does not occur in the middle of copying
-        MotorAcceleration=gravity;//control_az;//az;
-        control_q=ident;//tmpq;
+        MotorAcceleration=gravity;//az;
+        control_q=tmpq;
+//        control_heading=cntrl_h;
+        M[2]=hz;
         enable_sensor_interrupts();
         
         // put the main flight control logic here
@@ -179,11 +200,8 @@ void loop(void)
 
 
 
-//  if(!(i++%10))
-//  {
-//    if(imu.q.w==0&&imu.q.x==0&&imu.q.y==0&&imu.q.z==0) Serial.println(" "); //Just making sure the quaternion is calculated
+  if(!(i++%10))
     print_debug_info();
-//  }
 }
 
 void print_debug_info(void)
@@ -210,15 +228,15 @@ void print_debug_info(void)
     qt=imu_get_orientation();
 //    f=getangle(qt.x);
 
-    heading=qt;
-    heading.x=0;
-    heading.y=0;
-    heading.normalize();
+//    heading=qt;
+//    heading.x=0;
+//    heading.y=0;
+//    heading.normalize();
     
     Serial.println("----------------");
     print("imu.q", qt);
-    print("heading", heading);
-    print("pitch", qt*conjugate(heading));
+//    print("heading", heading);
+//    print("pitch", qt*conjugate(heading));
 //    print("Nq",norm(qt));
 //    print("qd",control_q);
 //    print("mi",qt*conjugate(control_q));
@@ -230,9 +248,9 @@ void print_debug_info(void)
 //    print("t3",t3);
 //    print("t4",t4);
 //    print("t5",t5);
-    print("angv.x",imu.angv.x);
-    print("angv.y",imu.angv.y);
-    print("angv.z",imu.angv.z);
+    print("angv",imu.angv);
+//    print("angv.y",imu.angv.y);
+//    print("angv.z",imu.angv.z);
     
 //    print(" s",t1%t1+t2%t2+t3%t3);
 //    print("ss",lsqrt(t1%t1+t2%t2+t3%t3));

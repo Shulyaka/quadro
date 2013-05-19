@@ -6,8 +6,21 @@ void motor_updateControl(void)
 {
   fixed Mt;
   fixed acc;
-  quaternion m=imu.q*conjugate(control_q);
+  quaternion m=conjugate(control_q)*imu.q;
+  //quaternion h=imu.q*conjugate(control_heading);
+  
+/*  fixed hw=imu.q.w*control_heading.w-imu.q.z*control_heading.z;
+  fixed hz=imu.q.w*control_heading.z+imu.q.z*control_heading.w;
 
+  if(abs(hw)>sinpi4)
+    M[2]=hw*hz+(imu.angv.z<<6);
+  else
+    if(hw>0)
+      M[2]=(sinpi4>>1)*hz+(imu.angv.z<<6);
+    else
+      M[2]=-(sinpi4>>1)*hz+(imu.angv.z<<6);
+*/
+//M[2]=0;
   if(abs(m.w)>sinpi4)
   {
 /*
@@ -25,23 +38,32 @@ void motor_updateControl(void)
     //M[1]=m.y;
     //M[2]=m.z;
 
-    M[0]=m.w*m.x+(imu.angv.x<<6);
-    M[1]=m.w*m.y+(imu.angv.y<<6);
-    M[2]=m.w*m.z+(imu.angv.z<<6);
+//  if(m.w>0)
+//  {
+    M[0]=((m.w*m.x)>>1)+(imu.angv.x<<5);
+    M[1]=((m.w*m.y)>>1)+(imu.angv.y<<5);
+//  }
+//  else
+//  {
+//    M[0]=-m.x;//m.w*m.x;//+(imu.angv.x<<5);
+//    M[1]=-m.y;//m.w*m.y;//+(imu.angv.y<<5);
+//  }
+  
+    
   }
   else
   {
     if(m.w>0)
     {
-      M[0]=(sinpi4>>1)*m.x+(imu.angv.x<<6);
-      M[1]=(sinpi4>>1)*m.y+(imu.angv.y<<6);
-      M[2]=(sinpi4>>1)*m.z+(imu.angv.z<<6);
+      M[0]=(sinpi4>>1)*m.x+(imu.angv.x<<5);
+      M[1]=(sinpi4>>1)*m.y+(imu.angv.y<<5);
+      //M[2]=(sinpi4>>1)*m.z+(imu.angv.z<<5);
     }
     else
     {
-      M[0]=-(sinpi4>>1)*m.x+(imu.angv.x<<6);
-      M[1]=-(sinpi4>>1)*m.y+(imu.angv.y<<6);
-      M[2]=-(sinpi4>>1)*m.z+(imu.angv.z<<6);
+      M[0]=-(sinpi4>>1)*m.x+(imu.angv.x<<5);
+      M[1]=-(sinpi4>>1)*m.y+(imu.angv.y<<5);
+      //M[2]=-(sinpi4>>1)*m.z+(imu.angv.z<<5);
     }
   }
   
