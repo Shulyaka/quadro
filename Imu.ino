@@ -36,19 +36,14 @@ void imu_updateOrientation(int alpha, int beta, int gamma)
 //  imu.angv=quaternion(cacb*imu.cosc, imu.sina*(imu.cosb*imu.cosc), imu.sinb*(imu.cosa*imu.cosc), imu.sinc*cacb)*imu.cql;
 //}
 
-sasb=imu.qg.w;
-
   imu.qg=imu.qg*imu.angv;
   imu.q=imu.qg*gyro_orientation;
 
-//if(imu.qg.w*sasb<0)
-//  Serial.println("Detected");
-
-//  if(imu.q.w<0)
-//  {
-//    imu.qg=-imu.qg;
-//    imu.q=-imu.q;
-//  }
+  if(imu.q.w<0)
+  {
+    imu.qg=-imu.qg;
+    imu.q=-imu.q;
+  }
 
 //imu.tmp1=qr.x;
 //imu.tmp2=qr.y;

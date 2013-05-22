@@ -65,7 +65,6 @@ void gyro_calibrate(void) // finds calibration quaternion in background, sets gy
   disable_sensor_interrupts();
   interrupts();
   gyro_measure();
-  enable_sensor_interrupts();
 
   if(cstep==0)
   {
@@ -82,6 +81,9 @@ void gyro_calibrate(void) // finds calibration quaternion in background, sets gy
       digitalWrite(StatusLEDPin, HIGH);
 
     cstep++;
+
+    noInterrupts();
+    enable_sensor_interrupts();
     return; // skipping for the first time because gyro_time value may be wrong
   }
 
@@ -108,23 +110,25 @@ void gyro_calibrate(void) // finds calibration quaternion in background, sets gy
   
   if(cstep==GYROSTEPS<<GYROCNTP)
   {
-    detachInterrupt(GyroIntNum);
-
     imu_calibrate_orientation();
 
     Serial.println("Gyro calibration complete");
     print("cqs",imu.cqs);
     print("cql",imu.cql);
   
+    cstep=0;
+    
+    gyro_int_clear();
+
+    attachInterrupt(GyroIntNum, gyro_int, RISING);
+    enable_sensor_interrupts();
+    
     gyro_ready=true;
     if(accel_ready)
     {
       imu_init_orientation();
       imu_init_position();
     }
-    disable_sensor_interrupts();
-    attachInterrupt(GyroIntNum, gyro_int, RISING);
-    gyro_int_clear();
 
     gyro_interrupted=0;
     digitalWrite(GyroLEDPin, LOW);
@@ -132,25 +136,22 @@ void gyro_calibrate(void) // finds calibration quaternion in background, sets gy
       digitalWrite(AccelLEDPin, HIGH);
     else
       digitalWrite(StatusLEDPin, HIGH);
-    cstep=0;
-    noInterrupts();
-    enable_sensor_interrupts();
+
     return;
   }
   
   if(cstep>1L<<GYROCNTP && (cstep>>GYROCNTP)<<GYROCNTP==cstep)
   {
-    detachInterrupt(GyroIntNum);
-    
     imu_calibrate_orientation();
+
     Serial.print("Gyro ");
     Serial.print(cstep>>GYROCNTP);
     Serial.println("pass calibration complete");
     print("cqs",imu.cqs);
     print("cql",imu.cql);
 
-    disable_sensor_interrupts();
-    attachInterrupt(GyroIntNum, gyro_calibrate, RISING);
+    cstep++;
+
     gyro_int_clear();
 
     gyro_interrupted=0;
@@ -159,7 +160,7 @@ void gyro_calibrate(void) // finds calibration quaternion in background, sets gy
       digitalWrite(AccelLEDPin, HIGH);
     else
       digitalWrite(StatusLEDPin, HIGH);
-    cstep++;
+
     noInterrupts();
     enable_sensor_interrupts();
     return;
@@ -172,6 +173,8 @@ void gyro_calibrate(void) // finds calibration quaternion in background, sets gy
   else
     digitalWrite(StatusLEDPin, HIGH);
   cstep++;
+  noInterrupts();
+  enable_sensor_interrupts();
 }
 
 
@@ -191,16 +194,9 @@ void gyro_int(void)
   else
     digitalWrite(StatusLEDPin, LOW);
   
-  if(gyro_interrupted>1)
-  {
-    Serial.print("CPU overflow! ");
-    Serial.println(gyro_interrupted);
-  }
-
   disable_sensor_interrupts();
   interrupts();
   gyro_measure();
-  enable_sensor_interrupts();
 
   imu_updateOrientation(gyroADC[0], gyroADC[1], gyroADC[2]);
   
@@ -213,5 +209,8 @@ void gyro_int(void)
     digitalWrite(AccelLEDPin, HIGH);
   else
     digitalWrite(StatusLEDPin, HIGH);
+
+  noInterrupts();
+  enable_sensor_interrupts();
 }
 

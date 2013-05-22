@@ -58,6 +58,7 @@ void accel_measure(void) //warning: you must call disable_sensor_interrupts() an
 void accel_capture_wait(void)
 {
   accel_capture_flag=true;
+//  enable_sensor_interrupts();
   while(accel_capture_flag)
     continue;
   //vectnorm(accel_captured);
@@ -169,6 +170,7 @@ void accel_int(void)
         digitalWrite(StatusLEDPin, HIGH);
       accel_interrupted=false;
 
+      noInterrupts();
       enable_sensor_interrupts();
 
       return;
@@ -197,6 +199,7 @@ void accel_int(void)
     digitalWrite(StatusLEDPin, HIGH);
   accel_interrupted=false;
 
+  noInterrupts();
   enable_sensor_interrupts();
 }
 
