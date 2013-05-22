@@ -93,7 +93,7 @@ const fixed orientation_speed_factor_z=one>>1;
 
 const fixed vertical_distance_factor=one>>1;
 const fixed vertical_speed_factor=one>>1;
-const fixed horizontal_distance_factor=0;//one>>1;
+const fixed horizontal_distance_factor=one>>1;
 const fixed horizontal_speed_factor=one>>1;
 
 //sensor calibration parameters             -- TODO: to store them in EEPROM

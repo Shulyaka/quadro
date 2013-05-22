@@ -113,9 +113,8 @@ void cmd_usr1(int x)
 
 void cmd_usr2(void)
 {
-  accel_offset[2]=accel_offset[2]-100000;
-//  accel_cum=0;
-  print("accel_offset[2]",accel_offset[2]);
+  desired_z=-0x10000000;
+  Serial.println("Descending");
 }
 
 void cmd_usr3(void)

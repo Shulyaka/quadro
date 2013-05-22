@@ -191,6 +191,12 @@ void gyro_int(void)
   else
     digitalWrite(StatusLEDPin, LOW);
   
+  if(gyro_interrupted>1)
+  {
+    Serial.print("CPU overflow! ");
+    Serial.println(gyro_interrupted);
+  }
+
   disable_sensor_interrupts();
   interrupts();
   gyro_measure();

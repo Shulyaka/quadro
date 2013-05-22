@@ -19,15 +19,15 @@ void imu_updateOrientation(int alpha, int beta, int gamma)
   imu.wy=beta;
   imu.wz=gamma;
 
-  sasb=imu.sina*imu.sinb;
-  sacb=imu.sina*imu.cosb;
-  casb=imu.cosa*imu.sinb;
-  cacb=imu.cosa*imu.cosb;
+//  sasb=imu.sina*imu.sinb;
+//  sacb=imu.sina*imu.cosb;
+//  casb=imu.cosa*imu.sinb;
+//  cacb=imu.cosa*imu.cosb;
 
 //if(ccnt++!=1<<GYROCNTP)
 //{
-  imu.angv=quaternion(cacb*imu.cosc-sasb*imu.sinc, sacb*imu.cosc+casb*imu.sinc, casb*imu.cosc-sacb*imu.sinc, sasb*imu.cosc+cacb*imu.sinc)*imu.cqs; //qx*qy*qz
-  //imu.angv=quaternion(imu.cosa*imu.cosb*imu.cosc, imu.sina*imu.cosb*imu.cosc, imu.sinb*imu.cosa*imu.cosc, imu.sinc*imu.cosa*imu.cosb)*imu.cqs;
+  //imu.angv=quaternion(cacb*imu.cosc-sasb*imu.sinc, sacb*imu.cosc+casb*imu.sinc, casb*imu.cosc-sacb*imu.sinc, sasb*imu.cosc+cacb*imu.sinc)*imu.cqs; //qx*qy*qz
+  imu.angv=quaternion(imu.cosa*imu.cosb*imu.cosc, imu.sina*imu.cosb*imu.cosc, imu.sinb*imu.cosa*imu.cosc, imu.sinc*imu.cosa*imu.cosb)*imu.cqs;
 //}
 //else
 //{
@@ -36,14 +36,19 @@ void imu_updateOrientation(int alpha, int beta, int gamma)
 //  imu.angv=quaternion(cacb*imu.cosc, imu.sina*(imu.cosb*imu.cosc), imu.sinb*(imu.cosa*imu.cosc), imu.sinc*cacb)*imu.cql;
 //}
 
+sasb=imu.qg.w;
+
   imu.qg=imu.qg*imu.angv;
   imu.q=imu.qg*gyro_orientation;
 
-  if(imu.q.w<0)
-  {
-    imu.qg=-imu.qg;
-    imu.q=-imu.q;
-  }
+//if(imu.qg.w*sasb<0)
+//  Serial.println("Detected");
+
+//  if(imu.q.w<0)
+//  {
+//    imu.qg=-imu.qg;
+//    imu.q=-imu.q;
+//  }
 
 //imu.tmp1=qr.x;
 //imu.tmp2=qr.y;
@@ -222,7 +227,7 @@ quaternion imu_control(quaternion heading)
     print("vectlen", vectlen(control_ax, control_ay, control_az));
   }
 */
-  return heading;//result;
+  return result;
 }
 
 quaternion imu_get_orientation(void)       // to be called outside of gyro interrupt

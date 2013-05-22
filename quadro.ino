@@ -99,7 +99,7 @@ void loop(void)
       delay(50);
       break;
     case FSTATE_TAKEOFF:
-      if((imu_az>az+0x28F5C23) || (abs((imu_q*tmpq).w)<2145336164L) || manual_takeoff) //takeoff condition: last known idle z acceleration plus 0.02 to be above noise or the real part of the mismatch quaternion is less than 0.999
+      if((imu_az>az+0x51EB853) || (abs((imu_q*tmpq).w)<2145336164L) || manual_takeoff) //takeoff condition: last known idle z acceleration plus 0.04 to be above noise or the real part of the mismatch quaternion is less than 0.999
       {
         if(debug) Serial.println("Flying");
         print("az",imu_az-az);
@@ -108,7 +108,7 @@ void loop(void)
         print("tmpq", tmpq);
         print("imuq", imu_q);
         for(byte k=0; k<4; k++)
-          MotorAdjust[k]=takeoff_speed-0x400000-gravity;
+          MotorAdjust[k]=takeoff_speed-0x800000-gravity;
         takeoff_speed=0;
         manual_takeoff=false;
         flight_state=FSTATE_FLY;
@@ -119,7 +119,7 @@ void loop(void)
           MotorAdjust[k]=0;
       setMotorSpeed(takeoff_speed);
       if(debug) print("takeoff_speed", takeoff_speed);
-      takeoff_speed=takeoff_speed+0x400000; //  1/128
+      takeoff_speed=takeoff_speed+0x800000; //  1/256
       if (takeoff_speed<0)
       {
         takeoff_speed=0;
@@ -185,7 +185,7 @@ void loop(void)
         tmpq=imu_control(imu_q);//(desired_q);
         
         disable_sensor_interrupts();  //we have to be sure that a gyro interrupt does not occur in the middle of copying
-        MotorAcceleration=gravity;//az;
+        MotorAcceleration=az;
         control_q=tmpq;
 //        control_heading=cntrl_h;
         M[2]=hz;
@@ -208,6 +208,7 @@ void print_debug_info(void)
 {
     fixed ax, ay, az;
     fixed t1,t2,t3,t4,t5;
+//    fixed imu_x, imu_y, imu_z;
     lfixed tm;
 //    angle f,p,t;
     quaternion qt;
@@ -226,6 +227,7 @@ void print_debug_info(void)
     t5=imu.tmp5;
     tm=imu.tmp;
     qt=imu_get_orientation();
+
 //    f=getangle(qt.x);
 
 //    heading=qt;
@@ -235,6 +237,7 @@ void print_debug_info(void)
     
     Serial.println("----------------");
     print("imu.q", qt);
+    print("imu.qg",imu.qg);
 //    print("heading", heading);
 //    print("pitch", qt*conjugate(heading));
 //    print("Nq",norm(qt));
@@ -262,15 +265,15 @@ void print_debug_info(void)
 //  print("z1",imu.z1);
 //  print("z2",imu.z2);
 //  print("z3",imu.z3);
-//  print("ax",ax);
-//  print("ay",ay);
-//  print("az",az);
+  print("ax",ax);
+  print("ay",ay);
+  print("az",az);
 //  print("vx",imu.vx);
 //  print("vy",imu.vy);
 //  print("vz",imu.vz);
-//  print(" x",imu.x);
-//  print(" y",imu.y);
-//  print(" z",imu.z);
+  print(" x",imu.x);
+  print(" y",imu.y);
+  print(" z",imu.z);
 
 //  print("MotorAcceleration",MotorAcceleration);
 

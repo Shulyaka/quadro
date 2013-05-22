@@ -258,8 +258,8 @@ unsigned char parse_cmd(int *param)
     sscanf(cmdBuf+2,"%d",param);
     return CMDUSR1;
   }
-//  if (!memcmp(cmdBuf,"Z",1))
-//    return CMDUSR2;
+  if (!memcmp(cmdBuf,"d",1))
+    return CMDUSR2;
   if (!memcmp(cmdBuf,"f",1))
     return CMDUSR3;
   if (!memcmp(cmdBuf,"e",1))
