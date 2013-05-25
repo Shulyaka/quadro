@@ -73,7 +73,7 @@ Imu imu;
 quaternion desired_q=ident; //only heading is currently supported
 fixed desired_x=0;
 fixed desired_y=0;
-fixed desired_z=10;
+fixed desired_z=0x100000;
 fixed desired_vx=0; //not supported yet
 fixed desired_vy=0; //not supported yet
 fixed desired_vz=0; //not supported yet
@@ -93,8 +93,8 @@ const fixed orientation_speed_factor_z=one>>1;
 
 const fixed vertical_distance_factor=one>>1;
 const fixed vertical_speed_factor=one>>1;
-const fixed horizontal_distance_factor=one>>1;
-const fixed horizontal_speed_factor=one>>1;
+const fixed horizontal_distance_factor=0;//one>>1;
+const fixed horizontal_speed_factor=0;//one>>1;
 
 //sensor calibration parameters             -- TODO: to store them in EEPROM
 quaternion gyro_orientation=quaternion(2147277277, -26095309, -13909796, -3444716);//ident;   //gyro misalignment compensation               //const
@@ -103,7 +103,7 @@ quaternion accel_orientation=ident;   //accel misalignment compensation
 fixed accel_offset[3]={-2000000, -9900000, -2000000};
 fixed accel_gain[3]={-6000000, -1800000, 1000000};
 */
-fixed accel_offset[3]={2150000, -750000, 1200000};
+fixed accel_offset[3]={2150000, -750000, 1950000};//1200000};
 fixed accel_gain[3]={-3420000, -2850000, -5200000};
 fixed accel_square[3]={0, 0, 0};
 

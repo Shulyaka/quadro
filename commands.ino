@@ -3,6 +3,12 @@ void cmd_ping(void)
   Serial.println("Pong.");
 }
 
+int cmd_ping2(void)
+{
+  Serial2.println("Pong.");
+  return 0;
+}
+
 void cmd_gyro(void)
 {
   Serial.print(gyroADC[0]);
@@ -113,7 +119,7 @@ void cmd_usr1(int x)
 
 void cmd_usr2(void)
 {
-  desired_z=-0x10000000;
+  desired_z=desired_z-0x2000000;
   Serial.println("Descending");
 }
 
@@ -122,4 +128,21 @@ void cmd_usr3(void)
   Serial.println("Manual takeoff");
   manual_takeoff=true;
 }
+
+int cmd_RU(fixed *x) //Range Update
+{
+  fixed z=*x;
+  print("range A", z);
+  return 0;
+}
+
+int cmd_LU(fixed *x, fixed *y) //Landing Update
+{
+  fixed a=*x;
+  fixed b=*y;
+  print("Landing plate X", a);
+  print("Landing plate Y", b);
+  return 0;
+}
+
 
