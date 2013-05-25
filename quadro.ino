@@ -89,6 +89,11 @@ void loop(void)
   enable_sensor_interrupts();
 //if(i==500) flight_state=FSTATE_TAKEOFF; //auto take off
 
+  Serial2.write("QU");
+  Serial2.write((unsigned char *)&imu_q, sizeof(quaternion));
+  Serial2.write("\n");
+
+
   switch(flight_state)
   {
     case FSTATE_IDLE:
@@ -197,7 +202,6 @@ void loop(void)
     default:
       error("State not used");
   }
-
 
 
   if(!(i++%10))
@@ -340,6 +344,7 @@ void print(const char *name, fixed val)
   print(val);
   Serial.println("");
 }
+
 void print(const char *name, angle val)
 {
   Serial.print(name);
