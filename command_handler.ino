@@ -209,6 +209,8 @@ int parse_cmd2()
     return cmd_ping2();
   if (!memcmp(cmdBuf2,"RU",2)) //Range Update command
     return cmd_RU((fixed*)(cmdBuf2+2));
+  if (!memcmp(cmdBuf2,"WU",2)) //Range Update command
+    return cmd_WU((fixed*)(cmdBuf2+2));
   if (!memcmp(cmdBuf2,"LU",2)) //Landing Update command
     return cmd_LU((fixed*)(cmdBuf2+2), (fixed*)(cmdBuf2+2+sizeof(fixed)));
   

@@ -89,9 +89,10 @@ void loop(void)
   enable_sensor_interrupts();
 //if(i==500) flight_state=FSTATE_TAKEOFF; //auto take off
 
+  Serial2.write(2+sizeof(quaternion));
   Serial2.write("QU");
   Serial2.write((unsigned char *)&imu_q, sizeof(quaternion));
-  Serial2.write("\n");
+  Serial2.write("\n\n\n");
 
 
   switch(flight_state)
@@ -167,9 +168,9 @@ void loop(void)
         else
           az=control_az%one/cosg;   //normal operation
 
-        control_ax=horizontal_distance_factor*(desired_x-imu_x)-horizontal_speed_factor*imu_vx;
-        control_ay=horizontal_distance_factor*(desired_y-imu_y)-horizontal_speed_factor*imu_vy;
-        control_az=gravity+vertical_distance_factor*(desired_z-imu_z)-vertical_speed_factor*imu_vz;
+        control_ax=0;(desired_x-sonarb)<<2;//-horizontal_speed_factor*imu_vx;
+        control_ay=0;(sonarb-desired_y)<<2;//-horizontal_speed_factor*imu_vy;
+        control_az=gravity+vertical_distance_factor*(desired_z-sonara)-vertical_speed_factor*imu_vz;
 
         cntrl_h=desired_q;
         cntrl_h.x=0;
@@ -187,10 +188,10 @@ void loop(void)
           else
             hz=-(sinpi4>>1)*hz+(imu_angv.z<<5);
       
-        tmpq=imu_control(imu_q);//(desired_q);
+        tmpq=imu_control(desired_q);
         
         disable_sensor_interrupts();  //we have to be sure that a gyro interrupt does not occur in the middle of copying
-        MotorAcceleration=az;
+        MotorAcceleration=control_az;
         control_q=tmpq;
 //        control_heading=cntrl_h;
         M[2]=hz;
@@ -245,11 +246,14 @@ void print_debug_info(void)
 //    print("heading", heading);
 //    print("pitch", qt*conjugate(heading));
 //    print("Nq",norm(qt));
-//    print("qd",control_q);
+    print("qd",control_q);
 //    print("mi",qt*conjugate(control_q));
     print("Mx",M[0]);
     print("My",M[1]);
     print("Mz",M[2]);
+    print("control_ax", control_ax);
+    print("control_ay", control_ay);
+    print("control_az", control_az);
 //    print("t1",t1);
 //    print("t2",t2);
 //    print("t3",t3);

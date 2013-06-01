@@ -40,8 +40,8 @@ void motor_updateControl(void)
 
 //  if(m.w>0)
 //  {
-    M[0]=((m.w*m.x)>>1)+(imu.angv.x<<5);
-    M[1]=((m.w*m.y)>>1)+(imu.angv.y<<5);
+    M[0]=((m.w*m.x)>>2)+(imu.angv.x<<5);
+    M[1]=((m.w*m.y)>>2)+(imu.angv.y<<5);
 //  }
 //  else
 //  {

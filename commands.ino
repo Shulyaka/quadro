@@ -119,7 +119,7 @@ void cmd_usr1(int x)
 
 void cmd_usr2(void)
 {
-  desired_z=desired_z-0x2000000;
+  desired_z=desired_z-0x100000;
   Serial.println("Descending");
 }
 
@@ -131,8 +131,17 @@ void cmd_usr3(void)
 
 int cmd_RU(fixed *x) //Range Update
 {
-  fixed z=*x;
-  print("range A", z);
+  sonara=*x;
+  print("range A", sonara);
+  Serial.println(sonara.value>>15);
+  return 0;
+}
+
+int cmd_WU(fixed *x) //Range Update
+{
+  sonarb=*x;
+  print("range B", sonarb);
+  Serial.println(sonarb.value>>15);
   return 0;
 }
 
