@@ -17,7 +17,7 @@ void setup(void)
   digitalWrite(StatusLEDPin, HIGH);
   Serial.begin(9600);
   motor_init();
-  Serial2.begin(125200);
+  Serial2.begin(115200);
   Serial.print("AT+NAMEp01quadro");
   delay(2000);
   Serial.print("AT+BAUD7");
@@ -89,11 +89,13 @@ void loop(void)
   enable_sensor_interrupts();
 //if(i==500) flight_state=FSTATE_TAKEOFF; //auto take off
 
-  Serial2.write(2+sizeof(quaternion));
-  Serial2.write("QU");
-  Serial2.write((unsigned char *)&imu_q, sizeof(quaternion));
-  Serial2.write("\n\n\n");
-
+  if(!(i++%5))
+  {
+    Serial2.write(2+sizeof(quaternion));
+    Serial2.write("QU");
+    Serial2.write((unsigned char *)&imu_q, sizeof(quaternion));
+    Serial2.write("\n\n\n");
+  }
 
   switch(flight_state)
   {
@@ -204,9 +206,9 @@ void loop(void)
       error("State not used");
   }
 
-
-  if(!(i++%10))
+  if(!(i%10))
     print_debug_info();
+
 }
 
 void print_debug_info(void)
