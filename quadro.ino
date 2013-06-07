@@ -107,7 +107,7 @@ void loop(void)
       delay(50);
       break;
     case FSTATE_TAKEOFF:
-      if((imu_az>az+0x51EB853) || (abs((imu_q*tmpq).w)<2145336164L) || manual_takeoff) //takeoff condition: last known idle z acceleration plus 0.04 to be above noise or the real part of the mismatch quaternion is less than 0.999
+      if((imu_az>az+0x51EB853) || (abs((imu_q*tmpq).w)<2145336164L) || sonara>0 || manual_takeoff) //takeoff condition: last known idle z acceleration plus 0.04 to be above noise or the real part of the mismatch quaternion is less than 0.999 or the altitude is not zero
       {
         if(debug) Serial.println("Flying");
         print("az",imu_az-az);
@@ -156,6 +156,12 @@ void loop(void)
       break;
     case FSTATE_FLY:
         //print("idle",imu.q*q_idle);
+
+        control_ax=0;//(desired_x-sonarb)<<2;//-horizontal_speed_factor*imu_vx;
+        control_ay=0;//(sonarb-desired_y)<<2;//-horizontal_speed_factor*imu_vy;
+//        control_az=gravity+vertical_distance_factor*(desired_z-sonara)-vertical_speed_factor*imu_vz;
+        control_az=gravity+((desired_z-sonara)<<2);
+
         cosg=imu_q.x*imu_q.x+imu_q.y*imu_q.y;
         cosg=one-cosg-cosg;
         if(cosg<0)
@@ -169,10 +175,6 @@ void loop(void)
           az=one; //we are almost 90 degree rotated, not enough to hold altitude but do what we can with full acceleration
         else
           az=control_az%one/cosg;   //normal operation
-
-        control_ax=0;(desired_x-sonarb)<<2;//-horizontal_speed_factor*imu_vx;
-        control_ay=0;(sonarb-desired_y)<<2;//-horizontal_speed_factor*imu_vy;
-        control_az=gravity+vertical_distance_factor*(desired_z-sonara)-vertical_speed_factor*imu_vz;
 
         cntrl_h=desired_q;
         cntrl_h.x=0;
@@ -193,7 +195,7 @@ void loop(void)
         tmpq=imu_control(desired_q);
         
         disable_sensor_interrupts();  //we have to be sure that a gyro interrupt does not occur in the middle of copying
-        MotorAcceleration=control_az;
+        MotorAcceleration=az;
         control_q=tmpq;
 //        control_heading=cntrl_h;
         M[2]=hz;
@@ -256,6 +258,7 @@ void print_debug_info(void)
     print("control_ax", control_ax);
     print("control_ay", control_ay);
     print("control_az", control_az);
+    print("MatorAcceleration", MotorAcceleration);
 //    print("t1",t1);
 //    print("t2",t2);
 //    print("t3",t3);

@@ -160,14 +160,14 @@ void imu_init_calibrate_orientation(void)
 
 void imu_calibrate_orientation(void)
 {
-  print("qg", imu.qg);
+//  print("qg", imu.qg);
   
   imu.cql=imu.qg;
   
   for(char p=0; p<GYROCNTP; p++)
   {
     imu.qg=sqrt(imu.qg);
-    print("qg",imu.qg);
+//    print("qg",imu.qg);
     //print("n",norm(imu.q));
     //print("l",lnorm(imu.q));
   }
@@ -178,7 +178,7 @@ void imu_calibrate_orientation(void)
   for(char p=0; p<GYROCNTP; p++)
   {
     imu.qg=imu.qg*imu.qg;
-    print("qg",imu.qg);
+//    print("qg",imu.qg);
   }
 
 //  print("1",imu.q*conjugate(imu.cql));

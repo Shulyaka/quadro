@@ -114,7 +114,9 @@ void cmd_setc(int c)
 
 void cmd_usr1(int x)
 {
-  analogWrite(MotorPin[0], x);
+  accel_offset[0]=(long)x*10000L;
+  print("accel_offset[0]", accel_offset[0]);
+  imu_init_orientation();
 }
 
 void cmd_usr2(void)
@@ -132,16 +134,16 @@ void cmd_usr3(void)
 int cmd_RU(fixed *x) //Range Update
 {
   sonara=*x;
-  print("range A", sonara);
-  Serial.println(sonara.value>>15);
+//  print("range A", sonara);
+//  Serial.println(sonara.value>>15);
   return 0;
 }
 
 int cmd_WU(fixed *x) //Range Update
 {
   sonarb=*x;
-  print("range B", sonarb);
-  Serial.println(sonarb.value>>15);
+//  print("range B", sonarb);
+//  Serial.println(sonarb.value>>15);
   return 0;
 }
 
@@ -149,8 +151,8 @@ int cmd_LU(fixed *x, fixed *y) //Landing Update
 {
   fixed a=*x;
   fixed b=*y;
-  print("Landing plate X", a);
-  print("Landing plate Y", b);
+  print("Landing pad X", a);
+  print("Landing pad Y", b);
   return 0;
 }
 

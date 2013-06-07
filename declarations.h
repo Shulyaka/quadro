@@ -73,7 +73,7 @@ Imu imu;
 quaternion desired_q=ident; //only heading is currently supported
 fixed desired_x=0;
 fixed desired_y=0;
-fixed desired_z=0xC8000L;
+fixed desired_z=0xF0000L;
 fixed desired_vx=0; //not supported yet
 fixed desired_vy=0; //not supported yet
 fixed desired_vz=0; //not supported yet
