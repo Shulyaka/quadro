@@ -131,11 +131,18 @@ void cmd_usr3(void)
   manual_takeoff=true;
 }
 
+void cmd_usr4(int x)
+{
+  accel_offset[1]=(long)x*10000L;
+  print("accel_offset[1]", accel_offset[1]);
+  imu_init_orientation();
+}
+
 int cmd_RU(fixed *x) //Range Update
 {
   sonara=*x;
-//  print("range A", sonara);
-//  Serial.println(sonara.value>>15);
+  print("range A", sonara);
+  Serial.println(sonara.value>>15);
   return 0;
 }
 

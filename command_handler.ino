@@ -14,6 +14,7 @@
 #define CMDUSR1    13
 #define CMDUSR2    14
 #define CMDUSR3    15
+#define CMDUSR4    16
 
 #define cmdBufLen 127
 char cmdBuf[cmdBufLen]={0};
@@ -99,6 +100,9 @@ void serialEvent(void)
       break;
     case CMDUSR3:
       cmd_usr3();
+      break;
+    case CMDUSR4:
+      cmd_usr4(param);
       break;
     
     case CMDUNKNOWN:
@@ -216,10 +220,15 @@ unsigned char parse_cmd(int *param)
     sscanf(cmdBuf+2,"%d",param);
     return CMDSETC;
   }
-  if (!memcmp(cmdBuf,"m ",2))
+  if (!memcmp(cmdBuf,"x ",2))
   {
     sscanf(cmdBuf+2,"%d",param);
     return CMDUSR1;
+  }
+  if (!memcmp(cmdBuf,"y ",2))
+  {
+    sscanf(cmdBuf+2,"%d",param);
+    return CMDUSR4;
   }
   if (!memcmp(cmdBuf,"d",1))
     return CMDUSR2;

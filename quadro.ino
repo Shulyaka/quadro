@@ -107,7 +107,7 @@ void loop(void)
       delay(50);
       break;
     case FSTATE_TAKEOFF:
-      if((imu_az>az+0x51EB853) || (abs((imu_q*tmpq).w)<2145336164L) || sonara>0 || manual_takeoff) //takeoff condition: last known idle z acceleration plus 0.04 to be above noise or the real part of the mismatch quaternion is less than 0.999 or the altitude is not zero
+      if((imu_az>az+0x51EB853) || (abs((imu_q*tmpq).w)<2145336164L) || manual_takeoff) //||sonara>0 //takeoff condition: last known idle z acceleration plus 0.04 to be above noise or the real part of the mismatch quaternion is less than 0.999 or the altitude is not zero
       {
         if(debug) Serial.println("Flying");
         print("az",imu_az-az);

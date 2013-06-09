@@ -109,7 +109,7 @@ fixed accel_gain[3]={-6000000, -1800000, 1000000};
 /*fixed accel_offset[3]={2150000, -750000, 1950000};//1200000};
 fixed accel_gain[3]={-3420000, -2850000, -5200000};
 */
-fixed accel_offset[3]={1450000, -50000, 1950000};
+fixed accel_offset[3]={-100000000, 10000000, 1950000};
 fixed accel_gain[3]={-3420000, -2850000, -5200000};
 fixed accel_square[3]={0, 0, 0};
 
