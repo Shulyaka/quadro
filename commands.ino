@@ -121,7 +121,7 @@ void cmd_usr1(int x)
 
 void cmd_usr2(void)
 {
-  desired_z=desired_z-0x100000;
+  desired_z=desired_z-0x100000L;
   Serial.println("Descending");
 }
 
@@ -136,6 +136,12 @@ void cmd_usr4(int x)
   accel_offset[1]=(long)x*10000L;
   print("accel_offset[1]", accel_offset[1]);
   imu_init_orientation();
+}
+
+void cmd_usr5(void)
+{
+  desired_z=desired_z+0x50000L;
+  Serial.println("Ascending");
 }
 
 int cmd_RU(fixed *x) //Range Update

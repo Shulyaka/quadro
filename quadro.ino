@@ -160,7 +160,7 @@ void loop(void)
         control_ax=0;//(desired_x-sonarb)<<2;//-horizontal_speed_factor*imu_vx;
         control_ay=0;//(sonarb-desired_y)<<2;//-horizontal_speed_factor*imu_vy;
 //        control_az=gravity+vertical_distance_factor*(desired_z-sonara)-vertical_speed_factor*imu_vz;
-        control_az=gravity+((desired_z-sonara)<<2);
+        control_az=gravity+((desired_z-sonara)<<4);
 
         cosg=imu_q.x*imu_q.x+imu_q.y*imu_q.y;
         cosg=one-cosg-cosg;
