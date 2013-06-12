@@ -121,7 +121,7 @@ void cmd_usr1(int x)
 
 void cmd_usr2(void)
 {
-  desired_z=desired_z-0x400000L;
+  desired_z=desired_z-0x200000L;
   Serial.println("Descending");
 }
 
