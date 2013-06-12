@@ -160,7 +160,7 @@ void loop(void)
         control_ax=0;//(desired_x-sonarb)<<2;//-horizontal_speed_factor*imu_vx;
         control_ay=0;//(sonarb-desired_y)<<2;//-horizontal_speed_factor*imu_vy;
 //        control_az=gravity+vertical_distance_factor*(desired_z-sonara)-vertical_speed_factor*imu_vz;
-        control_az=gravity+((desired_z-sonara)<<4);
+        control_az=gravity+((desired_z-sonara)<<5);
 
         cosg=imu_q.x*imu_q.x+imu_q.y*imu_q.y;
         cosg=one-cosg-cosg;
@@ -195,7 +195,7 @@ void loop(void)
         tmpq=imu_control(desired_q);
         
         disable_sensor_interrupts();  //we have to be sure that a gyro interrupt does not occur in the middle of copying
-        MotorAcceleration=az;
+        Throttle=az;
         control_q=tmpq;
 //        control_heading=cntrl_h;
         M[2]=hz;
@@ -258,7 +258,7 @@ void print_debug_info(void)
     print("control_ax", control_ax);
     print("control_ay", control_ay);
     print("control_az", control_az);
-    print("MatorAcceleration", MotorAcceleration);
+    print("Throttle", Throttle);
 //    print("t1",t1);
 //    print("t2",t2);
 //    print("t3",t3);

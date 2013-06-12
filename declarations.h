@@ -40,7 +40,7 @@ const fixed sinpi4 = 1518500250L;
 
 fixed MotorAdjust[4]={0};
 fixed MotorSpeed[4]={0};
-fixed MotorAcceleration=gravity;
+fixed Throttle=gravity;
 
 //defines current instantaneous imu parameters
 typedef struct {

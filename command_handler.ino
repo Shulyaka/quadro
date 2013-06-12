@@ -240,7 +240,7 @@ unsigned char parse_cmd(int *param)
     return CMDUSR5;
   if (!memcmp(cmdBuf,"f",1))
     return CMDUSR3;
-  if (cmdBuf[0]='e' && cmdBuf[1]!='d')
+  if (cmdBuf[0]=='e' && cmdBuf[1]!='d')
     return CMDEMERG;
   
   return CMDUNKNOWN;

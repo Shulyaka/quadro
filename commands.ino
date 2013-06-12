@@ -121,7 +121,7 @@ void cmd_usr1(int x)
 
 void cmd_usr2(void)
 {
-  desired_z=desired_z-0x100000L;
+  desired_z=desired_z-0x400000L;
   Serial.println("Descending");
 }
 
@@ -140,23 +140,47 @@ void cmd_usr4(int x)
 
 void cmd_usr5(void)
 {
-  desired_z=desired_z+0x50000L;
+  desired_z=desired_z+0x200000L;
   Serial.println("Ascending");
 }
 
 int cmd_RU(fixed *x) //Range Update
 {
+  if(*x < 0)
+  {
+    print("RA", *x);
+    error("range A < 0");
+    return -1;
+  }
+
   sonara=*x;
-  print("range A", sonara);
-  Serial.println(sonara.value>>15);
+
+  Serial.print("range A = ");
+  Serial.print(sonara.value>>15);
+  Serial.print(" [");
+  print(sonara);
+  Serial.println("]");
+  
   return 0;
 }
 
 int cmd_WU(fixed *x) //Range Update
 {
+  if(*x < 0)
+  {
+    print("RB", *x);
+    error("range B < 0");
+    return -1;
+  }
+
   sonarb=*x;
-//  print("range B", sonarb);
-//  Serial.println(sonarb.value>>15);
+
+  Serial.print("range B = ");
+  Serial.print(sonarb.value>>15);
+  Serial.print(" [");
+  print(sonarb);
+  Serial.println("]");
+
   return 0;
 }
 

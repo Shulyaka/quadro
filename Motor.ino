@@ -40,8 +40,8 @@ void motor_updateControl(void)
 
 //  if(m.w>0)
 //  {
-    M[0]=((m.w*m.x)>>2)+(imu.angv.x<<5);
-    M[1]=((m.w*m.y)>>2)+(imu.angv.y<<5);
+    M[0]=m.w*m.x+(imu.angv.x<<5);
+    M[1]=m.w*m.y+(imu.angv.y<<5);
 //  }
 //  else
 //  {
@@ -83,7 +83,7 @@ void motor_updateControl(void)
   //M[2]=M[2]>>1;
 
   Mt=-M[0]+M[1]-M[2];
-  acc=MotorAcceleration+Mt;
+  acc=Throttle+Mt;
   if(acc<0)
   {
     if(Mt>0)
@@ -94,7 +94,7 @@ void motor_updateControl(void)
   setMotorSpeed(0, acc);
 
   Mt=M[0]+M[1]+M[2];
-  acc=MotorAcceleration+Mt;
+  acc=Throttle+Mt;
   if(acc<0)
   {
     if(Mt>0)
@@ -105,7 +105,7 @@ void motor_updateControl(void)
   setMotorSpeed(1, acc);
 
   Mt=M[0]-M[1]-M[2];
-  acc=MotorAcceleration+Mt;
+  acc=Throttle+Mt;
   if(acc<0)
   {
     if(Mt>0)
@@ -116,7 +116,7 @@ void motor_updateControl(void)
   setMotorSpeed(2, acc);
 
   Mt=-M[0]-M[1]+M[2];
-  acc=MotorAcceleration+Mt;
+  acc=Throttle+Mt;
   if(acc<0)
   {
     if(Mt>0)
