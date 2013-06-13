@@ -37,6 +37,11 @@ void cmd_lamp(int state)
 
 void cmd_zero(void)
 {
+  if(flight_state!=FSTATE_IDLE)
+  {
+    error("The zero command is disabled in non-idle mode");
+    return;
+  }
   gyroalpha=0;
   gyrobeta=0;
   gyrogamma=0;
@@ -49,9 +54,10 @@ void cmd_zero(void)
   imu.x=0;
   imu.y=0;
   imu.z=0;
-  imu.q=ident;
-  imu.qg=conjugate(gyro_orientation);
-  control_az=gravity;
+//  imu.q=ident;
+//  imu.qg=conjugate(gyro_orientation);
+//  control_az=gravity;
+  imu_init_orientation();
 }
 
 void cmd_takeoff(void)
@@ -59,6 +65,7 @@ void cmd_takeoff(void)
   quaternion imu_q=imu_get_orientation();
   Serial.println("Taking off");
   manual_takeoff=false;
+  desired_z=0xF0000L;
   if(abs((imu_q*conjugate(imu_q)).w)<2145336164L)
   {
     error("Flying condition is true. Takeoff disabled for safety reasons. Please check your quaternions!");

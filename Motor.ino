@@ -40,8 +40,8 @@ void motor_updateControl(void)
 
 //  if(m.w>0)
 //  {
-    M[0]=(m.w*m.x)*orientation_distance_factor+(imu.angv.x<<4);
-    M[1]=(m.w*m.y)*orientation_distance_factor+(imu.angv.y<<4);
+    M[0]=(m.w*m.x>>2)+(imu.angv.x<<4);
+    M[1]=(m.w*m.y>>2)+(imu.angv.y<<4);
 //  }
 //  else
 //  {
@@ -55,14 +55,14 @@ void motor_updateControl(void)
   {
     if(m.w>0)
     {
-      M[0]=(sinpi4>>1)*m.x+(imu.angv.x<<5);
-      M[1]=(sinpi4>>1)*m.y+(imu.angv.y<<5);
+      M[0]=(sinpi4>>2)*m.x+(imu.angv.x<<4);
+      M[1]=(sinpi4>>2)*m.y+(imu.angv.y<<4);
       //M[2]=(sinpi4>>1)*m.z+(imu.angv.z<<5);
     }
     else
     {
-      M[0]=-(sinpi4>>1)*m.x+(imu.angv.x<<5);
-      M[1]=-(sinpi4>>1)*m.y+(imu.angv.y<<5);
+      M[0]=-(sinpi4>>2)*m.x+(imu.angv.x<<4);
+      M[1]=-(sinpi4>>2)*m.y+(imu.angv.y<<4);
       //M[2]=-(sinpi4>>1)*m.z+(imu.angv.z<<5);
     }
   }
