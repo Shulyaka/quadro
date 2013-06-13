@@ -146,14 +146,14 @@ void cmd_usr5(void)
 
 void cmd_incr(void)
 {
-  orientation_speed_factor=orientation_speed_factor<<1;
-  print("orientation_speed_factor", orientation_speed_factor);
+  orientation_distance_factor=orientation_distance_factor<<1;
+  print("orientation_distance_factor", orientation_distance_factor);
 }
 
 void cmd_decr(void)
 {
-  orientation_speed_factor=orientation_speed_factor>>1;
-  print("orientation_speed_factor", orientation_speed_factor);
+  orientation_distance_factor=orientation_distance_factor>>1;
+  print("orientation_distance_factor", orientation_distance_factor);
 }
 
 int cmd_RU(fixed *x) //Range Update
