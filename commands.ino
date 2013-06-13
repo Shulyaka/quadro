@@ -144,6 +144,18 @@ void cmd_usr5(void)
   Serial.println("Ascending");
 }
 
+void cmd_incr(void)
+{
+  orientation_speed_factor=orientation_speed_factor<<1;
+  print("orientation_speed_factor", orientation_speed_factor);
+}
+
+void cmd_decr(void)
+{
+  orientation_speed_factor=orientation_speed_factor>>1;
+  print("orientation_speed_factor", orientation_speed_factor);
+}
+
 int cmd_RU(fixed *x) //Range Update
 {
   if(*x < 0)

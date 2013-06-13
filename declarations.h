@@ -90,7 +90,7 @@ quaternion control_heading=ident;
 
 //the following values adjust control parameters, subject to calibrate:
 const fixed orientation_distance_factor=one>>1;
-const fixed orientation_speed_factor=one>>1;
+fixed orientation_speed_factor=one>>6;
 const fixed orientation_distance_factor_z=one>>1;
 const fixed orientation_speed_factor_z=one>>1;
 
