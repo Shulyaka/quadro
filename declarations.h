@@ -34,6 +34,7 @@ bool debug=true;
 #define ACCELCNTP 9 //to replace the above one
 
 fixed M[3]={0};
+const fixed Mmax=(one>>3);
 
 const fixed gravity=0x40000000; //   1/2
 const fixed sinpi4 = 1518500250L;
@@ -81,6 +82,8 @@ fixed desired_vz=0; //not supported yet
 fixed sonara=0;
 fixed sonarb=0;
 
+fixed sonara_speed=0;
+
 //defines the acceleration needed to achieve the waypoint state
 fixed control_ax=0;
 fixed control_ay=0;
@@ -109,7 +112,7 @@ fixed accel_gain[3]={-6000000, -1800000, 1000000};
 /*fixed accel_offset[3]={2150000, -750000, 1950000};//1200000};
 fixed accel_gain[3]={-3420000, -2850000, -5200000};
 */
-fixed accel_offset[3]={-100000000, 10000000, 1950000};
+fixed accel_offset[3]={-120000000, 10000000, -500000};
 fixed accel_gain[3]={-3420000, -2850000, -5200000};
 fixed accel_square[3]={0, 0, 0};
 

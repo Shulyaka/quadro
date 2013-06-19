@@ -1,55 +1,16 @@
 const fixed orientation_distance_factor_sinpi4=orientation_distance_factor*sinpi4;
 const fixed orientation_distance_factor_z_sinpi4=orientation_distance_factor_z*sinpi4;
-#define Mmax (one>>3)
 
 void motor_updateControl(void)
 {
   fixed Mt;
   fixed acc;
   quaternion m=conjugate(control_q)*imu.q;
-  //quaternion h=imu.q*conjugate(control_heading);
-  
-/*  fixed hw=imu.q.w*control_heading.w-imu.q.z*control_heading.z;
-  fixed hz=imu.q.w*control_heading.z+imu.q.z*control_heading.w;
 
-  if(abs(hw)>sinpi4)
-    M[2]=hw*hz+(imu.angv.z<<6);
-  else
-    if(hw>0)
-      M[2]=(sinpi4>>1)*hz+(imu.angv.z<<6);
-    else
-      M[2]=-(sinpi4>>1)*hz+(imu.angv.z<<6);
-*/
-//M[2]=0;
   if(abs(m.w)>sinpi4)
-  {
-/*
-    M[0]=orientation_distance_factor*m.w*m.x-orientation_speed_factor*imu.sina;
-    M[1]=orientation_distance_factor*m.w*m.y-orientation_speed_factor*imu.sinb;
-    M[2]=orientation_distance_factor_z*m.w*m.z-orientation_speed_factor_z*imu.sinc;
-
-    M[0]=orientation_distance_factor*m.w*m.x+(imu.sina<<3);
-    M[1]=orientation_distance_factor*m.w*m.y+(imu.sinb<<3);
-    M[2]=orientation_distance_factor_z*m.w*m.z+(imu.sinc<<3);
-*/
-
-    //m=m.w*m+(imu.angv<<6);
-    //M[0]=m.x;
-    //M[1]=m.y;
-    //M[2]=m.z;
-
-//  if(m.w>0)
-//  {
+  {                      // If you are looking for a PID, here is a sort of it:
     M[0]=(m.w*m.x>>2)+(imu.angv.x<<4);
     M[1]=(m.w*m.y>>2)+(imu.angv.y<<4);
-//  }
-//  else
-//  {
-//    M[0]=-(m.x>>1)+(imu.angv.x<<5);
-//    M[1]=-(m.y>>1)+(imu.angv.y<<5);
-//  }
-  
-    
   }
   else
   {
@@ -57,13 +18,11 @@ void motor_updateControl(void)
     {
       M[0]=(sinpi4>>2)*m.x+(imu.angv.x<<4);
       M[1]=(sinpi4>>2)*m.y+(imu.angv.y<<4);
-      //M[2]=(sinpi4>>1)*m.z+(imu.angv.z<<5);
     }
     else
     {
       M[0]=-(sinpi4>>2)*m.x+(imu.angv.x<<4);
       M[1]=-(sinpi4>>2)*m.y+(imu.angv.y<<4);
-      //M[2]=-(sinpi4>>1)*m.z+(imu.angv.z<<5);
     }
   }
   
@@ -75,12 +34,8 @@ void motor_updateControl(void)
     M[1]=Mmax;
   if(M[1]<-Mmax)
     M[1]=-Mmax;
-  if(M[2]>Mmax)
-    M[2]=Mmax;
-  if(M[2]<-Mmax)
-    M[2]=-Mmax;
 
-  //M[2]=M[2]>>1;
+  /* M[2] is calculated in the main loop on a lower frequency */
 
   Mt=-M[0]+M[1]-M[2];
   acc=Throttle+Mt;
@@ -125,7 +80,6 @@ void motor_updateControl(void)
       acc=0;
   }
   setMotorSpeed(3, acc);
-
 }
 
 void motor_init(void)

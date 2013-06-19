@@ -172,6 +172,7 @@ int cmd_RU(fixed *x) //Range Update
     return -1;
   }
 
+  sonara_speed=*x-sonara;
   sonara=*x;
 
   Serial.print("range A = ");
@@ -194,11 +195,11 @@ int cmd_WU(fixed *x) //Range Update
 
   sonarb=*x;
 
-  Serial.print("range B = ");
-  Serial.print(sonarb.value>>15);
-  Serial.print(" [");
-  print(sonarb);
-  Serial.println("]");
+//  Serial.print("range B = ");
+//  Serial.print(sonarb.value>>15);
+//  Serial.print(" [");
+//  print(sonarb);
+//  Serial.println("]");
 
   return 0;
 }

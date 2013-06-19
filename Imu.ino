@@ -1,7 +1,7 @@
 void imu_updateOrientation(int alpha, int beta, int gamma)
 {
 //  quaternion qt1, qt2, qt3;
-  static unsigned int ccnt=0;
+//  static unsigned int ccnt=0;
 
 //  alpha=gyroalpha; //uncomment for gyro simulation
 //  beta=gyrobeta;
@@ -21,7 +21,7 @@ void imu_updateOrientation(int alpha, int beta, int gamma)
 
 //if(ccnt++!=1<<GYROCNTP)
 //{
-  imu.angv=quaternion(imu.cosa*imu.cosb*imu.cosc, imu.sina*imu.cosb*imu.cosc, imu.sinb*imu.cosa*imu.cosc, imu.sinc*imu.cosa*imu.cosb)*imu.cqs;
+  imu.angv=quaternion(imu.cosa*imu.cosb*imu.cosc, imu.sina*imu.cosb*imu.cosc, imu.sinb*imu.cosa*imu.cosc, imu.sinc*imu.cosa*imu.cosb)*imu.cqs;   // The real magic happens here
 //}
 //else
 //{
@@ -64,10 +64,11 @@ imu.tmp3=qt3.w;
 
 void imu_updatePosition(fixed i, fixed j, fixed k)
 {
+  const fixed l=one>>7;
   quaternion acc=imu.q*quaternion(i+i*i*accel_square[0]+i*accel_gain[0]+accel_offset[0], j+j*j*accel_square[1]+j*accel_gain[1]+accel_offset[1], k+k*k*accel_square[2]+k*accel_gain[2]+accel_offset[2])*conjugate(imu.q);
-  imu.ax=acc.x;
-  imu.ay=acc.y;
-  imu.az=acc.z-gravity;
+  imu.ax=imu.ax*(one-l)+acc.x*l;
+  imu.ay=imu.ay*(one-l)+acc.y*l;
+  imu.az=imu.az*(one-l)+(acc.z-gravity)*l;
   /*
   imu.ax=imu.x1*i+imu.x2*j+imu.x3*k;
   imu.ay=imu.y1*i+imu.y2*j+imu.y3*k;

@@ -108,7 +108,7 @@ void loop(void)
       delay(50);
       break;
     case FSTATE_TAKEOFF:
-      if((imu_az>az+0x51EB853) || (abs((imu_q*tmpq).w)<2145336164L) || manual_takeoff) //||sonara>0 //takeoff condition: last known idle z acceleration plus 0.04 to be above noise or the real part of the mismatch quaternion is less than 0.999 or the altitude is not zero
+      if((imu_az>az+0x51EB853) || (abs((imu_q*tmpq).w)<2145336164L) || manual_takeoff || sonara>0) //takeoff condition: last known idle z acceleration plus 0.04 to be above noise or the real part of the mismatch quaternion is less than 0.999 or the altitude is not zero
       {
         if(debug) Serial.println("Flying");
         print("az",imu_az-az);
@@ -161,7 +161,7 @@ void loop(void)
         control_ax=0;//(desired_x-sonarb)<<2;//-horizontal_speed_factor*imu_vx;
         control_ay=0;//(sonarb-desired_y)<<2;//-horizontal_speed_factor*imu_vy;
 //        control_az=gravity+vertical_distance_factor*(desired_z-sonara)-vertical_speed_factor*imu_vz;
-        control_az=gravity+((desired_z-sonara)<<6);
+        control_az=gravity+((desired_z-sonara)<<6)-(sonara_speed<<8);
 
         cosg=imu_q.x*imu_q.x+imu_q.y*imu_q.y;
         cosg=one-cosg-cosg;
@@ -192,7 +192,12 @@ void loop(void)
             hz=(sinpi4>>1)*hz+(imu_angv.z<<5);
           else
             hz=-(sinpi4>>1)*hz+(imu_angv.z<<5);
-      
+        
+        if(hz>Mmax)
+          hz=Mmax;
+        if(hz<-Mmax)
+          hz=-Mmax;
+    
         tmpq=imu_control(desired_q);
         
         disable_sensor_interrupts();  //we have to be sure that a gyro interrupt does not occur in the middle of copying
