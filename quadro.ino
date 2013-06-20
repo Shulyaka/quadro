@@ -223,6 +223,7 @@ void print_debug_info(void)
 {
     fixed ax, ay, az;
     fixed t1,t2,t3,t4,t5;
+    fixed imu_sina, imu_sinb, imu_sinc;
 //    fixed imu_x, imu_y, imu_z;
     lfixed tm;
 //    angle f,p,t;
@@ -241,6 +242,9 @@ void print_debug_info(void)
     t4=imu.tmp4;
     t5=imu.tmp5;
     tm=imu.tmp;
+    imu_sina=imu.sina;
+    imu_sinb=imu.sinb;
+    imu_sinc=imu.sinc;
     qt=imu_get_orientation();
 
 //    f=getangle(qt.x);
@@ -270,6 +274,9 @@ void print_debug_info(void)
 //    print("t3",t3);
 //    print("t4",t4);
 //    print("t5",t5);
+    print("imu.sina",imu_sina);
+    print("imu.sinb",imu_sinb);
+    print("imu.sinc",imu_sinc);
     print("angv",imu.angv);
 //    print("angv.y",imu.angv.y);
 //    print("angv.z",imu.angv.z);

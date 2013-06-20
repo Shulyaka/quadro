@@ -146,7 +146,7 @@ void gyro_calibrate(void) // finds calibration quaternion in background, sets gy
 
     Serial.print("Gyro ");
     Serial.print(cstep>>GYROCNTP);
-    Serial.println("pass calibration complete");
+    Serial.println(" pass calibration complete");
     print("cqs",imu.cqs);
     print("cql",imu.cql);
 
