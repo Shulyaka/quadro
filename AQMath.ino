@@ -737,7 +737,7 @@ fixed htan(int x)
 
 fixed qsin(int x) //returns sin of half of the angle
 {
-  fixed a=(5599242093LL*gyro_time*x+0x80000000)>>32;
+  fixed a=((5599242093LL>>gyrolowpass)*gyro_time*x+0x80000000)>>32;
   fixed a2=a*a;
   fixed a3=a2*a;
   return a - (a3.value+3)/6 + ((a3*a2).value+60)/120;
@@ -745,7 +745,7 @@ fixed qsin(int x) //returns sin of half of the angle
 
 fixed qcos(int x)
 {
-  fixed a=(5599242093LL*gyro_time*x+0x80000000)>>32;
+  fixed a=((5599242093LL>>gyrolowpass)*gyro_time*x+0x80000000)>>32;
   fixed a2=a*a;
   return one - ((a2.value+1)>>1) + ((a2*a2).value+12)/24;
 }

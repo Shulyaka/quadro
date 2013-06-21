@@ -33,6 +33,9 @@ bool debug=true;
 #define ACCELCNT 4096
 #define ACCELCNTP 9 //to replace the above one
 
+const unsigned char gyrolowpass=4;
+const unsigned char accellowpass=7;
+
 fixed M[3]={0};
 const fixed Mmax=(one>>3);
 

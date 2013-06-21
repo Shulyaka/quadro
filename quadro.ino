@@ -223,16 +223,18 @@ void print_debug_info(void)
 {
     fixed ax, ay, az;
     fixed t1,t2,t3,t4,t5;
-    fixed imu_sina, imu_sinb, imu_sinc;
+    fixed imu_sina, imu_sinb, imu_sinc, imu_cosa, imu_cosb, imu_cosc;
 //    fixed imu_x, imu_y, imu_z;
     lfixed tm;
 //    angle f,p,t;
-    quaternion qt;
+    quaternion qt, imu_angv, myangv;
     quaternion heading;
+    int a,b,c;
     int battery=analogRead(BattMonPin);
     
     static unsigned int j=0;
     j++;
+    disable_sensor_interrupts();
     ax=imu.ax;
     ay=imu.ay;
     az=imu.az;
@@ -243,9 +245,19 @@ void print_debug_info(void)
     t5=imu.tmp5;
     tm=imu.tmp;
     imu_sina=imu.sina;
+    imu_cosa=imu.cosa;
     imu_sinb=imu.sinb;
+    imu_cosb=imu.cosb;
     imu_sinc=imu.sinc;
-    qt=imu_get_orientation();
+    imu_cosc=imu.cosc;
+    qt=imu.q;
+    imu_angv=imu.angv;
+    myangv=quaternion(imu_cosa*imu_cosb*imu_cosc, imu_sina*imu_cosb*imu_cosc, imu_sinb*imu_cosa*imu_cosc, imu_sinc*imu_cosa*imu_cosb);
+    a=gyroalpha;
+    b=gyrobeta;
+    c=gyrogamma;
+    enable_sensor_interrupts();
+//    qt=imu_get_orientation();
 
 //    f=getangle(qt.x);
 
@@ -277,9 +289,15 @@ void print_debug_info(void)
     print("imu.sina",imu_sina);
     print("imu.sinb",imu_sinb);
     print("imu.sinc",imu_sinc);
-    print("angv",imu.angv);
-//    print("angv.y",imu.angv.y);
-//    print("angv.z",imu.angv.z);
+    print("a",a);
+    print("b",b);
+    print("c",c);
+//    print("myangv", myangv);
+//    print("imu.cqs", imu.cqs);
+//    print("myangv2", myangv*imu.cqs);
+    print("angv",imu_angv);
+//    print("angv.y",imu_angv.y);
+//    print("angv.z",imu_angv.z);
     
 //    print(" s",t1%t1+t2%t2+t3%t3);
 //    print("ss",lsqrt(t1%t1+t2%t2+t3%t3));

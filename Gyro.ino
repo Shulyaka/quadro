@@ -100,12 +100,15 @@ void gyro_calibrate(void) // finds calibration quaternion in background, sets gy
   {
     gyro_time=findTime>>GYROCNTP;
     
-    //for (byte axis = 0; axis < 3; axis++)
-    //  gyroZero[axis]=gyroBuf[axis]>>GYROCNTP;
+    gyroZero[0]=100+(gyroBuf[0]>>GYROCNTP);
+    gyroZero[1]=100+(gyroBuf[1]>>GYROCNTP);
+    gyroZero[2]=100+(gyroBuf[2]>>GYROCNTP);
     
-    imu_init_calibrate_orientation();
+    imu_init_calibrate_orientation((gyroBuf[0]>>GYROCNTP) - gyroZero[0], (gyroBuf[1]>>GYROCNTP) - gyroZero[1], (gyroBuf[2]>>GYROCNTP) - gyroZero[2]);
     
     Serial.println("Gyro zero pass calibration complete");
+    print("cqs",imu.cqs);
+    print("cql",imu.cql);
   }
   
   if(cstep==GYROSTEPS<<GYROCNTP)

@@ -1,9 +1,8 @@
 void imu_updateOrientation(int alpha, int beta, int gamma)
 {
-  const unsigned char l=4;
-  static int a=alpha<<l;
-  static int b=beta<<l;
-  static int c=gamma<<l;
+  static int a=alpha<<gyrolowpass;
+  static int b=beta<<gyrolowpass;
+  static int c=gamma<<gyrolowpass;
   
 //  quaternion qt1, qt2, qt3;
 //  static unsigned int ccnt=0;
@@ -13,21 +12,25 @@ void imu_updateOrientation(int alpha, int beta, int gamma)
 //  gamma=gyrogamma;
 
   /* Low-pass filter start */
-  a+=alpha-(a>>l);
-  b+=beta-(b>>l);
-  c+=gamma-(c>>l);
+  a+=alpha-(a>>gyrolowpass);
+  b+=beta-(b>>gyrolowpass);
+  c+=gamma-(c>>gyrolowpass);
   
-  alpha=a>>l;
-  beta=b>>l;
-  gamma=c>>l;
+  alpha=a>>gyrolowpass;
+  beta=b>>gyrolowpass;
+  gamma=c>>gyrolowpass;
+  
+  gyroalpha=alpha;
+  gyrobeta=beta;
+  gyrogamma=gamma;
   /* Low-pass filter end */
 
-  imu.sina=qsin(alpha);
-  imu.cosa=qcos(alpha);
-  imu.sinb=qsin(beta);
-  imu.cosb=qcos(beta);
-  imu.sinc=qsin(gamma);
-  imu.cosc=qcos(gamma);
+  imu.sina=qsin(a);//lpha);
+  imu.cosa=qcos(a);//lpha);
+  imu.sinb=qsin(b);//eta);
+  imu.cosb=qcos(b);//eta);
+  imu.sinc=qsin(c);//gamma);
+  imu.cosc=qcos(c);//gamma);
 
 //if(ccnt++!=1<<GYROCNTP)
 //{
@@ -39,8 +42,8 @@ void imu_updateOrientation(int alpha, int beta, int gamma)
 //  imu.angv=quaternion(imu.cosa*imu.cosb*imu.cosc, imu.sina*imu.cosb*imu.cosc, imu.sinb*imu.cosa*imu.cosc, imu.sinc*imu.cosa*imu.cosb)*imu.cql;
 //}
 
-  if(imu.angv.w<0)
-    imu.angv=-imu.angv;
+  if(imu.angv.w<0) //if we got this then we have an overflow. Fixing it.
+    imu.angv.w=one;
 
   imu.qg=imu.qg*imu.angv;
   imu.q=imu.qg*gyro_orientation;
@@ -77,11 +80,10 @@ imu.tmp3=qt3.w;
 
 void imu_updatePosition(fixed i, fixed j, fixed k)
 {
-  const fixed l=one>>6;
   quaternion acc=imu.q*quaternion(i+i*i*accel_square[0]+i*accel_gain[0]+accel_offset[0], j+j*j*accel_square[1]+j*accel_gain[1]+accel_offset[1], k+k*k*accel_square[2]+k*accel_gain[2]+accel_offset[2])*conjugate(imu.q);
-  imu.ax=imu.ax+((acc.x-imu.ax)>>7);
-  imu.ay=imu.ay+((acc.y-imu.ay)>>7);
-  imu.az=imu.az+((acc.z-gravity-imu.az)>>7);
+  imu.ax=imu.ax+((acc.x-imu.ax)>>accellowpass);
+  imu.ay=imu.ay+((acc.y-imu.ay)>>accellowpass);
+  imu.az=imu.az+((acc.z-gravity-imu.az)>>accellowpass);
   /*
   imu.ax=imu.x1*i+imu.x2*j+imu.x3*k;
   imu.ay=imu.y1*i+imu.y2*j+imu.y3*k;
@@ -165,11 +167,17 @@ void imu_init_orientation(void)
   enable_sensor_interrupts();
 }
 
-void imu_init_calibrate_orientation(void)
+void imu_init_calibrate_orientation(int alpha, int beta, int gamma)
 {
-    imu.qg=ident;
-    imu.cqs=ident;
-    imu.cql=ident;
+  fixed sina=qsin(alpha<<gyrolowpass);
+  fixed cosa=qcos(alpha<<gyrolowpass);
+  fixed sinb=qsin(beta<<gyrolowpass);
+  fixed cosb=qcos(beta<<gyrolowpass);
+  fixed sinc=qsin(gamma<<gyrolowpass);
+  fixed cosc=qcos(gamma<<gyrolowpass);
+  imu.qg=ident;
+  imu.cqs=quaternion(cosa*cosb*cosc, -sina*cosb*cosc, -sinb*cosa*cosc, -sinc*cosa*cosb);
+  imu.cql=imu.cqs;
 }
 
 void imu_calibrate_orientation(void)
@@ -181,7 +189,7 @@ void imu_calibrate_orientation(void)
   for(char p=0; p<GYROCNTP; p++)
   {
     imu.qg=sqrt(imu.qg);
-//    print("qg",imu.qg);
+    print("qg",imu.qg);
     //print("n",norm(imu.q));
     //print("l",lnorm(imu.q));
   }
