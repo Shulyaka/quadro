@@ -28,12 +28,12 @@ const unsigned char MotorPin[]={2, 3, 5, 6};
 bool debug=true;
 
 //#define FINDZERO 128
-#define GYROCNTP 11L  //this value should not be too high because we calibrate the sensor using the shortest arc
-#define GYROSTEPS 4L //the number of calibration iterations
+#define GYROCNTP 13L  //the time for gyro calibration
+#define GYROSTEPS 3L //the number of calibration iterations
 #define ACCELCNT 4096
 #define ACCELCNTP 9 //to replace the above one
 
-const unsigned char gyrolowpass=4;
+const unsigned char gyrolowpass=2;
 const unsigned char accellowpass=7;
 
 fixed M[3]={0};
@@ -115,7 +115,7 @@ fixed accel_gain[3]={-6000000, -1800000, 1000000};
 /*fixed accel_offset[3]={2150000, -750000, 1950000};//1200000};
 fixed accel_gain[3]={-3420000, -2850000, -5200000};
 */
-fixed accel_offset[3]={-120000000, 10000000, -500000};
+fixed accel_offset[3]={-120000000, 10000000, -1030000};
 fixed accel_gain[3]={-3420000, -2850000, -5200000};
 fixed accel_square[3]={0, 0, 0};
 

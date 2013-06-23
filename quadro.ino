@@ -214,7 +214,7 @@ void loop(void)
       error("State not used");
   }
 
-  if(!(i%10))
+  if(!(i%5))
     print_debug_info();
 
 }
@@ -252,7 +252,7 @@ void print_debug_info(void)
     imu_cosc=imu.cosc;
     qt=imu.q;
     imu_angv=imu.angv;
-    myangv=quaternion(imu_cosa*imu_cosb*imu_cosc, imu_sina*imu_cosb*imu_cosc, imu_sinb*imu_cosa*imu_cosc, imu_sinc*imu_cosa*imu_cosb);
+//    myangv=quaternion(imu_cosa*imu_cosb*imu_cosc, imu_sina*imu_cosb*imu_cosc, imu_sinb*imu_cosa*imu_cosc, imu_sinc*imu_cosa*imu_cosb);
     a=gyroalpha;
     b=gyrobeta;
     c=gyrogamma;
@@ -268,7 +268,7 @@ void print_debug_info(void)
     
     Serial.println("----------------");
     print("imu.q", qt);
-    print("imu.qg",imu.qg);
+//    print("imu.qg",imu.qg);
 //    print("heading", heading);
 //    print("pitch", qt*conjugate(heading));
 //    print("Nq",norm(qt));
@@ -289,9 +289,9 @@ void print_debug_info(void)
     print("imu.sina",imu_sina);
     print("imu.sinb",imu_sinb);
     print("imu.sinc",imu_sinc);
-    print("a",a);
-    print("b",b);
-    print("c",c);
+//    print("a",a);
+//    print("b",b);
+//    print("c",c);
 //    print("myangv", myangv);
 //    print("imu.cqs", imu.cqs);
 //    print("myangv2", myangv*imu.cqs);
@@ -312,9 +312,9 @@ void print_debug_info(void)
   print("ax",ax);
   print("ay",ay);
   print("az",az);
-//  print("vx",imu.vx);
-//  print("vy",imu.vy);
-//  print("vz",imu.vz);
+  print("vx",imu.vx);
+  print("vy",imu.vy);
+  print("vz",imu.vz);
   print(" x",imu.x);
   print(" y",imu.y);
   print(" z",imu.z);

@@ -100,9 +100,9 @@ void gyro_calibrate(void) // finds calibration quaternion in background, sets gy
   {
     gyro_time=findTime>>GYROCNTP;
     
-    gyroZero[0]=100+(gyroBuf[0]>>GYROCNTP);
-    gyroZero[1]=100+(gyroBuf[1]>>GYROCNTP);
-    gyroZero[2]=100+(gyroBuf[2]>>GYROCNTP);
+    gyroZero[0]=(gyroBuf[0]>>GYROCNTP) + 100; // Actually I don't know why but changing this constant affects the accurace somehow
+    gyroZero[1]=(gyroBuf[1]>>GYROCNTP) + 100;
+    gyroZero[2]=(gyroBuf[2]>>GYROCNTP) + 100;
     
     imu_init_calibrate_orientation((gyroBuf[0]>>GYROCNTP) - gyroZero[0], (gyroBuf[1]>>GYROCNTP) - gyroZero[1], (gyroBuf[2]>>GYROCNTP) - gyroZero[2]);
     
