@@ -1,5 +1,6 @@
 //#define ACFIXED
 #include <Wire.h>
+#include "TinyGPS.h"
 #include "declarations.h"
 
 void setup(void)
@@ -18,6 +19,7 @@ void setup(void)
   Serial.begin(9600);
   motor_init();
   Serial2.begin(115200);
+  Serial3.begin(4800);
   Serial.print("AT+NAMEp01quadro");
   delay(2000);
   Serial.print("AT+BAUD7");
@@ -232,6 +234,9 @@ void print_debug_info(void)
     int a,b,c;
     int battery=analogRead(BattMonPin);
     
+    fixed lat, lon;
+    unsigned long fix_age, time, date;
+    
     static unsigned int j=0;
     j++;
     disable_sensor_interrupts();
@@ -257,6 +262,10 @@ void print_debug_info(void)
     b=gyrobeta;
     c=gyrogamma;
     enable_sensor_interrupts();
+    
+    gps.get_position(&lat.value, &lon.value, &fix_age);
+    gps.get_datetime(&date, &time, &fix_age);
+    
 //    qt=imu_get_orientation();
 
 //    f=getangle(qt.x);
@@ -268,6 +277,12 @@ void print_debug_info(void)
     
     Serial.println("----------------");
     print("imu.q", qt);
+    print("lat",lat);
+    print("lon",lon);
+    Serial.println(fix_age);
+    Serial.println(date);
+    Serial.println(time);
+    
 //    print("imu.qg",imu.qg);
 //    print("heading", heading);
 //    print("pitch", qt*conjugate(heading));

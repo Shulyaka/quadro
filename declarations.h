@@ -27,6 +27,8 @@ const unsigned char MotorPin[]={2, 3, 5, 6};
 
 bool debug=true;
 
+TinyGPS gps;
+
 //#define FINDZERO 128
 #define GYROCNTP 13L  //the time for gyro calibration
 #define GYROSTEPS 3L //the number of calibration iterations

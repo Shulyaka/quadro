@@ -180,6 +180,11 @@ void serialEvent2(void)
     serialEvent2();
 }
 
+void serialEvent3(void)
+{
+  while(Serial3.available())
+    gps.encode(Serial3.read());
+}
 
 unsigned char parse_cmd(int *param)
 {
