@@ -115,7 +115,7 @@ void gyro_calibrate(void) // finds calibration quaternion in background, sets gy
   {
     imu_calibrate_orientation();
 
-    Serial.println("Gyro calibration complete");
+    Serial.println("Gyro last pass calibration complete");
     print("cqs",imu.cqs);
     print("cql",imu.cql);
   
@@ -132,6 +132,8 @@ void gyro_calibrate(void) // finds calibration quaternion in background, sets gy
       imu_init_orientation();
       imu_init_position();
     }
+    
+    Serial.println("Gyro calibration complete");
 
     gyro_interrupted=0;
     digitalWrite(GyroLEDPin, LOW);

@@ -183,7 +183,8 @@ void serialEvent2(void)
 void serialEvent3(void)
 {
   while(Serial3.available())
-    gps.encode(Serial3.read());
+    if(gps.encode(Serial3.read()))
+      gps_int();
 }
 
 unsigned char parse_cmd(int *param)

@@ -47,6 +47,7 @@ void setup(void)
   Wire.begin();
   TWBR = 12;
   imu_init();
+//  gps_init();
   while(!gyro_ready || !accel_ready)
     continue;
   Serial.println("OK");
@@ -234,9 +235,6 @@ void print_debug_info(void)
     int a,b,c;
     int battery=analogRead(BattMonPin);
     
-    fixed lat, lon;
-    unsigned long fix_age, time, date;
-    
     static unsigned int j=0;
     j++;
     disable_sensor_interrupts();
@@ -263,9 +261,6 @@ void print_debug_info(void)
     c=gyrogamma;
     enable_sensor_interrupts();
     
-    gps.get_position(&lat.value, &lon.value, &fix_age);
-    gps.get_datetime(&date, &time, &fix_age);
-    
 //    qt=imu_get_orientation();
 
 //    f=getangle(qt.x);
@@ -277,11 +272,10 @@ void print_debug_info(void)
     
     Serial.println("----------------");
     print("imu.q", qt);
-    print("lat",lat);
-    print("lon",lon);
-    Serial.println(fix_age);
-    Serial.println(date);
-    Serial.println(time);
+    print("lat",gps_lat);
+    print("lon",gps_lon);
+    Serial.println(gps_date);
+    Serial.println(gps_time);
     
 //    print("imu.qg",imu.qg);
 //    print("heading", heading);
