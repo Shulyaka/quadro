@@ -103,6 +103,7 @@ void imu_init(void)
   attachInterrupt(GyroIntNum, dummy_int, RISING);
   accel_init();
   gyro_init();
+  compass_init();
 }
 
 void imu_init_position(void)
@@ -124,7 +125,7 @@ void imu_init_orientation(void)
   fixed arr[3];
   quaternion q1, q2;
   imu.heading=ident;
-  while(!accel_ready)
+  while(!gyro_ready || !accel_ready || !compass_ready)
     continue;
 
 //  for(byte i=0; i<3;i++)
@@ -136,9 +137,13 @@ void imu_init_orientation(void)
   accel_capture_wait();
   vectnorm(accel_captured);
 
-  arr[0]=one; // replace with real magneto data;
-  arr[1]=0;
-  arr[2]=0;
+  disable_sensor_interrupts();
+  compass_measure();
+  enable_sensor_interrupts();
+
+  arr[0]=compassADC[0];
+  arr[1]=compassADC[1];
+  arr[2]=compassADC[2];
   vectnorm(arr);
 
   q2=sqrt(quaternion(accel_captured[2], accel_captured[1], -accel_captured[0], 0));  //  accel_captured*(0,0,1)=(accel_captured[1], -accel_captured[0], 0)
@@ -163,6 +168,10 @@ void imu_init_orientation(void)
   imu.qg.normalize();
   if(imu.qg.w<0)
     imu.qg=-imu.qg;
+  
+  desired_q.w=imu.q.w;
+  desired_q.z=imu.q.z;
+  desired_q.normalize();
 
   enable_sensor_interrupts();
 }

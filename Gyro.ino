@@ -31,8 +31,9 @@ void gyro_measure(void) //warning: you must call disable_sensor_interrupts() and
   sendByteI2C(gyroAddress, 0x1D);
 
   Wire.requestFrom(gyroAddress, 6);
-  for (byte axis = 0; axis < 3; axis++)
-    gyroADC[axis]=((Wire.read() << 8) | Wire.read()) - gyroZero[axis];
+  gyroADC[0]=readWordI2C() - gyroZero[0];
+  gyroADC[1]=readWordI2C() - gyroZero[1];
+  gyroADC[2]=readWordI2C() - gyroZero[2];
 }
 
 void gyro_measure_temp(void)

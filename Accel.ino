@@ -25,11 +25,9 @@ void accel_init(void)
     updateRegisterI2C(accelAddress, 0x21, 0x02); //new_data_int
     updateRegisterI2C(accelAddress, 0x0D, 0x00); //disable writing to control registers (ee_w=0)
     
-    //enable_sensor_interrupts();
     delay(100); //waiting for accel to stabilize
     accel_clear_int();
     attachInterrupt(AccelIntNum, accel_calibrate, RISING);
-    //disable_sensor_interrupts();
     //accel_measure();
     enable_sensor_interrupts();
 }
@@ -51,8 +49,9 @@ void accel_measure(void) //warning: you must call disable_sensor_interrupts() an
     sendByteI2C(accelAddress, 0x02);
     Wire.requestFrom(accelAddress, 6);
 
-    for (byte axis = 0; axis < 3; axis++)
-      accelADC[axis] = (Wire.read()|(Wire.read() << 8)) >> 2;
+    accelADC[0] = readReverseWordI2C() >> 2;
+    accelADC[1] = readReverseWordI2C() >> 2;
+    accelADC[2] = readReverseWordI2C() >> 2;
   }
 
 void accel_capture_wait(void)

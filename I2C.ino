@@ -18,6 +18,8 @@
   along with this program. If not, see <http://www.gnu.org/licenses/>. 
 */
 
+/* Modified by Denis Shulyaka */
+
 // I2C functions
 
 void sendByteI2C(int deviceAddress, byte dataValue) {
@@ -36,6 +38,10 @@ int readWordI2C(int deviceAddress) {
   return (Wire.read() << 8) | Wire.read();
 }
 
+int readWordI2C() {
+  return (Wire.read() << 8) | Wire.read();
+}
+
 /*int readWordWaitI2C(int deviceAddress) {
   unsigned char msb, lsb;
   Wire.requestFrom(deviceAddress, 2); // request two bytes
@@ -47,10 +53,12 @@ int readWordI2C(int deviceAddress) {
 }*/
 
 int readReverseWordI2C(int deviceAddress) {
-  byte lowerByte;
   Wire.requestFrom(deviceAddress, 2);
-  lowerByte = Wire.read();
-  return (Wire.read() << 8) | lowerByte;
+  return Wire.read()|(Wire.read() << 8);
+}
+
+int readReverseWordI2C() {
+  return Wire.read()|(Wire.read() << 8);
 }
 
 byte readWhoI2C(int deviceAddress) {
