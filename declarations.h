@@ -86,6 +86,9 @@ fixed desired_vx=0; //not supported yet
 fixed desired_vy=0; //not supported yet
 fixed desired_vz=0; //not supported yet
 
+fixed desired_gps_lat=0;
+fixed desired_gps_lon=0;
+
 fixed sonara=0;
 fixed sonarb=0;
 

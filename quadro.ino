@@ -69,7 +69,7 @@ void setup(void)
 
 void loop(void)
 {
-  static unsigned int i=0;
+  static unsigned long int flight_counter=0;  //must be longer than the battery life
   static fixed az=imu.az;
   static quaternion tmpq=conjugate(imu.q);
   static fixed takeoff_speed=0;
@@ -90,9 +90,11 @@ void loop(void)
   imu_vz=imu.vz;
   imu_az=imu.az;
   enable_sensor_interrupts();
-//if(i==500) flight_state=FSTATE_TAKEOFF; //auto take off
+  
+  flight_counter++;
+//if(flight_counter==500) flight_state=FSTATE_TAKEOFF; //auto take off
 
-  if(!(i++%5))
+  if(!(flight_counter%5))
   {
     Serial2.write(2+sizeof(quaternion));
     Serial2.write("QU");
@@ -111,11 +113,18 @@ void loop(void)
       delay(50);
       break;
     case FSTATE_TAKEOFF:
+      if(!gps_ready)
+      {
+        Serial.println("Waiting for a GPS fix");
+        break;
+      }
+      
       if((imu_az>az+0x51EB853) || (abs((imu_q*tmpq).w)<2145336164L) || manual_takeoff || sonara>(10<<15)) //takeoff condition: last known idle z acceleration plus 0.04 to be above noise or the real part of the mismatch quaternion is less than 0.999 or the altitude is greater than 10 cm
       {
         if(debug) Serial.println("Flying");
         print("az",imu_az-az);
         print("w",abs((imu_q*tmpq).w)-2145336164L);
+        print("sonara", sonara>>15);
         print("tmp", imu_q*tmpq);
         print("tmpq", tmpq);
         print("imuq", imu_q);
@@ -159,13 +168,13 @@ void loop(void)
       delay(20);
       break;
     case FSTATE_FLY:
-        if(dezired_z<0 && sonara==0)
+        if(desired_z<0 && sonara==0)
         {
           cmd_land();
         }
 
         //print("idle",imu.q*q_idle);
-
+ 
         if(landx!=one && landy!=one) //if landing pad was detected
         {
           control_ax=landx<<2;
@@ -173,8 +182,8 @@ void loop(void)
         }
         else if (gps_ready)
         {
-          control_ax=-gps_lat<<2;
-          control_ay=-gps_lon<<2;
+          control_ax=(desired_gps_lat-gps_lat)<<4;
+          control_ay=(desired_gps_lon-gps_lon)<<4;
         }
         else
         {
@@ -183,6 +192,16 @@ void loop(void)
         }
 //        control_az=gravity+vertical_distance_factor*(desired_z-sonara)-vertical_speed_factor*imu_vz;
         control_az=gravity+((desired_z-sonara)<<6)-(sonara_speed<<8);
+
+        if( !(flight_counter%200) && (desired_gps_lat>-16) )
+        {
+          desired_gps_lat=desired_gps_lat-1;
+        }
+        
+        if( !(flight_counter%100) && (desired_gps_lon<37) )
+        {
+          desired_gps_lon=desired_gps_lon+1;
+        }
 
         cosg=imu_q.x*imu_q.x+imu_q.y*imu_q.y;
         cosg=one-cosg-cosg;
@@ -236,7 +255,7 @@ void loop(void)
       error("State not used");
   }
 
-  if(!(i%5))
+  if(!(flight_counter%5))
     print_debug_info();
 
 }
@@ -360,7 +379,7 @@ void print_debug_info(void)
   print("Motor3", MotorSpeed[3]);
   print("battery", battery);
   if(battery < 690)
-    Serial.println("Warning! Battery is too low!");
+    Serial.println("Warning! Battery is too low! Please land");
   // 304:  3.95V
   // 815: 11.86V
   // 809: 11.80V
