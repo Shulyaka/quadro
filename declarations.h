@@ -81,7 +81,7 @@ Imu imu;
 quaternion desired_q=ident; //only heading is currently supported
 fixed desired_x=0;
 fixed desired_y=0;
-fixed desired_z=0x320000L;
+fixed desired_z=0x190000L;
 fixed desired_vx=0; //not supported yet
 fixed desired_vy=0; //not supported yet
 fixed desired_vz=0; //not supported yet
@@ -123,6 +123,8 @@ fixed accel_offset[3]={-120000000, 10000000, -1030000};
 fixed accel_gain[3]={-3420000, -2850000, -5200000};
 fixed accel_square[3]={0, 0, 0};
 
+fixed landx=one;
+fixed landy=one;
 
 typedef int angle;
 

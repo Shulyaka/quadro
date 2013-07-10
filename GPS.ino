@@ -23,12 +23,12 @@ void gps_int(void)
     gps_lat=0;
     gps_lon=0;
     gps_ready=true;
-  Serial.println("GPS fix established");
-  Serial.print("Date: ");
-  Serial.println(gps_date);
-  Serial.print("Time: ");
-  Serial.println(gps_time);
-  print("latitude",gps_lat_abs);
-  print("longitude",gps_lon_abs);    
+    Serial.println("GPS fix established");
+    Serial.print("Date: ");
+    Serial.println(gps_date);
+    Serial.print("Time: ");
+    Serial.println(gps_time);
+    print("latitude",gps_lat_abs);
+    print("longitude",gps_lon_abs);    
   }
 }

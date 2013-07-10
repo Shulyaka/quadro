@@ -57,6 +57,7 @@ void cmd_zero(void)
 //  imu.q=ident;
 //  imu.qg=conjugate(gyro_orientation);
 //  control_az=gravity;
+  gps_ready=false;
   imu_init_orientation();
 }
 
@@ -206,10 +207,15 @@ int cmd_WU(fixed *x) //Range Update
 
 int cmd_LU(fixed *x, fixed *y) //Landing Update
 {
-  fixed a=*x;
-  fixed b=*y;
-  print("Landing pad X", a);
-  print("Landing pad Y", b);
+  if(landx==one && landy==one)
+  {
+    Serial.println("Found a landing pad. Start descending.");
+    desired_z=-0x28000L;
+  }
+  landx=*x;
+  landy=*y;
+  print("Landing pad X", landx);
+  print("Landing pad Y", landy);
   return 0;
 }
 

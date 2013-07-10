@@ -159,10 +159,28 @@ void loop(void)
       delay(20);
       break;
     case FSTATE_FLY:
+        if(dezired_z<0 && sonara==0)
+        {
+          cmd_land();
+        }
+
         //print("idle",imu.q*q_idle);
 
-        control_ax=0;//(desired_x-sonarb)<<2;//-horizontal_speed_factor*imu_vx;
-        control_ay=0;//(sonarb-desired_y)<<2;//-horizontal_speed_factor*imu_vy;
+        if(landx!=one && landy!=one) //if landing pad was detected
+        {
+          control_ax=landx<<2;
+          control_ay=landy<<2;
+        }
+        else if (gps_ready)
+        {
+          control_ax=-gps_lat<<2;
+          control_ay=-gps_lon<<2;
+        }
+        else
+        {
+          control_ax=0;//(desired_x-sonarb)<<2;//-horizontal_speed_factor*imu_vx;
+          control_ay=0;//(sonarb-desired_y)<<2;//-horizontal_speed_factor*imu_vy;
+        }
 //        control_az=gravity+vertical_distance_factor*(desired_z-sonara)-vertical_speed_factor*imu_vz;
         control_az=gravity+((desired_z-sonara)<<6)-(sonara_speed<<8);
 
