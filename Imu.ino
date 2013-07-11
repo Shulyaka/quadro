@@ -139,12 +139,17 @@ void imu_init_orientation(void)
 
   disable_sensor_interrupts();
   compass_measure();
+  delay(100);
+  compass_measure();
   enable_sensor_interrupts();
 
   arr[0]=compassADC[0];
   arr[1]=compassADC[1];
   arr[2]=compassADC[2];
   vectnorm(arr);
+  print("compass0", arr[0]);
+  print("compass1", arr[1]);
+  print("compass2", arr[2]);
 
   q2=sqrt(quaternion(accel_captured[2], accel_captured[1], -accel_captured[0], 0));  //  accel_captured*(0,0,1)=(accel_captured[1], -accel_captured[0], 0)
 

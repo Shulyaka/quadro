@@ -113,13 +113,13 @@ void loop(void)
       delay(50);
       break;
     case FSTATE_TAKEOFF:
-      if(!gps_ready)
+/*      if(!gps_ready)
       {
         Serial.println("Waiting for a GPS fix");
         break;
       }
-      
-      if((imu_az>az+0x51EB853) || (abs((imu_q*tmpq).w)<2145336164L) || manual_takeoff || sonara>(10<<15)) //takeoff condition: last known idle z acceleration plus 0.04 to be above noise or the real part of the mismatch quaternion is less than 0.999 or the altitude is greater than 10 cm
+  */    
+      if((imu_az>az+0x51EB853) || (abs((imu_q*tmpq).w)<2145336164L) || manual_takeoff)// || sonara>(10<<15)) //takeoff condition: last known idle z acceleration plus 0.04 to be above noise or the real part of the mismatch quaternion is less than 0.999 or the altitude is greater than 10 cm
       {
         if(debug) Serial.println("Flying");
         print("az",imu_az-az);
@@ -312,6 +312,8 @@ void print_debug_info(void)
     print("imu.q", qt);
     print("lat",gps_lat);
     print("lon",gps_lon);
+    print("desired_gps_lat", desired_gps_lat);
+    print("desired_gps_lon", desired_gps_lon);
     Serial.println(gps_date);
     Serial.println(gps_time);
     
