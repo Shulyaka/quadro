@@ -180,11 +180,11 @@ void loop(void)
           control_ax=landx<<2;
           control_ay=landy<<2;
         }
-        else if (gps_ready)
-        {
-          control_ax=(desired_gps_lat-gps_lat)<<4;
-          control_ay=(desired_gps_lon-gps_lon)<<4;
-        }
+ //       else if (gps_ready)
+ //       {
+ //         control_ax=(desired_gps_lat-gps_lat)<<4;
+ //         control_ay=(desired_gps_lon-gps_lon)<<4;
+ //       }
         else
         {
           control_ax=0;//(desired_x-sonarb)<<2;//-horizontal_speed_factor*imu_vx;
@@ -193,12 +193,12 @@ void loop(void)
 //        control_az=gravity+vertical_distance_factor*(desired_z-sonara)-vertical_speed_factor*imu_vz;
         control_az=gravity+((desired_z-sonara)<<6)-(sonara_speed<<8);
 
-        if( !(flight_counter%200) && (desired_gps_lat>-16) )
+        if( gps_ready && !(flight_counter%200) && (desired_gps_lat>-16) )
         {
           desired_gps_lat=desired_gps_lat-1;
         }
         
-        if( !(flight_counter%100) && (desired_gps_lon<37) )
+        if( gps_ready && !(flight_counter%100) && (desired_gps_lon<37) )
         {
           desired_gps_lon=desired_gps_lon+1;
         }
