@@ -1,4 +1,4 @@
-//#define ACFIXED
+#define ACFIXED
 #include <Wire.h>
 #include "TinyGPS.h"
 #include "declarations.h"
