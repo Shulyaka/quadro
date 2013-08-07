@@ -32,8 +32,8 @@ fixed gps_lat_abs=0, gps_lon_abs=0, gps_lat=0, gps_lon=0;
 unsigned long gps_time=0, gps_date=0;
 
 //#define FINDZERO 128
-#define GYROCNTP 12L  //the time for gyro calibration
-#define GYROSTEPS 2L //the number of calibration iterations
+#define GYROCNTP 9L //12L  //the time for gyro calibration
+#define GYROSTEPS 2L //2L //the number of calibration iterations
 #define ACCELCNT 4096
 #define ACCELCNTP 9 //to replace the above one
 

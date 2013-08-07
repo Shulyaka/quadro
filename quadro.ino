@@ -59,7 +59,7 @@ void setup(void)
 //accel_calibrate_manual_2();
 //accel_calibrate_manual_2();
 //accel_calibrate_manual_2();
-//accel_calibrate_manual_2();
+accel_calibrate_manual_3();
 //calibrate_orientation();
   Serial.print("Gyro time is ");
   Serial.println(gyro_time);

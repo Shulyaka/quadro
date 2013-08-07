@@ -59,7 +59,6 @@ void accel_capture_wait(void)
   accel_capture_flag=true;
   while(accel_capture_flag)
     continue;
-  //vectnorm(accel_captured);
 }
 
 void accel_clear_int(void)
