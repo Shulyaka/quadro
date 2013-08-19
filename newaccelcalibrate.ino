@@ -27,6 +27,35 @@ void print9row(const char *name, fixed a[9])
   print9row(a);
 }
 
+void print9row(lfixed a[9])
+{
+  print(a[0]);
+  Serial.print(",");
+  print(a[1]);
+  Serial.print(",");
+  print(a[2]);
+  Serial.print(",");
+  print(a[3]);
+  Serial.print(",");
+  print(a[4]);
+  Serial.print(",");
+  print(a[5]);
+  Serial.print(",");
+  print(a[6]);
+  Serial.print(",");
+  print(a[7]);
+  Serial.print(",");
+  print(a[8]);
+  Serial.println("");
+}
+
+void print9row(const char *name, lfixed a[9])
+{
+  Serial.print(name);
+  Serial.print(":");
+  print9row(a);
+}
+
 void printmatrix(fixed a[9][9])
 {
   const byte n=9;
@@ -48,11 +77,57 @@ void printmatrix(const char *name, fixed a[9][9])
   printmatrix(a);
 }
 
+void printmatrix(lfixed a[9][9])
+{
+  const byte n=9;
+  for(byte i=0; i<n; i++)
+    for(byte j=0; j<n; j++)
+    {
+      print(a[i][j]);
+      if(j!=n-1)
+        Serial.print(",");
+      else
+        Serial.println("");
+    }
+}
+
+void printmatrix(const char *name, lfixed a[9][9])
+{
+  Serial.print(name);
+  Serial.println(":");
+  printmatrix(a);
+}
+
 bool lcheck(fixed a[9][9], fixed r[9], fixed x[9])
 {
   const byte n=9;
   fixed delta=2147484L;
   fixed s=0, e;
+  for(byte i=0; i<n; i++)
+  {
+    e=-r[i];
+    for(byte j=0; j<9; j++)
+      e=e+a[i][j]*x[j];
+    s=s+sq(e);
+  }
+  
+  if(s>delta || s<0)
+  {
+    print("lcheck failed", s);
+    printmatrix("matrix", a);
+    print9row("r", r);
+    print9row("x", x);
+    return false;
+  }
+  print("lcheck", s);
+  return true;
+}
+
+bool lcheck(lfixed a[9][9], lfixed r[9], lfixed x[9])
+{
+  const byte n=9;
+  lfixed delta=2147484LL<<31;
+  lfixed s=0, e;
   for(byte i=0; i<n; i++)
   {
     e=-r[i];
@@ -100,6 +175,56 @@ bool lsolve(fixed a[9][9], fixed r[9], fixed x[9])  //solves a linear system usi
       for(j=i+1; j<n; j++)
         norm=norm-a[i][j]*x[j];
       x2[i]=norm%one/a[i][i];
+    }
+    
+    norm=abs(x[0]-x2[0]);
+    x[0]=x2[0];
+    for(i=1; i<n; i++)
+    {
+      if(abs(x[i]-x2[i])>norm)
+        norm=abs(x[i]-x2[i]);
+      x[i]=x2[i];
+    }
+    
+    if(++counter==0)
+    {
+      error("Unable to solve the system");
+      return false;
+    }
+  }
+  
+  print9row("solved! x", x);
+
+  return lcheck(a, r, x);
+}
+
+bool lsolve(lfixed a[9][9], lfixed r[9], lfixed x[9])  //solves a linear system using iterational Gauss-Seidel method
+{
+  const byte n=9;
+  lfixed x2[n];
+  const lfixed eps=1000000LL;
+  lfixed norm=tolfixed(one);
+  byte i, j, counter=0;
+  
+  for(i=0; i<n; i++)   //initial values:
+  //  x2[i]=x[i];        //assuming that the provided ones are close enough to the real
+    x2[i]=0;           //assuming that the provided ones are dummy
+  
+  printmatrix("a", a);
+  print9row("r", r);
+  
+  while(norm>=eps)
+  {
+    print9row("lsolve x", x);
+    
+    for(i=0; i<n; i++)
+    {
+      norm=r[i];
+      for(j=0; j<i-1; j++)
+        norm=norm-a[i][j]*x2[j];
+      for(j=i+1; j<n; j++)
+        norm=norm-a[i][j]*x[j];
+      x2[i]=ldiv(norm,a[i][i]);
     }
     
     norm=abs(x[0]-x2[0]);
@@ -597,6 +722,64 @@ bool lsolve2(fixed a[9][9], fixed r[9], fixed x[9])  //solves a linear system us
   return true;//lcheck(a, r, x);
 }
 
+bool lsolve2(lfixed a[9][9], lfixed r[9], lfixed x[9])  //solves a linear system using iterational Gauss-Seidel method;  Guaranteed only for diagonal-dominant or symmetric positive-definite matrix
+{
+  const byte n=9;
+  lfixed x2[n];
+  const lfixed eps=10000;
+  lfixed norm=tolfixed(one);
+  byte i, j;
+  int counter=4096;
+  
+  for(i=0; i<n; i++)   //initial values:
+  //  x2[i]=x[i];        //assuming that the provided ones are close enough to the real
+    x2[i]=0;           //assuming that the provided ones are dummy
+  
+  printmatrix("a", a);
+  print9row("r", r);
+
+//  rearrange(a, r);
+  
+//  print("det", det(a));
+  
+//  printmatrix("system rearranged", a);
+//  print9row("r", r);
+
+  while(norm>=eps)
+  {
+    print9row("lsolve x", x2);
+    
+    for(i=0; i<n; i++)
+    {
+      norm=r[i];
+      for(j=0; j<i; j++)
+        norm=norm-a[i][j]*x2[j];
+      for(j=i+1; j<n; j++)
+        norm=norm-a[i][j]*x[j];
+      x2[i]=ldiv(norm,a[i][i]);
+    }
+    
+    norm=abs(x[0]-x2[0]);
+    x[0]=x2[0];
+    for(i=1; i<n; i++)
+    {
+      if(abs(x[i]-x2[i])>norm)
+        norm=abs(x[i]-x2[i]);
+      x[i]=x2[i];
+    }
+    
+    if(--counter==0)
+    {
+      error("Unable to solve the system! Falling back to float");
+      return false;//lsolve_float(a,r,x);
+    }
+  }
+  
+  print9row("solved! x", x);
+
+  return true;//lcheck(a, r, x);
+}
+
 
 bool lsolve_det(float a[9][9], float r[9], float x[9])
 {
@@ -638,6 +821,27 @@ fixed pow(fixed a, byte i)
   {
     case 0:
       return one;
+    case 1:
+      return a;
+    case 2:
+      return a*a;
+    case 3:
+      return a*a*a;
+    case 4:
+      return sq(a*a);
+    default:
+      error("Unsupported power");
+  }
+
+  return 0;
+}
+
+lfixed pow(lfixed a, byte i)
+{
+  switch(i)
+  {
+    case 0:
+      return tolfixed(one);
     case 1:
       return a;
     case 2:
@@ -700,6 +904,85 @@ bool math_magic(fixed p[20][3], fixed x[9])          //finds the best calibratio
       p2[i][1]=p[i][1]+x[5]*p[i][0]*p[i][0]+x[4]*p[i][0]+x[3];
       p2[i][2]=p[i][2]+x[8]*p[i][0]*p[i][0]+x[7]*p[i][0]+x[6];
       f[i]=-gravity*gravity+p2[i][0]*p2[i][0]+p2[i][1]*p2[i][1]+p2[i][2]*p2[i][2];
+    }
+
+    for(j=0; j<9; j++)
+    {
+      r[j]=0;
+      for(i=0; i<n; i++)
+        r[j]=r[j] - ((p2[i][j/3] * pow(p[i][j/3], j%3) * f[i]));//>>3);     //-J'*f/16
+    }
+
+    for(i=0; i<9; i++)
+      for(j=0; j<9; j++)
+      {
+        a[i][j]=0;
+        for(k=0; k<n; k++)
+          a[i][j]=a[i][j] + ((p2[k][i/3] * pow(p[k][i/3], i%3) * p2[k][j/3] * pow(p[k][j/3], j%3))>>1);    //J'*J/16
+      }
+
+    for(k=0; k<n; k++)                                           //Comment this out to get Gauss-Newton method
+      for(i=0; i<3; i++)
+        for(j=0; j<3; j++)
+          for(l=0; l<9; l+=3)
+            a[i+l][j+l]=a[i+l][j+l]+( (f[k] * pow(p[k][l/3], i+j)) >> 2);    //f(i)*H(i)/16, i=0..n
+
+    disable_sensor_interrupts(); //for speed
+    if(!lsolve2(a, r, x2))
+    {
+      enable_sensor_interrupts();
+      return false;
+    }
+    enable_sensor_interrupts();
+    
+    norm=abs(x2[0]);
+    x[0]=x[0]+(x2[0]>>2);
+    for(i=1; i<n; i++)
+    {
+      if(abs(x2[i])>norm)
+        norm=abs(x2[i]);
+      x[i]=x[i]+(x2[i]>>2);
+    }
+    
+    if(++counter==0)
+    {
+      error("Unable to do the magic");
+      return false;
+    }
+  }
+  
+  print9row("math_magic result", x);
+
+  return true;
+}
+
+bool math_magic(lfixed p[20][3], lfixed x[9])          //finds the best calibration parameters using the least squires mathod and iterational Newton's method
+{
+  byte n=20;
+  lfixed x2[9];
+  lfixed r[9];
+  lfixed a[9][9];
+  lfixed p2[n][3];
+  lfixed f[n];
+  const lfixed eps=1000000;
+  lfixed norm=tolfixed(one);
+  lfixed g2=sq(tolfixed(gravity));
+  byte i, j, k, l, counter=0;
+  
+  for (i=0; i<9; i++)  //initial values:
+  //  x2[i]=x[i];        //assuming that the provided ones are close enough to the real
+    x2[i]=0;           //assuming that the provided ones are dummy
+  
+  while(norm>=eps)
+  {
+    print9row("math_magic x", x);
+    
+    for(i=0; i<n; i++)
+    {
+      p2[i][0]=p[i][0]+x[2]*p[i][0]*p[i][0]+x[1]*p[i][0]+x[0];
+      p2[i][1]=p[i][1]+x[5]*p[i][0]*p[i][0]+x[4]*p[i][0]+x[3];
+      p2[i][2]=p[i][2]+x[8]*p[i][0]*p[i][0]+x[7]*p[i][0]+x[6];
+      f[i]=-g2+p2[i][0]*p2[i][0]+p2[i][1]*p2[i][1]+p2[i][2]*p2[i][2];
     }
 
     for(j=0; j<9; j++)
@@ -864,8 +1147,42 @@ bool math_magic_float(fixed p[20][3], fixed x[9])
     x[i]=(long)(x2[i]*2147483648.0);
   }
   
-  return true;
+  return true;  
+}
+
+bool math_magic_lfixed(fixed p[20][3], fixed x[9])
+{
+  const byte n=9;
+  const byte m=20;
+  lfixed p2[m][3];
+  lfixed x2[n];
   
+  for(byte i=0; i<n; i++)
+    x2[i]=tolfixed(x[i]);
+  
+  for(byte i=0; i<m; i++)
+    for(byte j=0; j<3; j++)
+      p2[i][j]=tolfixed(p[i][j]);
+  
+  if(!math_magic(p2, x2))
+    return false;
+  
+  for(byte i=0; i<n; i++)
+  {
+    if(x2[i]>=1.0)
+    {
+      error("x>one");
+      x[i]=one;
+    }
+    if(x2[i]<=-1.0)
+    {
+      error("x<-one");
+      x[i]=-one;
+    }
+    x[i]=tofixed(x2[i]);
+  }
+  
+  return true; 
 }
 
 bool accel_calibrate_manual_3() //manual accel calibration
@@ -989,7 +1306,7 @@ point[19][2]=-0x24F34E8B;
     print("sqrt", sqrt(point[i][0]%point[i][0]+point[i][1]%point[i][1]+point[i][2]%point[i][2]));
   }
 
-  if(!math_magic(point, k)) // find gain to be applied for the n points to be on a sphere
+  if(!math_magic_lfixed(point, k)) // find gain to be applied for the n points to be on a sphere
     {error("Cannot find calibration parameters. Possible reasons: programmer was drunk. Please try again.");
     delay(5000);
     return false;

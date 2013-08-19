@@ -448,7 +448,6 @@ void print(const char *name, angle val)
 
 void print(const char *name, lfixed val)
 {
-  unsigned long long a=val.value;
   int v;
   Serial.print(name);
   Serial.print(" =");
@@ -464,10 +463,24 @@ void print(const char *name, lfixed val)
   Serial.print(" (");
   for(byte i=63;i!=255;i--)
   {
-    Serial.print((byte)(a>>i),BIN);
-    a=a-((a>>i)<<i);
+    Serial.print((byte)(val.value>>i),BIN);
+    val.value=val.value-((val.value>>i)<<i);
   }
   Serial.println(")");
+}
+
+void print(lfixed val)
+{
+  int v;
+  if(val>=0) Serial.print(" ");
+  Serial.print((int)(val.value/0x4000000000000000LL));
+  Serial.print(".");
+  v=abs(val.value)/0x10624DD2F1A9FCLL - (abs(val.value)/0x4000000000000000LL)*1000;
+  if(v<10)
+    Serial.print("00");
+  else if(v<100)
+    Serial.print("0");
+  Serial.print(v);
 }
 
 void print(const char *name, quaternion val)

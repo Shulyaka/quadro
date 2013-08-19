@@ -825,7 +825,7 @@ unsigned long long ufmult(unsigned long x, unsigned long y)
   return (((unsigned long long)p.resA)<<32) + p.resB;
 }
 
-lfixed operator*(lfixed x, lfixed y)
+/*lfixed operator*(lfixed x, lfixed y)
 {
   unsigned char sign=0;
   lfixed z;
@@ -859,9 +859,9 @@ lfixed operator*(lfixed x, lfixed y)
   z.value=z.value+(ufmult(a,b)<<15);
   
   return sign?-z:z;
-}
+}*/
 
-/*lfixed operator*(lfixed x, lfixed y)
+lfixed operator*(lfixed x, lfixed y)
 {
   unsigned char sign=0;
   lfixed z=0;
@@ -879,7 +879,7 @@ lfixed operator*(lfixed x, lfixed y)
     y=y>>1;
   }
   return sign?-z:z;
-}*/
+}
 
 lfixed operator*(lfixed x, fixed y)
 {
