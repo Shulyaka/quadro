@@ -568,37 +568,6 @@ fixed operator/(fixed x, int y)
   return z;
 }
 
-lfixed operator*(lfixed x, lfixed y)
-{
-  unsigned char sign=0;
-  lfixed z=0;
-//  unsigned long long b=y.value;
-//Serial.println((long)(b>>32),HEX);
-  if(x.value<0)
-    sign^=1;
-  if(y.value<0)
-    {sign^=1;
-    y.value=-y.value;
-    }
-
-  for(unsigned char i=62; i!=255; i--)
-  {
-    if(x.value&(1ULL<<i))
-      z=z+y;
-      //Serial.println("bingo");
-    //}
-    y=y>>1;
-//    Serial.println((long)((x.value&(1ULL<<i))>>32),HEX);
-//    Serial.println((long)(b>>32),HEX);
-  }
-  return sign?-z:z;
-}
-
-lfixed operator*(lfixed x, fixed y)
-{
-  return x*tolfixed(y);
-}
-
 /*   I used the following code to generate the below lookup table:
 void printSqrtTable(void)
 {
@@ -685,6 +654,236 @@ lfixed lsqrt(lfixed x)
 //  print("dd",ldiv(x,a));
   return (ldiv(x,a)>>1)+(a>>1);
 //  return a;
+}
+
+struct ufmultparams
+{
+  unsigned long x;
+  unsigned long y;
+  unsigned long resA;
+  unsigned long resB;
+};
+
+void ufmult_asm(struct ufmultparams *p)
+{
+  uint8_t zero;
+  
+  asm (
+    "clr %[Z] \n\t"
+    "fmul %D[X], %D[Y] \n\t"
+    "movw %C[R], r0 \n\t"
+    "fmulsu %B[X], %D[Y]  \n\t"
+    "adc %C[R], %[Z]  \n\t"
+    "adc %D[R], %[Z]  \n\t"
+    "movw %A[R], r0  \n\t"
+    "fmul %C[X], %D[Y]  \n\t"
+    "adc %D[R], %[Z]  \n\t"
+    "add %B[R], r0  \n\t"
+    "adc %C[R], r1  \n\t"
+    "adc %D[R], %[Z]  \n\t"
+    "fmul %A[X], %D[Y]  \n\t"
+    "adc %B[R], %[Z]  \n\t"
+    "adc %C[R], %[Z]  \n\t"
+    "adc %D[R], %[Z]  \n\t"
+    "mov %D[T], r0  \n\t"
+    "add %A[R], r1  \n\t"
+    "adc %B[R], %[Z]  \n\t"
+    "adc %C[R], %[Z]  \n\t"
+    "adc %D[R], %[Z]  \n\t"
+    "fmul %D[X], %C[Y]  \n\t"
+    "adc %D[R], %[Z]  \n\t"
+    "add %B[R], r0  \n\t"
+    "adc %C[R], r1  \n\t"
+    "adc %D[R], %[Z]  \n\t"
+    "fmul %C[X], %C[Y]  \n\t"
+    "adc %C[R], %[Z]  \n\t"
+    "adc %D[R], %[Z]  \n\t"
+    "add %A[R], r0  \n\t"
+    "adc %B[R], r1  \n\t"
+    "adc %C[R], %[Z]  \n\t"
+    "adc %D[R], %[Z]  \n\t"
+    "fmul %B[X], %C[Y]  \n\t"
+    "adc %B[R], %[Z]  \n\t"
+    "adc %C[R], %[Z]  \n\t"
+    "adc %D[R], %[Z]  \n\t"
+    "add %D[T], r0  \n\t"
+    "adc %A[R], r1  \n\t"
+    "adc %B[R], %[Z]  \n\t"
+    "adc %C[R], %[Z]  \n\t"
+    "adc %D[R], %[Z]  \n\t"
+    "fmul %A[X], %C[Y]   \n\t"
+    "adc %A[R], %[Z]  \n\t"
+    "adc %B[R], %[Z]  \n\t"
+    "adc %C[R], %[Z]  \n\t"
+    "adc %D[R], %[Z]  \n\t"
+    "mov %C[T], r0  \n\t"
+    "add %D[T], r1  \n\t"
+    "adc %A[R], %[Z]  \n\t"
+    "adc %B[R], %[Z]  \n\t"
+    "adc %C[R], %[Z]  \n\t"
+    "adc %D[R], %[Z]  \n\t"
+    "fmul %D[X], %B[Y]  \n\t"
+    "adc %C[R], %[Z]  \n\t"
+    "adc %D[R], %[Z]  \n\t"
+    "add %A[R], r0  \n\t"
+    "adc %B[R], r1  \n\t"
+    "adc %C[R], %[Z]  \n\t"
+    "adc %D[R], %[Z]  \n\t"
+    "fmul %C[X], %B[Y]  \n\t"
+    "adc %B[R], %[Z]  \n\t"
+    "adc %C[R], %[Z]  \n\t"
+    "adc %D[R], %[Z]  \n\t"
+    "add %D[T], r0  \n\t"
+    "adc %A[R], r1  \n\t"
+    "adc %B[R], %[Z]  \n\t"
+    "adc %C[R], %[Z]  \n\t"
+    "adc %D[R], %[Z]  \n\t"
+    "fmul %B[X], %B[Y]  \n\t"
+    "adc %A[R], %[Z]  \n\t"
+    "adc %B[R], %[Z]  \n\t"
+    "adc %C[R], %[Z]  \n\t"
+    "adc %D[R], %[Z]  \n\t"
+    "add %C[T], r0  \n\t"
+    "adc %D[T], r1  \n\t"
+    "adc %A[R], %[Z]  \n\t"
+    "adc %B[R], %[Z]  \n\t"
+    "adc %C[R], %[Z]  \n\t"
+    "adc %D[R], %[Z]  \n\t"
+    "fmul %A[X], %B[Y]  \n\t"
+    "adc %D[T], %[Z]  \n\t"
+    "adc %A[R], %[Z]  \n\t"
+    "adc %B[R], %[Z]  \n\t"
+    "adc %C[R], %[Z]  \n\t"
+    "adc %D[R], %[Z]  \n\t"
+    "mov %B[T], r0   \n\t"
+    "add %C[T], r1  \n\t"
+    "adc %D[T], %[Z]  \n\t"
+    "adc %A[R], %[Z]  \n\t"
+    "adc %B[R], %[Z]  \n\t"
+    "adc %C[R], %[Z]  \n\t"
+    "adc %D[R], %[Z]  \n\t"
+    "fmul %D[X], %A[Y]  \n\t"
+    "adc %B[R], %[Z]  \n\t"
+    "adc %C[R], %[Z]  \n\t"
+    "adc %D[R], %[Z]  \n\t"
+    "add %D[T], r0  \n\t"
+    "adc %A[R], r1  \n\t"
+    "adc %B[R], %[Z]  \n\t"
+    "adc %C[R], %[Z]  \n\t"
+    "adc %D[R], %[Z]  \n\t"
+    "fmul %C[X], %A[Y]  \n\t"
+    "adc %A[R], %[Z]  \n\t"
+    "adc %B[R], %[Z]  \n\t"
+    "adc %C[R], %[Z]  \n\t"
+    "adc %D[R], %[Z]  \n\t"
+    "add %C[T], r0  \n\t"
+    "adc %D[T], r1  \n\t"
+    "adc %A[R], %[Z]  \n\t"
+    "adc %B[R], %[Z]  \n\t"
+    "adc %C[R], %[Z]  \n\t"
+    "adc %D[R], %[Z]  \n\t"
+    "fmul %B[X], %A[Y]  \n\t"
+    "adc %D[T], %[Z]  \n\t"
+    "adc %A[R], %[Z]  \n\t"
+    "adc %B[R], %[Z]  \n\t"
+    "adc %C[R], %[Z]  \n\t"
+    "adc %D[R], %[Z]  \n\t"
+    "add %B[T], r0   \n\t"
+    "adc %C[T], r1  \n\t"
+    "adc %D[T], %[Z]  \n\t"
+    "adc %A[R], %[Z]  \n\t"
+    "adc %B[R], %[Z]  \n\t"
+    "adc %C[R], %[Z]  \n\t"
+    "adc %D[R], %[Z]  \n\t"
+    "fmul %A[X], %A[Y]  \n\t"
+    "adc %C[T], %[Z]  \n\t"
+    "adc %D[T], %[Z]  \n\t"
+    "adc %A[R], %[Z]  \n\t"
+    "adc %B[R], %[Z]  \n\t"
+    "adc %C[R], %[Z]  \n\t"
+    "adc %D[R], %[Z]  \n\t"
+    "mov %A[T], r0  \n\t"
+    "add %B[T], r1  \n\t"
+    "adc %C[T], %[Z]  \n\t"
+    "adc %D[T], %[Z]  \n\t"
+    "adc %A[R], %[Z]  \n\t"
+    "adc %B[R], %[Z]  \n\t"
+    "adc %C[R], %[Z]  \n\t"
+    "adc %D[R], %[Z]  \n\t"
+    "clr r1  \n\t"
+    : [R]"=&r"(p->resA), [T]"=&r"(p->resB), [Z]"=&r"(zero)
+    : [X]"a"(p->x), [Y]"a"(p->y)
+    );
+}
+
+unsigned long long ufmult(unsigned long x, unsigned long y)
+{
+  struct ufmultparams p;
+  p.x=x;
+  p.y=y;
+  ufmult_asm(&p);       // this wrapper is a work around buggy gcc register allocator http://gcc.gnu.org/bugzilla/show_bug.cgi?id=56479
+  return (((unsigned long long)p.resA)<<32) + p.resB;
+}
+
+lfixed operator*(lfixed x, lfixed y)
+{
+  unsigned char sign=0;
+  lfixed z;
+  unsigned long a, b;
+  
+  if(x.value<0)
+  {
+    sign^=1;
+    x.value=-x.value;
+  }
+  if(y.value<0)
+  {
+    sign^=1;
+    y.value=-y.value;
+  }
+  
+  a=x.value>>32;
+  b=y.value>>32;
+  z.value=ufmult(a,b)<<31;
+  
+  b=y.value-(((unsigned long long)b)<<32);
+  
+  z.value=z.value+(ufmult(a,b)<<15);
+  
+  a=x.value-(((unsigned long long)a)<<32);
+  
+  z.value=z.value+(ufmult(a,b)>>1);
+  
+  b=y.value-(((unsigned long long)y.value>>32)<<32);
+  
+  z.value=z.value+(ufmult(a,b)<<15);
+  
+  return sign?-z:z;
+}
+
+/*lfixed operator*(lfixed x, lfixed y)
+{
+  unsigned char sign=0;
+  lfixed z=0;
+  if(x.value<0)
+    sign^=1;
+  if(y.value<0)
+    {sign^=1;
+    y.value=-y.value;
+    }
+
+  for(unsigned char i=62; i!=255; i--)
+  {
+    if(x.value&(1ULL<<i))
+      z=z+y;
+    y=y>>1;
+  }
+  return sign?-z:z;
+}*/
+
+lfixed operator*(lfixed x, fixed y)
+{
+  return x*tolfixed(y);
 }
 
 #endif
