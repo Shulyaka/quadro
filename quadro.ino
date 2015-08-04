@@ -472,10 +472,21 @@ void print(const char *name, lfixed val)
 void print(lfixed val)
 {
   int v;
-  if(val>=0) Serial.print(" ");
+  if(val==0xFFFFFFFFFFFFFFFFLL)
+  {
+    Serial.print("-1.000");
+    return;
+  }
+  if(val>=0)
+    Serial.print(" ");
+  else
+  {
+    Serial.print("-");
+    val.value=-val.value;
+  }
   Serial.print((int)(val.value/0x4000000000000000LL));
   Serial.print(".");
-  v=abs(val.value)/0x10624DD2F1A9FCLL - (abs(val.value)/0x4000000000000000LL)*1000;
+  v=val.value/0x10624DD2F1A9FCLL - (val.value/0x4000000000000000LL)*1000;
   if(v<10)
     Serial.print("00");
   else if(v<100)

@@ -444,6 +444,11 @@ lfixed operator%(fixed x, fixed y) //NOTE that it is NOT a division
   return z;
 }
 
+inline lfixed lsq(fixed x)
+{
+  return x%x;
+}
+
 fixed operator/(lfixed x, fixed y)
 {
   fixed z;
@@ -825,11 +830,32 @@ unsigned long long ufmult(unsigned long x, unsigned long y)
   return (((unsigned long long)p.resA)<<32) + p.resB;
 }
 
-/*lfixed operator*(lfixed x, lfixed y)
+/*void print(const char *, fixed);
+void print(const char *, lfixed);
+
+unsigned long long ufmult(unsigned long x, unsigned long y)
+{
+  unsigned long long a=x;
+  unsigned long long b=y;
+  unsigned long long c=a*b;
+
+//  print("ufmult.x",(fixed)x);
+//  print("ufmult.y",(fixed)y);
+//  print("ufmult.a",(lfixed)a);
+//  print("ufmult.b",(lfixed)b);
+//  print("ufmult.c",(lfixed)c);
+//  print("ufmult",(lfixed)(c>>1));
+  
+  return c<<1;
+}*/
+
+
+lfixed operator*(lfixed x, lfixed y)
 {
   unsigned char sign=0;
   lfixed z;
-  unsigned long a, b;
+  unsigned long a, b, c, d;
+  unsigned long long r, m;
   
   if(x.value<0)
   {
@@ -844,46 +870,81 @@ unsigned long long ufmult(unsigned long x, unsigned long y)
   
   a=x.value>>32;
   b=y.value>>32;
-  z.value=ufmult(a,b)<<31;
+  z.value=ufmult(a,b);
   
-  b=y.value-(((unsigned long long)b)<<32);
-  
-  z.value=z.value+(ufmult(a,b)<<15);
+//  print("z", z);
   
   a=x.value-(((unsigned long long)a)<<32);
+  b=y.value-(((unsigned long long)b)<<32);
   
-  z.value=z.value+(ufmult(a,b)>>1);
+  r=ufmult(a,b);
   
+  a=x.value>>32;
+    
+  m=ufmult(a,b);
+  c=m>>32;
+  d=m-(((unsigned long long)c)<<32);
+  
+  z.value=z.value+c;
+  if(d&0x80000000UL && r&0x8000000000000000ULL)
+    z.value=z.value+1;
+  
+  r+=(unsigned long long)d<<32;
+  
+//  print("z", z);
+  
+  a=x.value-(((unsigned long long)a)<<32);
   b=y.value-(((unsigned long long)y.value>>32)<<32);
   
-  z.value=z.value+(ufmult(a,b)<<15);
+  m=ufmult(a,b);
+  c=m>>32;
+  d=m-(((unsigned long long)c)<<32);
+  
+  z.value=z.value+c;
+  if(d&0x80000000UL && r&0x8000000000000000ULL)
+    z.value=z.value+1;
+  
+  r+=(unsigned long long)d<<32;
+
+//  print("z", z);
+  
+  z.value=z.value<<1;
+  if(r&0x8000000000000000ULL)
+    z.value=z.value+1;
   
   return sign?-z:z;
-}*/
+}
 
-lfixed operator*(lfixed x, lfixed y)
+/*lfixed operator*(lfixed x, lfixed y)
 {
   unsigned char sign=0;
   lfixed z=0;
   if(x.value<0)
-    sign^=1;
-  if(y.value<0)
-    {sign^=1;
-    y.value=-y.value;
-    }
-
-  for(unsigned char i=62; i!=255; i--)
   {
-    if(x.value&(1ULL<<i))
+    sign^=1;
+    x.value=-x.value;
+  }
+  if(y.value<0)
+  {
+    sign^=1;
+    y.value=-y.value;
+  }
+
+//  for(unsigned char i=62; i!=255; i--)
+//  {
+//    if(x.value&(1ULL<<i))
+  for(unsigned long long i=1ULL<<62; i!=0; i=i>>1)
+  {
+    if(x.value&i)
       z=z+y;
     y=y>>1;
   }
   return sign?-z:z;
-}
+}*/
 
-lfixed operator*(lfixed x, fixed y)
-{
-  return x*tolfixed(y);
-}
+//lfixed operator*(lfixed x, fixed y)
+//{
+//  return x*tolfixed(y);
+//}
 
 #endif
