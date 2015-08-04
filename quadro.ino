@@ -1,4 +1,3 @@
-#define ACFIXED
 #include <Wire.h>
 #include "TinyGPS.h"
 #include "declarations.h"
@@ -52,14 +51,7 @@ void setup(void)
     continue;
   Serial.println("OK");
 
-#ifdef ACCELCALIBRATE
-  accel_calibrate_manual();
-#endif
-//accel_calibrate_manual_2();
-//accel_calibrate_manual_2();
-//accel_calibrate_manual_2();
-//accel_calibrate_manual_2();
-accel_calibrate_manual_3();
+accel_calibrate_manual();
 //calibrate_orientation();
   Serial.print("Gyro time is ");
   Serial.println(gyro_time);

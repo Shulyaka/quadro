@@ -430,6 +430,25 @@ inline fixed pow4(fixed x)
   return x*x*x*x;
 }
 
+inline fixed pow(fixed a, byte i)
+{
+  switch(i)
+  {
+    case 0:
+      return one;
+    case 1:
+      return a;
+    case 2:
+      return a*a;
+    case 3:
+      return a*a*a;
+    case 4:
+      return sq(a*a);
+    default:
+      return sq(a*a)*pow(a, i-4);
+  }
+}
+
 lfixed operator%(fixed x, fixed y) //NOTE that it is NOT a division
 {
   lfixed z;
