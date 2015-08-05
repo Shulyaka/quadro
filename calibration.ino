@@ -115,7 +115,7 @@ bool math_magic(fixed point[20][3], byte n, fixed x[9])          //finds best ca
       {
         newpoint[i][j]=point[i][j];
         for(k=0; k<l; k++)
-          newpoint[i][j]=newpoint[i][j]+x[k]*pow(point[i][j], k);
+          newpoint[i][j]=newpoint[i][j]+x[j*l+k]*pow(point[i][j], k);
       }
 
     for(i=0; i<3*l; i++)
