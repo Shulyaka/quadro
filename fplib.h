@@ -23,6 +23,9 @@ class fixed
   fixed& operator+=(const fixed&);
   fixed& operator-=(const fixed&);
   //fixed& operator*=(const fixed&);
+  fixed& operator>>=(const byte);
+  fixed& operator<<=(const byte);
+  
   const fixed operator+(const fixed&) const;
   const fixed operator-(const fixed&) const;
   const fixed operator-(void) const;
@@ -124,6 +127,28 @@ fixed& fixed::operator-=(const fixed &x)
   this->value-=x.value;
   return *this;
 }
+/*
+fixed& fixed::operator<<=(const byte y)
+{
+  fixed z;
+  z.value=this->value<<y;
+  if(z<0 && *this>0)
+    z=one;
+  return z;
+}
+
+fixed& fixed::operator>>=(const byte y)
+{
+  fixed z;
+  if(y==0)
+    return *this;
+  if(*this==one)
+    z.value=1L<<(31-y);
+  else
+    z.value=this->value>>y;
+  return z;
+}
+*/
 
 const fixed fixed::operator+(const fixed &x) const
 {

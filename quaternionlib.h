@@ -11,6 +11,14 @@ class quaternion
   quaternion(fixed, fixed, fixed);
   void normalize(void);
   fixed w, x, y, z;
+
+  bool operator==(const quaternion&) const;
+  bool operator!=(const quaternion&) const;
+  
+  quaternion& operator+=(const quaternion&);
+  quaternion& operator-=(const quaternion&);
+  const quaternion operator+(const quaternion&) const;
+  const quaternion operator-(const quaternion&) const;
 };
 
 quaternion::quaternion(void)
@@ -39,31 +47,54 @@ quaternion::quaternion(fixed x, fixed y, fixed z)
 
 const quaternion ident=quaternion(one, 0, 0, 0);
 
-bool operator==(quaternion a, quaternion b)
-{return (a.w==b.w && a.x==b.x && a.y==b.y && a.z==b.z) ? true : false;}
+bool quaternion::operator==(const quaternion &b) const
+{return (this->w==b.w && this->x==b.x && this->y==b.y && this->z==b.z) ? true : false;}
 
-bool operator!=(quaternion a, quaternion b)
-{return (a.w!=b.w || a.x!=b.x || a.y!=b.y || a.z!=b.z) ? true : false;}
+bool quaternion::operator!=(const quaternion &b) const
+{return (this->w!=b.w || this->x!=b.x || this->y!=b.y || this->z!=b.z) ? true : false;}
 
-quaternion operator+(quaternion a, quaternion b)
+quaternion& quaternion::operator+=(const quaternion &b)
 {
+  this->w+=b.w;
+  this->x+=b.x;
+  this->y+=b.y;
+  this->z+=b.z;
+  return *this;
+}
+
+quaternion& quaternion::operator-=(const quaternion &b)
+{
+  this->w-=b.w;
+  this->x-=b.x;
+  this->y-=b.y;
+  this->z-=b.z;
+  return *this;
+}
+
+const quaternion quaternion::operator+(const quaternion &b) const
+{
+  //return quaternion(*this)+=b;
   quaternion c;
-  c.w=a.w+b.w;
-  c.x=a.x+b.x;
-  c.y=a.y+b.y;
-  c.z=a.z+b.z;
+  c.w=this->w+b.w;
+  c.x=this->x+b.x;
+  c.y=this->y+b.y;
+  c.z=this->z+b.z;
   return c;
 }
 
-quaternion operator-(quaternion a, quaternion b)
+const quaternion quaternion::operator-(const quaternion &b) const
 {
+  //return quaternion(*this)-=b;
   quaternion c;
-  c.w=a.w-b.w;
-  c.x=a.x-b.x;
-  c.y=a.y-b.y;
-  c.z=a.z-b.z;
+  c.w=this->w-b.w;
+  c.x=this->x-b.x;
+  c.y=this->y-b.y;
+  c.z=this->z-b.z;
   return c;
 }
+
+
+
 
 quaternion operator*(fixed a, quaternion b)
 {
