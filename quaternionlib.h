@@ -101,10 +101,10 @@ quaternion operator<<(quaternion a, char b)
 quaternion operator/(quaternion a, fixed b)
 {
   quaternion c;
-  c.w=tolfixed(a.w)/b;
-  c.x=tolfixed(a.x)/b;
-  c.y=tolfixed(a.y)/b;
-  c.z=tolfixed(a.z)/b;
+  c.w=lfixed(a.w)/b;
+  c.x=lfixed(a.x)/b;
+  c.y=lfixed(a.y)/b;
+  c.z=lfixed(a.z)/b;
   return c;
 }
 

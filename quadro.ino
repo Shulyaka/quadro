@@ -345,7 +345,7 @@ void print_debug_info(void)
 //    print("v1",lvectlen(t1,t2,t3));
 //    print("v2",vectlen(t1,t2,t3));
 //    print("tm",tm);
-//    print("tt",tofixed(tm));
+//    print("tt",fixed(tm));
 //    print("tn",t1%cc+t2%sc);
 //  print("z1",imu.z1);
 //  print("z2",imu.z2);

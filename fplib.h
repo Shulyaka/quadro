@@ -1,35 +1,15 @@
 #ifndef FPLIB_H
 #define FPLIB_H
 
-class lfixed
-{
-  public:
-  lfixed(void);
-  lfixed(long long);
-  long long value;
-
-  bool operator==(const lfixed&) const;
-  bool operator!=(const lfixed&) const;
-  bool operator>(const lfixed&) const;
-  bool operator>=(const lfixed&) const;
-  bool operator<(const lfixed&) const;
-  bool operator<=(const lfixed&) const;
-
-  lfixed& operator+=(const lfixed&);
-  lfixed& operator-=(const lfixed&);
-  const lfixed operator+(const lfixed&) const;
-  const lfixed operator-(const lfixed&) const;
-  const lfixed operator-(void) const;
-  const lfixed operator<<(const byte) const;
-  const lfixed operator>>(const byte) const;
-};
+class lfixed;
 
 class fixed
 {
   public:
   fixed(void);
-  fixed(long);
-  fixed(long,bool);
+  fixed(const long);
+  fixed(const long, const bool);
+  fixed(const lfixed&);
   long value;
   bool isone; //not used currently
   
@@ -53,25 +33,66 @@ class fixed
   const fixed operator/(const int) const;
 };
 
+class lfixed
+{
+  public:
+  lfixed(void);
+  lfixed(const long long);
+  lfixed(const fixed&);
+  long long value;
+
+  bool operator==(const lfixed&) const;
+  bool operator!=(const lfixed&) const;
+  bool operator>(const lfixed&) const;
+  bool operator>=(const lfixed&) const;
+  bool operator<(const lfixed&) const;
+  bool operator<=(const lfixed&) const;
+
+  lfixed& operator+=(const lfixed&);
+  lfixed& operator-=(const lfixed&);
+  const lfixed operator+(const lfixed&) const;
+  const lfixed operator-(const lfixed&) const;
+  const lfixed operator-(void) const;
+  const lfixed operator<<(const byte) const;
+  const lfixed operator>>(const byte) const;
+  const fixed operator/(const fixed&) const;
+  const fixed operator/(const lfixed&) const;
+  const lfixed operator*(const lfixed&) const;
+};
+
 const fixed one = fixed(((signed long)((1UL<<31)-1))+1, true);
 
 fixed::fixed(void)
 {
   fixed::value=0;
-  bool isone=false;
+  fixed::isone=false;
 }
 
-fixed::fixed(long x)
+fixed::fixed(const long x)
 {
   fixed::value=x;
-  bool isone=false;
+  fixed::isone=false;
   //if(x==1) Serial.println("Did you mean 'one'?");
 }
 
-fixed::fixed(long x, bool is_one)
+fixed::fixed(const long x, const bool is_one)
 {
   fixed::value=x;
-  bool isone=is_one;
+  fixed::isone=is_one;
+}
+
+fixed::fixed(const lfixed &x)
+{
+  fixed::isone=false;
+  if (x.value>=0x4000000000000000LL)
+  {
+    fixed::value=((signed long)((1UL<<31)-1))+1;
+    fixed::isone=true;
+  }
+  else if (x.value<=-0x3FFFFFFF80000000LL)
+    fixed::value=((signed long)((1UL<<31)-1))+2;
+  else
+    fixed::value=x.value>0?(x.value+0x40000000)>>31:-((-x.value+0x40000000)>>31);
 }
 
 bool fixed::operator==(const fixed &y) const
@@ -124,7 +145,7 @@ const fixed fixed::operator-(void) const
 {
   fixed z;
   if (*this==one)
-    z.value=((signed long)((1L<<31)-1))+2;
+    z.value=((signed long)((1UL<<31)-1))+2;
   else
     z.value=-this->value;
   return z;
@@ -513,8 +534,18 @@ const fixed fixed::operator/(const int y) const
 lfixed::lfixed(void)
 {}
 
-lfixed::lfixed(long long x)
+lfixed::lfixed(const long long x)
 {lfixed::value=x;}
+
+lfixed::lfixed(const fixed &x)
+{
+  if(x==one)
+    lfixed::value=0x4000000000000000LL;
+  else if(x==-one)
+    lfixed::value=-0x4000000000000000LL;
+  else
+    lfixed::value= x>0? ((long long)x.value)<<31:-(((long long)x.value)<<31);
+}
 
 bool lfixed::operator==(const lfixed &y) const
 {return this->value==y.value ? true : false;}
@@ -583,87 +614,33 @@ const lfixed lfixed::operator>>(const byte y) const
   return z;
 }
 
-
-
-
-fixed operator/(lfixed x, fixed y)
+const fixed lfixed::operator/(const fixed &y) const
 {
   fixed z;
   if(y==one)
-    z.value=x.value>>31;
+    z.value=this->value>>31;
   else
-    {z.value=x.value/y.value;
-    if (fixed(z.value)==one && x.value<0)
+    {z.value=this->value/y.value;
+    if (fixed(z.value)==one && this->value<0)
       z.value=one.value+1;
     }
   return z;
 }
 
-
-
-
-
-
-
-
-
-
-
-
-inline fixed pow2(fixed x)
-{
-  return x*x;
-}
-
-inline fixed pow3(fixed x)
-{
-  return x*x*x;
-}
-
-inline fixed pow4(fixed x)
-{
-  return x*x*x*x;
-}
-
-inline fixed pow(fixed a, byte i)
-{
-  switch(i)
-  {
-    case 0:
-      return one;
-    case 1:
-      return a;
-    case 2:
-      return a*a;
-    case 3:
-      return a*a*a;
-    case 4:
-      return sq(a*a);
-    default:
-      return sq(a*a)*pow(a, i-4);
-  }
-}
-
-inline lfixed lsq(fixed x)
-{
-  return x%x;
-}
-
-
-fixed operator/(lfixed x, lfixed y)
+const fixed lfixed::operator/(const lfixed &y) const
 {
   fixed z;
   unsigned long long a,b;
   unsigned char sign=0;
 //  if(y.value==0)
 //    return one;
-  if(x.value<0)
+  if(this->value<0)
   {
-    a=-x.value;
+    a=-this->value;
     sign^=1;
   }
   else
-    a=x.value;
+    a=this->value;
   if(y.value<0)
   {
     b=-y.value;
@@ -690,152 +667,6 @@ fixed operator/(lfixed x, lfixed y)
 //  if(sign==1)
 //    z.value=-z.value;
 //  return z;
-}
-
-fixed tofixed(lfixed x)
-{
-//  fixed z;
-  if (x>=0x4000000000000000LL)
-    return one;
-  if (x<=-0x3FFFFFFF80000000LL)
-    return -one;
-  return x>0?(x.value+0x40000000)>>31:-((-x.value+0x40000000)>>31);
-//  return z;
-}
-
-lfixed tolfixed(fixed x)
-{
-  if(x==one)
-    return 0x4000000000000000LL;
-  if(x==-one)
-    return -0x4000000000000000LL;
-  return x>0? ((long long)x.value)<<31:-(((long long)x.value)<<31);
-}
-
-lfixed ldiv(lfixed x, lfixed y)
-{
-  lfixed z;
-  unsigned long long a,b;
-  unsigned char sign=0;
-//  print("ldiv: a",a);
-//  print("ldiv: b",b);
-  if(x.value<0)
-  {
-    a=-x.value;
-    sign^=1;
-  }
-  else
-    a=x.value;
-  if(y.value<0)
-  {
-    b=-y.value;
-    sign^=1;
-  }
-  else
-    b=y.value;
-  if(b<a>>1)
-    return 0;
-
-  z.value=0;
-  for(unsigned char i=62; i!=255; i--)
-  {
-    if(b<a)
-    {
-      z.value|=1ULL<<i;
-      a-=b;
-    }
-    a<<=1;
-  }
-  if (b<a)
-    x.value++; //rounding
-  return sign?-z:z;
-}
-
-//   I used the following code to generate the below lookup table:
-void printSqrtTable(void)
-{
-  Serial.print("const unsigned char l_sqrt[192]={		// input: x (64-255), output: sqrt((x-64)<<8)\n");
-  for(int i=64; i<256; i++)
-  {
-    Serial.print((unsigned byte)sqrt(i<<8));
-    if(i!=255)
-      Serial.print(",\n");
-    else
-      Serial.print("};\n");
-  }
-}
-
-const unsigned char l_sqrt[192]={		// input: x (64-255), output: sqrt((x-64)<<8)
-128,128,129,130,131,132,133,134,135,136,137,138,139,140,141,142,143,144,144,145,146,147,148,149,150,150,151,152,153,154,155,155,
-156,157,158,159,160,160,161,162,163,163,164,165,166,167,167,168,169,170,170,171,172,173,173,174,175,176,176,177,178,178,179,180,
-181,181,182,183,183,184,185,185,186,187,187,188,189,189,190,191,192,192,193,193,194,195,195,196,197,197,198,199,199,200,201,201,
-202,203,203,204,204,205,206,206,207,208,208,209,209,210,211,211,212,212,213,214,214,215,215,216,217,217,218,218,219,219,220,221,
-221,222,222,223,224,224,225,225,226,226,227,227,228,229,229,230,230,231,231,232,232,233,234,234,235,235,236,236,237,237,238,238,
-239,240,240,241,241,242,242,243,243,244,244,245,245,246,246,247,247,248,248,249,249,250,250,251,251,252,252,253,253,254,254,255
-};
-
-unsigned long usqrt(lfixed x)
-{
-  char i;
-  unsigned long a=0;
-  long long t=x.value;
-  if(t<=0) return 0;
-  for(i=2; (t=t>>2)!=0; i+=2); i-=8;
-  if(i<0)
-    a=((unsigned long)l_sqrt[(x.value<<(-i))-64])>>(4+((-i)>>1));
-  else if (i<8)
-    a=((unsigned long)l_sqrt[(x.value>>i)-64])>>(4-(i>>1));
-  else
-    a=((unsigned long)l_sqrt[(x.value>>i)-64])<<((i>>1)-4);
-  a=(x.value/a+a)>>1;
-  return (x.value/a+a)>>1;
-}
-
-fixed sqrt(lfixed x)
-{
-  char i;
-  unsigned long a=0;
-  long long t=x.value;
-  if(t<=0) return 0;
-  for(i=2; (t=t>>2)!=0; i+=2); i-=8;
-  if(i<0)
-    a=((unsigned long)l_sqrt[(x.value<<(-i))-64])>>(4+((-i)>>1));
-  else if (i<8)
-    a=((unsigned long)l_sqrt[(x.value>>i)-64])>>(4-(i>>1));
-  else
-    a=((unsigned long)l_sqrt[(x.value>>i)-64])<<((i>>1)-4);
-  a=(x.value/a+a+1)>>1;
-//  a=(x.value/a+a+1)>>1;
-  return (x.value/a+a+1)>>1;
-}
-
-//void print(const char *name, lfixed val);
-
-lfixed lsqrt(lfixed x)
-{
-  char i;
-  lfixed a=0;
-  long long t=x.value;
-//  print("sq",x);
-  if(t<=0) return 0;
-  for(i=2; (t=t>>2)!=0; i+=2); i-=8;
-//  print("i",i);
-  if(i<0)
-    a=((unsigned long long)l_sqrt[(x.value<<(-i))-64])<<(27-((-i)>>1));
-//  else if (i<8)
-//    a=((unsigned long long)l_sqrt[(x.value>>i)-64])>>(4-(i>>1));
-  else
-    a=((unsigned long long)l_sqrt[(x.value>>i)-64])<<((i>>1)+27);
-//  print("da", a);
-//  print("dd",ldiv(x,a));
-  a=(ldiv(x,a)>>1)+(a>>1);
-//  print("da", a);
-//  print("dd",ldiv(x,a));
-  a=(ldiv(x,a)>>1)+(a>>1);
-//  print("da", a);
-//  print("dd",ldiv(x,a));
-  return (ldiv(x,a)>>1)+(a>>1);
-//  return a;
 }
 
 struct ufmultparams
@@ -1026,37 +857,40 @@ unsigned long long ufmult(unsigned long x, unsigned long y)
   return c<<1;
 }*/
 
-
-lfixed operator*(lfixed x, lfixed y)
+const lfixed lfixed::operator*(const lfixed &y) const
 {
   unsigned char sign=0;
   lfixed z;
   unsigned long a, b, c, d;
-  unsigned long long r, m;
+  unsigned long long r, m, xv, yv;
   
-  if(x.value<0)
+  if(this->value<0)
   {
     sign^=1;
-    x.value=-x.value;
+    xv=-this->value;
   }
+  else
+    xv=this->value;
   if(y.value<0)
   {
     sign^=1;
-    y.value=-y.value;
+    yv=-y.value;
   }
+  else
+    yv=y.value;
   
-  a=x.value>>32;
-  b=y.value>>32;
+  a=xv>>32;
+  b=yv>>32;
   z.value=ufmult(a,b);
   
 //  print("z", z);
   
-  a=x.value-(((unsigned long long)a)<<32);
-  b=y.value-(((unsigned long long)b)<<32);
+  a=xv-(((unsigned long long)a)<<32);
+  b=yv-(((unsigned long long)b)<<32);
   
   r=ufmult(a,b);
   
-  a=x.value>>32;
+  a=xv>>32;
     
   m=ufmult(a,b);
   c=m>>32;
@@ -1070,8 +904,8 @@ lfixed operator*(lfixed x, lfixed y)
   
 //  print("z", z);
   
-  a=x.value-(((unsigned long long)a)<<32);
-  b=y.value-(((unsigned long long)y.value>>32)<<32);
+  a=xv-(((unsigned long long)a)<<32);
+  b=yv-(((unsigned long long)yv>>32)<<32);
   
   m=ufmult(a,b);
   c=m>>32;
@@ -1092,36 +926,186 @@ lfixed operator*(lfixed x, lfixed y)
   return sign?-z:z;
 }
 
-/*lfixed operator*(lfixed x, lfixed y)
+/*const lfixed lfixed::operator*(const lfixed &y) const
 {
   unsigned char sign=0;
   lfixed z=0;
-  if(x.value<0)
+  unsigned long long xv, yv;
+  if(this->value<0)
   {
     sign^=1;
-    x.value=-x.value;
+    xv=-this->value;
   }
+  else
+    xv=this->value;
   if(y.value<0)
   {
     sign^=1;
-    y.value=-y.value;
+    yv=-y.value;
   }
+  else
+    yv=y.value;
 
 //  for(unsigned char i=62; i!=255; i--)
 //  {
-//    if(x.value&(1ULL<<i))
+//    if(xv&(1ULL<<i))
   for(unsigned long long i=1ULL<<62; i!=0; i=i>>1)
   {
-    if(x.value&i)
-      z=z+y;
-    y=y>>1;
+    if(xv&i)
+      z.value+=yv;
+    yv=yv>>1;
   }
   return sign?-z:z;
 }*/
 
-//lfixed operator*(lfixed x, fixed y)
-//{
-//  return x*tolfixed(y);
-//}
+lfixed ldiv(lfixed x, lfixed y)
+{
+  lfixed z;
+  unsigned long long a,b;
+  unsigned char sign=0;
+//  print("ldiv: a",a);
+//  print("ldiv: b",b);
+  if(x.value<0)
+  {
+    a=-x.value;
+    sign^=1;
+  }
+  else
+    a=x.value;
+  if(y.value<0)
+  {
+    b=-y.value;
+    sign^=1;
+  }
+  else
+    b=y.value;
+  if(b<a>>1)
+    return 0;
+
+  z.value=0;
+  for(unsigned char i=62; i!=255; i--)
+  {
+    if(b<a)
+    {
+      z.value|=1ULL<<i;
+      a-=b;
+    }
+    a<<=1;
+  }
+  if (b<a)
+    x.value++; //rounding
+  return sign?-z:z;
+}
+
+inline fixed pow(fixed a, byte i)
+{
+  switch(i)
+  {
+    case 0:
+      return one;
+    case 1:
+      return a;
+    case 2:
+      return a*a;
+    case 3:
+      return a*a*a;
+    case 4:
+      return sq(a*a);
+    default:
+      return sq(a*a)*pow(a, i-4);
+  }
+}
+
+inline lfixed lsq(fixed x)
+{
+  return x%x;
+}
+
+//   I used the following code to generate the below lookup table:
+void printSqrtTable(void)
+{
+  Serial.print("const unsigned char l_sqrt[192]={		// input: x (64-255), output: sqrt((x-64)<<8)\n");
+  for(int i=64; i<256; i++)
+  {
+    Serial.print((unsigned byte)sqrt(i<<8));
+    if(i!=255)
+      Serial.print(",\n");
+    else
+      Serial.print("};\n");
+  }
+}
+
+const unsigned char l_sqrt[192]={		// input: x (64-255), output: sqrt((x-64)<<8)
+128,128,129,130,131,132,133,134,135,136,137,138,139,140,141,142,143,144,144,145,146,147,148,149,150,150,151,152,153,154,155,155,
+156,157,158,159,160,160,161,162,163,163,164,165,166,167,167,168,169,170,170,171,172,173,173,174,175,176,176,177,178,178,179,180,
+181,181,182,183,183,184,185,185,186,187,187,188,189,189,190,191,192,192,193,193,194,195,195,196,197,197,198,199,199,200,201,201,
+202,203,203,204,204,205,206,206,207,208,208,209,209,210,211,211,212,212,213,214,214,215,215,216,217,217,218,218,219,219,220,221,
+221,222,222,223,224,224,225,225,226,226,227,227,228,229,229,230,230,231,231,232,232,233,234,234,235,235,236,236,237,237,238,238,
+239,240,240,241,241,242,242,243,243,244,244,245,245,246,246,247,247,248,248,249,249,250,250,251,251,252,252,253,253,254,254,255
+};
+
+unsigned long usqrt(lfixed x)
+{
+  char i;
+  unsigned long a=0;
+  long long t=x.value;
+  if(t<=0) return 0;
+  for(i=2; (t=t>>2)!=0; i+=2); i-=8;
+  if(i<0)
+    a=((unsigned long)l_sqrt[(x.value<<(-i))-64])>>(4+((-i)>>1));
+  else if (i<8)
+    a=((unsigned long)l_sqrt[(x.value>>i)-64])>>(4-(i>>1));
+  else
+    a=((unsigned long)l_sqrt[(x.value>>i)-64])<<((i>>1)-4);
+  a=(x.value/a+a)>>1;
+  return (x.value/a+a)>>1;
+}
+
+fixed sqrt(lfixed x)
+{
+  char i;
+  unsigned long a=0;
+  long long t=x.value;
+  if(t<=0) return 0;
+  for(i=2; (t=t>>2)!=0; i+=2); i-=8;
+  if(i<0)
+    a=((unsigned long)l_sqrt[(x.value<<(-i))-64])>>(4+((-i)>>1));
+  else if (i<8)
+    a=((unsigned long)l_sqrt[(x.value>>i)-64])>>(4-(i>>1));
+  else
+    a=((unsigned long)l_sqrt[(x.value>>i)-64])<<((i>>1)-4);
+  a=(x.value/a+a+1)>>1;
+//  a=(x.value/a+a+1)>>1;
+  return (x.value/a+a+1)>>1;
+}
+
+//void print(const char *name, lfixed val);
+
+lfixed lsqrt(lfixed x)
+{
+  char i;
+  lfixed a=0;
+  long long t=x.value;
+//  print("sq",x);
+  if(t<=0) return 0;
+  for(i=2; (t=t>>2)!=0; i+=2); i-=8;
+//  print("i",i);
+  if(i<0)
+    a=((unsigned long long)l_sqrt[(x.value<<(-i))-64])<<(27-((-i)>>1));
+//  else if (i<8)
+//    a=((unsigned long long)l_sqrt[(x.value>>i)-64])>>(4-(i>>1));
+  else
+    a=((unsigned long long)l_sqrt[(x.value>>i)-64])<<((i>>1)+27);
+//  print("da", a);
+//  print("dd",ldiv(x,a));
+  a=(ldiv(x,a)>>1)+(a>>1);
+//  print("da", a);
+//  print("dd",ldiv(x,a));
+  a=(ldiv(x,a)>>1)+(a>>1);
+//  print("da", a);
+//  print("dd",ldiv(x,a));
+  return (ldiv(x,a)>>1)+(a>>1);
+//  return a;
+}
 
 #endif
