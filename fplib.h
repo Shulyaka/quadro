@@ -1,6 +1,29 @@
 #ifndef FPLIB_H
 #define FPLIB_H
 
+class lfixed
+{
+  public:
+  lfixed(void);
+  lfixed(long long);
+  long long value;
+
+  bool operator==(const lfixed&) const;
+  bool operator!=(const lfixed&) const;
+  bool operator>(const lfixed&) const;
+  bool operator>=(const lfixed&) const;
+  bool operator<(const lfixed&) const;
+  bool operator<=(const lfixed&) const;
+
+  lfixed& operator+=(const lfixed&);
+  lfixed& operator-=(const lfixed&);
+  const lfixed operator+(const lfixed&) const;
+  const lfixed operator-(const lfixed&) const;
+  const lfixed operator-(void) const;
+  const lfixed operator<<(const byte) const;
+  const lfixed operator>>(const byte) const;
+};
+
 class fixed
 {
   public:
@@ -9,15 +32,28 @@ class fixed
   fixed(long,bool);
   long value;
   bool isone; //not used currently
+  
+  bool operator==(const fixed&) const;
+  bool operator!=(const fixed&) const;
+  bool operator>(const fixed&) const;
+  bool operator>=(const fixed&) const;
+  bool operator<(const fixed&) const;
+  bool operator<=(const fixed&) const;
+
+  fixed& operator+=(const fixed&);
+  fixed& operator-=(const fixed&);
+  //fixed& operator*=(const fixed&);
+  const fixed operator+(const fixed&) const;
+  const fixed operator-(const fixed&) const;
+  const fixed operator-(void) const;
+  const fixed operator*(const fixed&) const;
+  const lfixed operator%(const fixed&) const;
+  const fixed operator<<(const byte) const;
+  const fixed operator>>(const byte) const;
+  const fixed operator/(const int) const;
 };
 
-class lfixed
-{
-  public:
-  lfixed(void);
-  lfixed(long long);
-  long long value;
-};
+const fixed one = fixed(((signed long)((1UL<<31)-1))+1, true);
 
 fixed::fixed(void)
 {
@@ -38,235 +74,246 @@ fixed::fixed(long x, bool is_one)
   bool isone=is_one;
 }
 
-lfixed::lfixed(void)
-{}
+bool fixed::operator==(const fixed &y) const
+{return this->value==y.value ? true : false;}
 
-lfixed::lfixed(long long x)
-{lfixed::value=x;}
+bool fixed::operator!=(const fixed &y) const
+{return this->value!=y.value ? true : false;}
 
-/*fixed newfixed(long x)
+bool fixed::operator>(const fixed &y) const
+{return (((this->value>y.value)||(*this==one))&&(y!=one)) ? true : false;}
+
+bool fixed::operator>=(const fixed &y) const
+{return ((this->value>=y.value)&&(y!=one))||(*this==one) ? true : false;}
+
+bool fixed::operator<(const fixed &y) const
+{return (((this->value<y.value)||(y==one))&&(*this!=one)) ? true : false;}
+
+bool fixed::operator<=(const fixed &y) const
+{return ((this->value<=y.value)&&(*this!=one))||(y==one) ? true : false;}
+
+fixed& fixed::operator+=(const fixed &x)
 {
+  this->value+=x.value;
+  return *this;
+}
+
+fixed& fixed::operator-=(const fixed &x)
+{
+  this->value-=x.value;
+  return *this;
+}
+
+const fixed fixed::operator+(const fixed &x) const
+{
+  //return fixed(*this)+=x;
   fixed z;
-  z.value=x;
+  z.value=this->value+x.value;
   return z;
 }
 
-lfixed newlfixed(long long x)
+const fixed fixed::operator-(const fixed &x) const
 {
-  lfixed z;
-  z.value=x;
-  return z;
-}*/
-
-const fixed one = fixed(((signed long)((1UL<<31)-1))+1, true);
-
-bool operator==(fixed x, fixed y)
-{return x.value==y.value ? true : false;}
-
-bool operator!=(fixed x, fixed y)
-{return x.value!=y.value ? true : false;}
-
-bool operator>(fixed x, fixed y)
-{return (((x.value>y.value)||(x==one))&&(y!=one)) ? true : false;}
-
-bool operator>=(fixed x, fixed y)
-{return ((x.value>=y.value)&&(y!=one))||(x==one) ? true : false;}
-
-bool operator<(fixed x, fixed y)
-{return (((x.value<y.value)||(y==one))&&(x!=one)) ? true : false;}
-
-bool operator<=(fixed x, fixed y)
-{return ((x.value<=y.value)&&(x!=one))||(y==one) ? true : false;}
-
-
-bool operator==(lfixed x, lfixed y)
-{return x.value==y.value ? true : false;}
-
-bool operator!=(lfixed x, lfixed y)
-{return x.value!=y.value ? true : false;}
-
-bool operator>(lfixed x, lfixed y)
-{return x.value>y.value ? true : false;}
-
-bool operator>=(lfixed x, lfixed y)
-{return x.value>=y.value ? true : false;}
-
-bool operator<(lfixed x, lfixed y)
-{return x.value<y.value ? true : false;}
-
-bool operator<=(lfixed x, lfixed y)
-{return x.value<=y.value ? true : false;}
-
-/*bool operator==(fixed x, long y)
-{return x.value==y ? true : false;}
-
-bool operator!=(fixed x, long y)
-{return x.value!=y ? true : false;}
-
-bool operator>(fixed x, long y)
-{return x.value>y ? true : false;}
-
-bool operator>=(fixed x, long y)
-{return x.value>=y ? true : false;}
-
-bool operator<(fixed x, long y)
-{return x.value<y ? true : false;}
-
-bool operator<=(fixed x, long y)
-{return x.value<=y ? true : false;}
-*/
-
-fixed operator+(fixed x, fixed y)
-{
+  //return fixed(*this)-=x;
   fixed z;
-  z.value=x.value+y.value;
+  z.value=this->value-x.value;
   return z;
 }
 
-/*fixed operator+(long x, fixed y)
+const fixed fixed::operator-(void) const
 {
   fixed z;
-  z.value=x+y.value;
-  return z;
-}
-
-fixed operator+(fixed x, long y)
-{
-  fixed z;
-  z.value=x.value+y;
-  return z;
-}
-*/
-fixed operator-(fixed x, fixed y)
-{
-  fixed z;
-  z.value=x.value-y.value;
-  return z;
-}
-
-/*fixed operator-(long x, fixed y)
-{
-  fixed z;
-  z.value=x-y.value;
-  return z;
-}
-
-fixed operator-(fixed x, long y)
-{
-  fixed z;
-  z.value=x.value-y;
-  return z;
-}
-*/
-fixed operator-(fixed x)
-{
-  fixed z;
-  if (x==one)
+  if (*this==one)
     z.value=((signed long)((1L<<31)-1))+2;
   else
-    z.value=-x.value;
+    z.value=-this->value;
   return z;
 }
 
-fixed operator<<(fixed x, char y)
+/*fixed& fixed::operator*=(const fixed &y)
 {
-  fixed z;
-  z.value=x.value<<y;
-  if(z<0 && x>0)
-    z=one;
-  return z;
-}
-
-fixed operator>>(fixed x, char y)
-{
-  fixed z;
-  if(y==0)
-    return x;
-  if(x==one)
-    z.value=1L<<(31-y);
+  uint32_t z;
+  uint32_t tmp;
+  uint8_t zero;
+  if(y==one)
+    return *this;
+  else if(*this==one)
+  {
+    *this=y;
+    return *this;
+  }
+  else if(*this==-one && y==-one)
+  {
+    *this=one;
+    return *this;
+  }
   else
-    z.value=x.value>>y;
-  return z;
-}
+    //z.value=(this->value>0) ? ((long long)(y.value)*((unsigned long)(this->value)<<1)+0x80000000)>>32 : -(((long long)(y.value)*((unsigned long)(-this->value)<<1)+0x80000000)>>32);
+    asm (    // 160 cycles (10 usec)
+    "clr %[Z] \n\t"
+    "fmuls %D[X], %D[Y] \n\t"
+    "movw %C[R], r0 \n\t"
+    "fmulsu %D[Y], %B[X]  \n\t"
+    "sbc %C[R], %[Z]  \n\t"
+    "sbc %D[R], %[Z]  \n\t"
+    "movw %A[R], r0  \n\t"
+    "fmulsu %D[Y], %C[X]  \n\t"
+    "sbc %D[R], %[Z]  \n\t"
+    "add %B[R], r0  \n\t"
+    "adc %C[R], r1  \n\t"
+    "adc %D[R], %[Z]  \n\t"
+    "fmulsu %D[Y], %A[X]  \n\t"
+    "sbc %B[R], %[Z]  \n\t"
+    "sbc %C[R], %[Z]  \n\t"
+    "sbc %D[R], %[Z]  \n\t"
+    "mov %D[T], r0  \n\t"
+    "add %A[R], r1  \n\t"
+    "adc %B[R], %[Z]  \n\t"
+    "adc %C[R], %[Z]  \n\t"
+    "adc %D[R], %[Z]  \n\t"
+    "fmulsu %D[X], %C[Y]  \n\t"
+    "sbc %D[R], %[Z]  \n\t"
+    "add %B[R], r0  \n\t"
+    "adc %C[R], r1  \n\t"
+    "adc %D[R], %[Z]  \n\t"
+    "fmul %C[X], %C[Y]  \n\t"
+    "adc %C[R], %[Z]  \n\t"
+    "adc %D[R], %[Z]  \n\t"
+    "add %A[R], r0  \n\t"
+    "adc %B[R], r1  \n\t"
+    "adc %C[R], %[Z]  \n\t"
+    "adc %D[R], %[Z]  \n\t"
+    "fmul %B[X], %C[Y]  \n\t"
+    "adc %B[R], %[Z]  \n\t"
+    "adc %C[R], %[Z]  \n\t"
+    "adc %D[R], %[Z]  \n\t"
+    "add %D[T], r0  \n\t"
+    "adc %A[R], r1  \n\t"
+    "adc %B[R], %[Z]  \n\t"
+    "adc %C[R], %[Z]  \n\t"
+    "adc %D[R], %[Z]  \n\t"
+    "fmul %A[X], %C[Y]   \n\t"
+    "adc %A[R], %[Z]  \n\t"
+    "adc %B[R], %[Z]  \n\t"
+    "adc %C[R], %[Z]  \n\t"
+    "adc %D[R], %[Z]  \n\t"
+    "mov %C[T], r0  \n\t"
+    "add %D[T], r1  \n\t"
+    "adc %A[R], %[Z]  \n\t"
+    "adc %B[R], %[Z]  \n\t"
+    "adc %C[R], %[Z]  \n\t"
+    "adc %D[R], %[Z]  \n\t"
+    "fmulsu %D[X], %B[Y]  \n\t"
+    "sbc %C[R], %[Z]  \n\t"
+    "sbc %D[R], %[Z]  \n\t"
+    "add %A[R], r0  \n\t"
+    "adc %B[R], r1  \n\t"
+    "adc %C[R], %[Z]  \n\t"
+    "adc %D[R], %[Z]  \n\t"
+    "fmul %C[X], %B[Y]  \n\t"
+    "adc %B[R], %[Z]  \n\t"
+    "adc %C[R], %[Z]  \n\t"
+    "adc %D[R], %[Z]  \n\t"
+    "add %D[T], r0  \n\t"
+    "adc %A[R], r1  \n\t"
+    "adc %B[R], %[Z]  \n\t"
+    "adc %C[R], %[Z]  \n\t"
+    "adc %D[R], %[Z]  \n\t"
+    "fmul %B[X], %B[Y]  \n\t"
+    "adc %A[R], %[Z]  \n\t"
+    "adc %B[R], %[Z]  \n\t"
+    "adc %C[R], %[Z]  \n\t"
+    "adc %D[R], %[Z]  \n\t"
+    "add %C[T], r0  \n\t"
+    "adc %D[T], r1  \n\t"
+    "adc %A[R], %[Z]  \n\t"
+    "adc %B[R], %[Z]  \n\t"
+    "adc %C[R], %[Z]  \n\t"
+    "adc %D[R], %[Z]  \n\t"
+    "fmul %A[X], %B[Y]  \n\t"
+    "adc %D[T], %[Z]  \n\t"
+    "adc %A[R], %[Z]  \n\t"
+    "adc %B[R], %[Z]  \n\t"
+    "adc %C[R], %[Z]  \n\t"
+    "adc %D[R], %[Z]  \n\t"
+    "mov %B[T], r0   \n\t"
+    "add %C[T], r1  \n\t"
+    "adc %D[T], %[Z]  \n\t"
+    "adc %A[R], %[Z]  \n\t"
+    "adc %B[R], %[Z]  \n\t"
+    "adc %C[R], %[Z]  \n\t"
+    "adc %D[R], %[Z]  \n\t"
+    "fmulsu %D[X], %A[Y]  \n\t"
+    "sbc %B[R], %[Z]  \n\t"
+    "sbc %C[R], %[Z]  \n\t"
+    "sbc %D[R], %[Z]  \n\t"
+    "add %D[T], r0  \n\t"
+    "adc %A[R], r1  \n\t"
+    "adc %B[R], %[Z]  \n\t"
+    "adc %C[R], %[Z]  \n\t"
+    "adc %D[R], %[Z]  \n\t"
+    "fmul %C[X], %A[Y]  \n\t"
+    "adc %A[R], %[Z]  \n\t"
+    "adc %B[R], %[Z]  \n\t"
+    "adc %C[R], %[Z]  \n\t"
+    "adc %D[R], %[Z]  \n\t"
+    "add %C[T], r0  \n\t"
+    "adc %D[T], r1  \n\t"
+    "adc %A[R], %[Z]  \n\t"
+    "adc %B[R], %[Z]  \n\t"
+    "adc %C[R], %[Z]  \n\t"
+    "adc %D[R], %[Z]  \n\t"
+    "fmul %B[X], %A[Y]  \n\t"
+    "adc %D[T], %[Z]  \n\t"
+    "adc %A[R], %[Z]  \n\t"
+    "adc %B[R], %[Z]  \n\t"
+    "adc %C[R], %[Z]  \n\t"
+    "adc %D[R], %[Z]  \n\t"
+    "add %B[T], r0   \n\t"
+    "adc %C[T], r1  \n\t"
+    "adc %D[T], %[Z]  \n\t"
+    "adc %A[R], %[Z]  \n\t"
+    "adc %B[R], %[Z]  \n\t"
+    "adc %C[R], %[Z]  \n\t"
+    "adc %D[R], %[Z]  \n\t"
+    "fmul %A[X], %A[Y]  \n\t"
+    "adc %C[T], %[Z]  \n\t"
+    "adc %D[T], %[Z]  \n\t"
+    "adc %A[R], %[Z]  \n\t"
+    "adc %B[R], %[Z]  \n\t"
+    "adc %C[R], %[Z]  \n\t"
+    "adc %D[R], %[Z]  \n\t"
+//    "mov %A[T], r0  ; not needed for fixed multiplication \n\t"
+    "add %B[T], r1  \n\t"
+    "adc %C[T], %[Z]  \n\t"
+    "adc %D[T], %[Z]  \n\t"
+    "adc %A[R], %[Z]  \n\t"
+    "adc %B[R], %[Z]  \n\t"
+    "adc %C[R], %[Z]  \n\t"
+    "adc %D[R], %[Z]  \n\t"
+    "clr r1  \n\t"
+    : [R]"=&r"(z), [T]"=&r"(tmp), [Z]"=&r"(zero)
+    : [X]"a"(this->value), [Y]"a"(y.value)
+    );
 
+  this->value=z;
+  return *this;
+}*/
 
-lfixed operator+(lfixed x, lfixed y)
-{
-  lfixed z;
-  z.value=x.value+y.value;
-  return z;
-}
-
-/*lfixed operator+(long long x, lfixed y)
-{
-  lfixed z;
-  z.value=x+y.value;
-  return z;
-}
-
-lfixed operator+(lfixed x, long long y)
-{
-  lfixed z;
-  z.value=x.value+y;
-  return z;
-}
-*/
-lfixed operator-(lfixed x, lfixed y)
-{
-  lfixed z;
-  z.value=x.value-y.value;
-  return z;
-}
-
-/*lfixed operator-(long long x, lfixed y)
-{
-  lfixed z;
-  z.value=x-y.value;
-  return z;
-}
-
-lfixed operator-(lfixed x, long long y)
-{
-  lfixed z;
-  z.value=x.value-y;
-  return z;
-}
-*/
-lfixed operator-(lfixed x)
-{
-  lfixed z;
-  z.value=-x.value;
-  return z;
-}
-
-lfixed operator<<(lfixed x, char y)
-{
-  lfixed z;
-  z.value=x.value<<y;
-  return z;
-}
-
-lfixed operator>>(lfixed x, char y)
-{
-  lfixed z;
-  z.value=x.value>>y;
-  return z;
-}
-
-fixed operator*(fixed x, fixed y) //multiply and conquer!
+const fixed fixed::operator*(const fixed &y) const //multiply and conquer!
 {
   fixed z;
   uint32_t tmp;
   uint8_t zero;
   if(y==one)
-    return x;
-  else if(x==one)
+    return *this;
+  else if(*this==one)
     return y;
-  else if(x==-one && y==-one)
+  else if(*this==-one && y==-one)
     return one;
   else
-    //z.value=(x.value>0) ? ((long long)(y.value)*((unsigned long)(x.value)<<1)+0x80000000)>>32 : -(((long long)(y.value)*((unsigned long)(-x.value)<<1)+0x80000000)>>32);
-    asm (    // 160 cycles
+    //z.value=(this->value>0) ? ((long long)(y.value)*((unsigned long)(this->value)<<1)+0x80000000)>>32 : -(((long long)(y.value)*((unsigned long)(-this->value)<<1)+0x80000000)>>32);
+    asm (    // 160 cycles (10 usec)
     "clr %[Z] \n\t"
     "fmuls %D[X], %D[Y] \n\t"
     "movw %C[R], r0 \n\t"
@@ -410,10 +457,158 @@ fixed operator*(fixed x, fixed y) //multiply and conquer!
     "adc %D[R], %[Z]  \n\t"
     "clr r1  \n\t"
     : [R]"=&r"(z.value), [T]"=&r"(tmp), [Z]"=&r"(zero)
-    : [X]"a"(x.value), [Y]"a"(y.value)
+    : [X]"a"(this->value), [Y]"a"(y.value)
     );
   return z;
 }
+
+const fixed fixed::operator<<(const byte y) const
+{
+  fixed z;
+  z.value=this->value<<y;
+  if(z<0 && *this>0)
+    z=one;
+  return z;
+}
+
+const fixed fixed::operator>>(const byte y) const
+{
+  fixed z;
+  if(y==0)
+    return *this;
+  if(*this==one)
+    z.value=1L<<(31-y);
+  else
+    z.value=this->value>>y;
+  return z;
+}
+
+const lfixed fixed::operator%(const fixed &y) const  //NOTE that it is NOT a division
+{
+  lfixed z;
+  if (y==one && *this==one)
+    z.value=1LL<<62;
+  else if (y==one)
+    z.value=(long long)this->value<<31;
+  else if (*this==one)
+    z.value=(long long)y.value<<31;
+  else
+    z.value=(long long)this->value*(long long)y.value;
+  return z;
+}
+
+const fixed fixed::operator/(const int y) const
+{
+  fixed z;
+  if(*this==one)
+    z.value=(one.value-1)/y;
+  else
+    z.value=this->value/y;
+  return z;
+}
+
+
+
+
+lfixed::lfixed(void)
+{}
+
+lfixed::lfixed(long long x)
+{lfixed::value=x;}
+
+bool lfixed::operator==(const lfixed &y) const
+{return this->value==y.value ? true : false;}
+
+bool lfixed::operator!=(const lfixed &y) const
+{return this->value!=y.value ? true : false;}
+
+bool lfixed::operator>(const lfixed &y) const
+{return this->value>y.value ? true : false;}
+
+bool lfixed::operator>=(const lfixed &y) const
+{return this->value>=y.value ? true : false;}
+
+bool lfixed::operator<(const lfixed &y) const
+{return this->value<y.value ? true : false;}
+
+bool lfixed::operator<=(const lfixed &y) const
+{return this->value<=y.value ? true : false;}
+
+lfixed& lfixed::operator+=(const lfixed &x)
+{
+  this->value+=x.value;
+  return *this;
+}
+
+lfixed& lfixed::operator-=(const lfixed &x)
+{
+  this->value-=x.value;
+  return *this;
+}
+
+const lfixed lfixed::operator+(const lfixed &x) const
+{
+  //return lfixed(*this)+=x;
+  lfixed z;
+  z.value=this->value+x.value;
+  return z;
+}
+
+const lfixed lfixed::operator-(const lfixed &x) const
+{
+  //return lfixed(*this)-=x;
+  lfixed z;
+  z.value=this->value-x.value;
+  return z;
+}
+
+const lfixed lfixed::operator-(void) const
+{
+  lfixed z;
+  z.value=-this->value;
+  return z;
+}
+
+const lfixed lfixed::operator<<(const byte y) const
+{
+  lfixed z;
+  z.value=this->value<<y;
+  return z;
+}
+
+const lfixed lfixed::operator>>(const byte y) const
+{
+  lfixed z;
+  z.value=this->value>>y;
+  return z;
+}
+
+
+
+
+fixed operator/(lfixed x, fixed y)
+{
+  fixed z;
+  if(y==one)
+    z.value=x.value>>31;
+  else
+    {z.value=x.value/y.value;
+    if (fixed(z.value)==one && x.value<0)
+      z.value=one.value+1;
+    }
+  return z;
+}
+
+
+
+
+
+
+
+
+
+
+
 
 inline fixed pow2(fixed x)
 {
@@ -449,37 +644,11 @@ inline fixed pow(fixed a, byte i)
   }
 }
 
-lfixed operator%(fixed x, fixed y) //NOTE that it is NOT a division
-{
-  lfixed z;
-  if (y==one && x==one)
-    z.value=1LL<<62;
-  else if (y==one)
-    z.value=(long long)x.value<<31;
-  else if (x==one)
-    z.value=(long long)y.value<<31;
-  else
-    z.value=(long long)x.value*(long long)y.value;
-  return z;
-}
-
 inline lfixed lsq(fixed x)
 {
   return x%x;
 }
 
-fixed operator/(lfixed x, fixed y)
-{
-  fixed z;
-  if(y==one)
-    z.value=x.value>>31;
-  else
-    {z.value=x.value/y.value;
-    if (z.value==one && x.value<0)
-      z.value=one.value+1;
-    }
-  return z;
-}
 
 fixed operator/(lfixed x, lfixed y)
 {
@@ -582,21 +751,11 @@ lfixed ldiv(lfixed x, lfixed y)
   return sign?-z:z;
 }
 
-fixed operator/(fixed x, int y)
-{
-  fixed z;
-  if(x==one)
-    z.value=(one.value-1)/y;
-  else
-    z.value=x.value/y;
-  return z;
-}
-
-/*   I used the following code to generate the below lookup table:
+//   I used the following code to generate the below lookup table:
 void printSqrtTable(void)
 {
   Serial.print("const unsigned char l_sqrt[192]={		// input: x (64-255), output: sqrt((x-64)<<8)\n");
-  for(i=64; i<256; i++)
+  for(int i=64; i<256; i++)
   {
     Serial.print((unsigned byte)sqrt(i<<8));
     if(i!=255)
@@ -605,7 +764,6 @@ void printSqrtTable(void)
       Serial.print("};\n");
   }
 }
-*/
 
 const unsigned char l_sqrt[192]={		// input: x (64-255), output: sqrt((x-64)<<8)
 128,128,129,130,131,132,133,134,135,136,137,138,139,140,141,142,143,144,144,145,146,147,148,149,150,150,151,152,153,154,155,155,

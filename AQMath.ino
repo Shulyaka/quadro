@@ -170,7 +170,7 @@ lfixed lvectlen(fixed a, fixed b)
 {return lsqrt(a%a+b%b);}
 
 inline fixed sinbycos(fixed& x)
-{return (x==one) ? 0 : sqrt(0x4000000000000000ULL-x%x);}
+{return (x==one) ? 0 : sqrt(lfixed(0x4000000000000000ULL)-x%x);}
 
 inline fixed cosbysin(fixed& x)
 {return sinbycos(x);}
