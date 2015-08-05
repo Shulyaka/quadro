@@ -1,3 +1,8 @@
+bool manual_calibration(void)
+{
+  return accel_calibrate_manual() && calibrate_orientation();
+}
+
 void printpoint(fixed a[3])
 {
   print(a[0]);
@@ -67,75 +72,68 @@ void printmatrix(const char *name, fixed a[9][9])
 
 #define ACSQUARE
 #ifndef ACSQUARE
-fixed f(fixed point[3], fixed x[9])
+fixed f(fixed newpoint[3])
 {
-  fixed newpoint[3] = { point[0]+x[0]+x[1]*point[0]+x[2]*sq(point[0]),
-                        point[1]+x[3]+x[4]*point[1]+x[5]*sq(point[1]),
-                        point[2]+x[6]+x[7]*point[2]+x[8]*sq(point[2])};
-
   return sqrt(lsq(newpoint[0])+lsq(newpoint[1])+lsq(newpoint[2]))-gravity;
 }
 
-fixed df(fixed point[3], fixed x[9], byte i)
+fixed df(fixed point[3], fixed newpoint[3], byte i, byte l)
 {
-  fixed newpoint[3] = { point[0]+x[0]+x[1]*point[0]+x[2]*sq(point[0]),
-                        point[1]+x[3]+x[4]*point[1]+x[5]*sq(point[1]),
-                        point[2]+x[6]+x[7]*point[2]+x[8]*sq(point[2])};
-
-  return (pow(point[i/3], i%3) % newpoint[i/3]) / (f(point, x)+gravity);
+  return (pow(point[i/l], i%l) % newpoint[i/l]) / (f(newpoint)+gravity);
 }
 #else
-fixed f(fixed point[3], fixed x[9])
+fixed f(fixed newpoint[3])
 {
-  fixed newpoint[3] = { point[0]+x[0]+x[1]*point[0]+x[2]*sq(point[0]),
-                        point[1]+x[3]+x[4]*point[1]+x[5]*sq(point[1]),
-                        point[2]+x[6]+x[7]*point[2]+x[8]*sq(point[2])};
-
   return sq(newpoint[0])+sq(newpoint[1])+sq(newpoint[2])-sq(gravity);
 }
 
-fixed df(fixed point[3], fixed x[9], byte i)
+fixed df(fixed point[3], fixed newpoint[3], byte i, byte l)
 {
-  fixed newpoint[3] = { point[0]+x[0]+x[1]*point[0]+x[2]*sq(point[0]),
-                        point[1]+x[3]+x[4]*point[1]+x[5]*sq(point[1]),
-                        point[2]+x[6]+x[7]*point[2]+x[8]*sq(point[2])};
-
-  return (pow(point[i/3], i%3) * newpoint[i/3])<<1;
+  return (pow(point[i/l], i%l) * newpoint[i/l])<<1;
 }
 #endif
 
-bool math_magic(fixed point[12][3], fixed x[9])          //finds the best calibration parameters using the least squires method and iterational Newton's method
+bool math_magic(fixed point[20][3], byte n, fixed x[9])          //finds best calibration parameters using the least squares method and iterational Newton's method
 {
-  const byte n=12;
-  fixed F[9][9];
-  fixed r[9];
-  fixed dx[9]={0};
+  const byte l=3;
+  fixed F[3*l][3*l];
+  fixed r[3*l];
+  fixed dx[3*l];
   fixed norm=one;
   const fixed eps=1;
   byte i, j, k, counter=0;
   const fixed d=(1UL<<31)/n;
+  fixed newpoint[20][3];
 
-  for(i=0; i<9; i++)
+  for(i=0; i<3*l; i++)
     x[i]=0;
 
   while(norm>eps)
   {
-    for(i=0; i<9; i++)
-      for(j=0; j<9; j++)
+    for(i=0; i<n; i++)
+      for(j=0; j<3; j++)
+      {
+        newpoint[i][j]=point[i][j];
+        for(k=0; k<l; k++)
+          newpoint[i][j]=newpoint[i][j]+x[k]*pow(point[i][j], k);
+      }
+
+    for(i=0; i<3*l; i++)
+      for(j=0; j<3*l; j++)
       {
         F[i][j]=0;
         for(k=0; k<n; k++)
         {
-          //printf("df=%g\n", df(point[k], x, i));
-          F[i][j]=F[i][j]+df(point[k], x, i)*df(point[k], x, j)*d;
+          //printf("df=%g\n", df(point[k], i));
+          F[i][j]=F[i][j]+df(point[k], newpoint[k], i, l)*df(point[k], newpoint[k], j, l)*d;
         }
       }
 
-    for(i=0; i<9; i++)
+    for(i=0; i<3*l; i++)
     {
       r[i]=0;
       for(k=0; k<n; k++)
-        r[i]=r[i]-df(point[k], x, i)*f(point[k], x)*d;
+        r[i]=r[i]-df(point[k], newpoint[k], i, l)*f(newpoint[k])*d;
     }
 
     if(!lsolve(F, r, dx))
@@ -145,7 +143,7 @@ bool math_magic(fixed point[12][3], fixed x[9])          //finds the best calibr
     }
 
     norm=0;
-    for(i=0; i<9; i++)
+    for(i=0; i<3*l; i++)
     {
       norm=norm+sq(dx[i]);
       x[i]=x[i]+dx[i];
@@ -163,13 +161,13 @@ bool math_magic(fixed point[12][3], fixed x[9])          //finds the best calibr
   return true;
 }
 
-bool accel_calibrate_manual() //manual accel calibration
+bool accel_calibrate_manual(void)
 {
   const byte n=12;
-  fixed point[n][3];
+  fixed point[20][3];
   fixed k[9];
   
-  Serial.println("Manual accel calibration\nThis algorithm will estimate accel zero values\nby measuring gravity in several different positions.\nThe more the positions differ, the better estimation.\nThe positions are not required to be exactly aligned to gravity in any way.\nPlease do not move your quadro while position is being measured.");
+//  Serial.println("Manual accel calibration\nThis algorithm will estimate accel zero values\nby measuring gravity in several different positions.\nThe more the positions differ, the better estimation.\nThe positions are not required to be exactly aligned to gravity in any way.\nPlease do not move your quadro while position is being measured.");
 /*
 point[0][0]=0x3BF51698;
 point[0][1]=-0x0930C4C4;
@@ -298,7 +296,7 @@ point[11][2]=-755563520;
   }
   
   disable_sensor_interrupts(); //for speed
-  if(!math_magic(point, k)) // find gain to be applied for the n points to be on a sphere
+  if(!math_magic(point, n, k)) // find gain to be applied for the n points to be on a sphere
   {
     enable_sensor_interrupts();
     error("Cannot find calibration parameters. Possible reasons: programmer was drunk. Please try again.");
@@ -332,9 +330,9 @@ point[11][2]=-755563520;
 }
 
 
-// accel and gyro axis misallignment compensation
+// cross accel and gyro axis misallignment compensation
 
-void calibrate_orientation(void)
+bool calibrate_orientation(void)
 {
   quaternion gyroq, accq, cmbq;
   fixed arr[3];
@@ -508,6 +506,8 @@ void calibrate_orientation(void)
     Serial.println("Warning! The positions are too near!");
   
   gyro_orientation=ident;
+
+  return true;
 }
 
 /*

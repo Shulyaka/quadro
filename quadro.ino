@@ -42,21 +42,21 @@ void setup(void)
 
   Serial.println("\nInitializing... ");
   digitalWrite(StatusLEDPin, HIGH);
-//  clear_cmdBuf();
+  //clear_cmdBuf();
   Wire.begin();
   TWBR = 12;
   imu_init();
-//  gps_init();
+  //gps_init();
   while(!gyro_ready || !accel_ready)
     continue;
   Serial.println("OK");
 
-accel_calibrate_manual();
-//calibrate_orientation();
   Serial.print("Gyro time is ");
   Serial.println(gyro_time);
   Serial.print("Accel time is ");
   Serial.println(accel_time);
+
+  manual_calibration();
 }
 
 void loop(void)
