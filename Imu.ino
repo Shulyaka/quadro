@@ -89,12 +89,12 @@ void imu_updatePosition(fixed i, fixed j, fixed k)
   imu.ay=imu.y1*i+imu.y2*j+imu.y3*k;
   imu.az=imu.z1*i+imu.z2*j+imu.z3*k+gravity;
   */
-  imu.vx=imu.vx+imu.ax*(accel_time<<8);
-  imu.vy=imu.vy+imu.ay*(accel_time<<8);
-  imu.vz=imu.vz+imu.az*(accel_time<<8);
-  imu.x=imu.x+imu.vx*(accel_time<<8);
-  imu.y=imu.y+imu.vy*(accel_time<<8);
-  imu.z=imu.z+imu.vz*(accel_time<<8);
+  imu.vx=imu.vx+imu.ax*fixed(accel_time<<8);
+  imu.vy=imu.vy+imu.ay*fixed(accel_time<<8);
+  imu.vz=imu.vz+imu.az*fixed(accel_time<<8);
+  imu.x=imu.x+imu.vx*fixed(accel_time<<8);
+  imu.y=imu.y+imu.vy*fixed(accel_time<<8);
+  imu.z=imu.z+imu.vz*fixed(accel_time<<8);
 }
 
 void imu_init(void)

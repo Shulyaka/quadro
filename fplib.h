@@ -7,8 +7,8 @@ class fixed
 {
   public:
   fixed(void);
-  fixed(const long);
-  fixed(const long, const bool);
+  fixed(const long&);
+  fixed(const long&, const bool);
   fixed(const lfixed&);
   long value;
   bool isone; //not used currently
@@ -23,24 +23,27 @@ class fixed
   fixed& operator+=(const fixed&);
   fixed& operator-=(const fixed&);
   //fixed& operator*=(const fixed&);
-  fixed& operator>>=(const byte);
+  //fixed& operator*=(const int);
+  fixed& operator/=(const int);
   fixed& operator<<=(const byte);
-  
+  fixed& operator>>=(const byte);
+
   const fixed operator+(const fixed&) const;
   const fixed operator-(const fixed&) const;
   const fixed operator-(void) const;
   const fixed operator*(const fixed&) const;
-  const lfixed operator%(const fixed&) const;
+  const lfixed operator%(const fixed&) const;  //multiplication with lfixed result
+  const fixed operator/(const int) const;
+  //const fixed operator*(const int) const;
   const fixed operator<<(const byte) const;
   const fixed operator>>(const byte) const;
-  const fixed operator/(const int) const;
 };
 
 class lfixed
 {
   public:
   lfixed(void);
-  lfixed(const long long);
+  lfixed(const long long&);
   lfixed(const fixed&);
   long long value;
 
@@ -53,14 +56,18 @@ class lfixed
 
   lfixed& operator+=(const lfixed&);
   lfixed& operator-=(const lfixed&);
+  lfixed& operator*=(const lfixed&);
+  lfixed& operator<<=(const byte);
+  lfixed& operator>>=(const byte);
+
   const lfixed operator+(const lfixed&) const;
   const lfixed operator-(const lfixed&) const;
   const lfixed operator-(void) const;
+  const lfixed operator*(const lfixed&) const;
+  const fixed operator/(const fixed&) const; //division with fixed result
+  const fixed operator/(const lfixed&) const; //division with fixed result
   const lfixed operator<<(const byte) const;
   const lfixed operator>>(const byte) const;
-  const fixed operator/(const fixed&) const;
-  const fixed operator/(const lfixed&) const;
-  const lfixed operator*(const lfixed&) const;
 };
 
 const fixed one = fixed(((signed long)((1UL<<31)-1))+1, true);
@@ -71,14 +78,14 @@ fixed::fixed(void)
   fixed::isone=false;
 }
 
-fixed::fixed(const long x)
+fixed::fixed(const long &x)
 {
   fixed::value=x;
   fixed::isone=false;
   //if(x==1) Serial.println("Did you mean 'one'?");
 }
 
-fixed::fixed(const long x, const bool is_one)
+fixed::fixed(const long &x, const bool is_one)
 {
   fixed::value=x;
   fixed::isone=is_one;
@@ -98,6 +105,7 @@ fixed::fixed(const lfixed &x)
     fixed::value=x.value>0?(x.value+0x40000000)>>31:-((-x.value+0x40000000)>>31);
 }
 
+
 bool fixed::operator==(const fixed &y) const
 {return this->value==y.value ? true : false;}
 
@@ -116,64 +124,17 @@ bool fixed::operator<(const fixed &y) const
 bool fixed::operator<=(const fixed &y) const
 {return ((this->value<=y.value)&&(*this!=one))||(y==one) ? true : false;}
 
-fixed& fixed::operator+=(const fixed &x)
+
+fixed& fixed::operator+=(const fixed &y)
 {
-  this->value+=x.value;
+  this->value+=y.value;
   return *this;
 }
 
-fixed& fixed::operator-=(const fixed &x)
+fixed& fixed::operator-=(const fixed &y)
 {
-  this->value-=x.value;
+  this->value-=y.value;
   return *this;
-}
-/*
-fixed& fixed::operator<<=(const byte y)
-{
-  fixed z;
-  z.value=this->value<<y;
-  if(z<0 && *this>0)
-    z=one;
-  return z;
-}
-
-fixed& fixed::operator>>=(const byte y)
-{
-  fixed z;
-  if(y==0)
-    return *this;
-  if(*this==one)
-    z.value=1L<<(31-y);
-  else
-    z.value=this->value>>y;
-  return z;
-}
-*/
-
-const fixed fixed::operator+(const fixed &x) const
-{
-  //return fixed(*this)+=x;
-  fixed z;
-  z.value=this->value+x.value;
-  return z;
-}
-
-const fixed fixed::operator-(const fixed &x) const
-{
-  //return fixed(*this)-=x;
-  fixed z;
-  z.value=this->value-x.value;
-  return z;
-}
-
-const fixed fixed::operator-(void) const
-{
-  fixed z;
-  if (*this==one)
-    z.value=((signed long)((1UL<<31)-1))+2;
-  else
-    z.value=-this->value;
-  return z;
 }
 
 /*fixed& fixed::operator*=(const fixed &y)
@@ -346,8 +307,53 @@ const fixed fixed::operator-(void) const
   return *this;
 }*/
 
+fixed& fixed::operator/=(const int y)
+{
+  if(*this==one)
+    this->value=(one.value-1)/y;
+  else
+    this->value/=y;
+  return *this;
+}
+
+fixed& fixed::operator<<=(const byte y)
+{
+  this->value<<=y;
+  return *this;
+}
+
+fixed& fixed::operator>>=(const byte y)
+{
+  if(y==0)
+    return *this;
+  if(*this==one)
+    this->value=1L<<(31-y);
+  else
+    this->value>>=y;
+  return *this;
+}
+
+
+const fixed fixed::operator+(const fixed &y) const
+{
+  //return fixed(*this)+=y;
+  return fixed(this->value+y.value);
+}
+
+const fixed fixed::operator-(const fixed &y) const
+{
+  //return fixed(*this)-=y;
+  return fixed(this->value-y.value);
+}
+
+const fixed fixed::operator-(void) const
+{
+  return fixed((*this==one)? ((signed long)((1UL<<31)-1))+2 : -this->value);
+}
+
 const fixed fixed::operator*(const fixed &y) const //multiply and conquer!
 {
+  //return fixed(*this)*=y;
   fixed z;
   uint32_t tmp;
   uint8_t zero;
@@ -508,27 +514,6 @@ const fixed fixed::operator*(const fixed &y) const //multiply and conquer!
   return z;
 }
 
-const fixed fixed::operator<<(const byte y) const
-{
-  fixed z;
-  z.value=this->value<<y;
-  if(z<0 && *this>0)
-    z=one;
-  return z;
-}
-
-const fixed fixed::operator>>(const byte y) const
-{
-  fixed z;
-  if(y==0)
-    return *this;
-  if(*this==one)
-    z.value=1L<<(31-y);
-  else
-    z.value=this->value>>y;
-  return z;
-}
-
 const lfixed fixed::operator%(const fixed &y) const  //NOTE that it is NOT a division
 {
   lfixed z;
@@ -545,21 +530,39 @@ const lfixed fixed::operator%(const fixed &y) const  //NOTE that it is NOT a div
 
 const fixed fixed::operator/(const int y) const
 {
+  //return fixed(*this)/=y;
+  return fixed((*this==one) ? (one.value-1)/y : this->value/y);
+}
+
+const fixed fixed::operator<<(const byte y) const
+{
+  //return fixed(*this)<<=y;
   fixed z;
-  if(*this==one)
-    z.value=(one.value-1)/y;
-  else
-    z.value=this->value/y;
+  z.value=this->value<<y;
+  if(z<0 && *this>0)
+    z=one;
   return z;
 }
 
+const fixed fixed::operator>>(const byte y) const
+{
+  //return fixed(*this)>>=y;
+  fixed z;
+  if(y==0)
+    return *this;
+  if(*this==one)
+    z.value=1L<<(31-y);
+  else
+    z.value=this->value>>y;
+  return z;
+}
 
 
 
 lfixed::lfixed(void)
 {}
 
-lfixed::lfixed(const long long x)
+lfixed::lfixed(const long long &x)
 {lfixed::value=x;}
 
 lfixed::lfixed(const fixed &x)
@@ -571,6 +574,7 @@ lfixed::lfixed(const fixed &x)
   else
     lfixed::value= x>0? ((long long)x.value)<<31:-(((long long)x.value)<<31);
 }
+
 
 bool lfixed::operator==(const lfixed &y) const
 {return this->value==y.value ? true : false;}
@@ -590,108 +594,17 @@ bool lfixed::operator<(const lfixed &y) const
 bool lfixed::operator<=(const lfixed &y) const
 {return this->value<=y.value ? true : false;}
 
-lfixed& lfixed::operator+=(const lfixed &x)
+
+lfixed& lfixed::operator+=(const lfixed &y)
 {
-  this->value+=x.value;
+  this->value+=y.value;
   return *this;
 }
 
-lfixed& lfixed::operator-=(const lfixed &x)
+lfixed& lfixed::operator-=(const lfixed &y)
 {
-  this->value-=x.value;
+  this->value-=y.value;
   return *this;
-}
-
-const lfixed lfixed::operator+(const lfixed &x) const
-{
-  //return lfixed(*this)+=x;
-  lfixed z;
-  z.value=this->value+x.value;
-  return z;
-}
-
-const lfixed lfixed::operator-(const lfixed &x) const
-{
-  //return lfixed(*this)-=x;
-  lfixed z;
-  z.value=this->value-x.value;
-  return z;
-}
-
-const lfixed lfixed::operator-(void) const
-{
-  lfixed z;
-  z.value=-this->value;
-  return z;
-}
-
-const lfixed lfixed::operator<<(const byte y) const
-{
-  lfixed z;
-  z.value=this->value<<y;
-  return z;
-}
-
-const lfixed lfixed::operator>>(const byte y) const
-{
-  lfixed z;
-  z.value=this->value>>y;
-  return z;
-}
-
-const fixed lfixed::operator/(const fixed &y) const
-{
-  fixed z;
-  if(y==one)
-    z.value=this->value>>31;
-  else
-    {z.value=this->value/y.value;
-    if (fixed(z.value)==one && this->value<0)
-      z.value=one.value+1;
-    }
-  return z;
-}
-
-const fixed lfixed::operator/(const lfixed &y) const
-{
-  fixed z;
-  unsigned long long a,b;
-  unsigned char sign=0;
-//  if(y.value==0)
-//    return one;
-  if(this->value<0)
-  {
-    a=-this->value;
-    sign^=1;
-  }
-  else
-    a=this->value;
-  if(y.value<0)
-  {
-    b=-y.value;
-    sign^=1;
-  }
-  else
-    b=y.value;
-  if(b<a)
-    return one;
-
-  z.value=0;
-  for(unsigned char i=30; i!=255; i--)
-  {
-    a<<=1;
-    if(b<a)
-    {
-      z.value|=1UL<<i;
-      a-=b;
-    }
-  }
-  if(b<a<<1)
-    z.value++; //rounding
-  return sign?-z:z;
-//  if(sign==1)
-//    z.value=-z.value;
-//  return z;
 }
 
 struct ufmultparams
@@ -854,7 +767,7 @@ void ufmult_asm(struct ufmultparams *p)
     );
 }
 
-unsigned long long ufmult(unsigned long x, unsigned long y)
+const unsigned long long ufmult(const unsigned long &x, const unsigned long &y)
 {
   struct ufmultparams p;
   p.x=x;
@@ -866,7 +779,7 @@ unsigned long long ufmult(unsigned long x, unsigned long y)
 /*void print(const char *, fixed);
 void print(const char *, lfixed);
 
-unsigned long long ufmult(unsigned long x, unsigned long y)
+const unsigned long long ufmult(const unsigned long x, const unsigned long y)
 {
   unsigned long long a=x;
   unsigned long long b=y;
@@ -882,8 +795,110 @@ unsigned long long ufmult(unsigned long x, unsigned long y)
   return c<<1;
 }*/
 
+lfixed& lfixed::operator*=(const lfixed &y)
+{
+  unsigned char sign=0;
+  lfixed z;
+  unsigned long a, b, c, d;
+  unsigned long long r, m, xv, yv;
+  
+  if(this->value<0)
+  {
+    sign^=1;
+    xv=-this->value;
+  }
+  else
+    xv=this->value;
+  if(y.value<0)
+  {
+    sign^=1;
+    yv=-y.value;
+  }
+  else
+    yv=y.value;
+  
+  a=xv>>32;
+  b=yv>>32;
+  z.value=ufmult(a,b);
+  
+//  print("z", z);
+  
+  a=xv-(((unsigned long long)a)<<32);
+  b=yv-(((unsigned long long)b)<<32);
+  
+  r=ufmult(a,b);
+  
+  a=xv>>32;
+    
+  m=ufmult(a,b);
+  c=m>>32;
+  d=m-(((unsigned long long)c)<<32);
+  
+  z.value=z.value+c;
+  if(d&0x80000000UL && r&0x8000000000000000ULL)
+    z.value=z.value+1;
+  
+  r+=(unsigned long long)d<<32;
+  
+//  print("z", z);
+  
+  a=xv-(((unsigned long long)a)<<32);
+  b=yv-(((unsigned long long)yv>>32)<<32);
+  
+  m=ufmult(a,b);
+  c=m>>32;
+  d=m-(((unsigned long long)c)<<32);
+  
+  z.value=z.value+c;
+  if(d&0x80000000UL && r&0x8000000000000000ULL)
+    z.value=z.value+1;
+  
+  r+=(unsigned long long)d<<32;
+
+//  print("z", z);
+  
+  z.value=z.value<<1;
+  if(r&0x8000000000000000ULL)
+    z.value=z.value+1;
+  
+  *this=sign?-z:z;
+
+  return *this;
+}
+
+lfixed& lfixed::operator<<=(const byte y)
+{
+  this->value<<=y;
+  return *this;
+}
+
+lfixed& lfixed::operator>>=(const byte y)
+{
+  this->value>>=y;
+  return *this;
+}
+
+
+const lfixed lfixed::operator+(const lfixed &y) const
+{
+  //return lfixed(*this)+=y;
+  return lfixed(this->value+y.value);
+}
+
+const lfixed lfixed::operator-(const lfixed &y) const
+{
+  //return lfixed(*this)-=y;
+  return lfixed(this->value-y.value);
+}
+
+const lfixed lfixed::operator-(void) const
+{
+  return lfixed(-this->value);
+}
+
 const lfixed lfixed::operator*(const lfixed &y) const
 {
+  //return lfixed(*this)*=y;
   unsigned char sign=0;
   lfixed z;
   unsigned long a, b, c, d;
@@ -983,7 +998,76 @@ const lfixed lfixed::operator*(const lfixed &y) const
   return sign?-z:z;
 }*/
 
-lfixed ldiv(lfixed x, lfixed y)
+const fixed lfixed::operator/(const fixed &y) const
+{
+  fixed z;
+  if(y==one)
+    z.value=this->value>>31;
+  else
+    {z.value=this->value/y.value;
+    if (fixed(z.value)==one && this->value<0)
+      z.value=one.value+1;
+    }
+  return z;
+}
+
+const fixed lfixed::operator/(const lfixed &y) const
+{
+  fixed z;
+  unsigned long long a,b;
+  unsigned char sign=0;
+//  if(y.value==0)
+//    return one;
+  if(this->value<0)
+  {
+    a=-this->value;
+    sign^=1;
+  }
+  else
+    a=this->value;
+  if(y.value<0)
+  {
+    b=-y.value;
+    sign^=1;
+  }
+  else
+    b=y.value;
+  if(b<a)
+    return one;
+
+  z.value=0;
+  for(unsigned char i=30; i!=255; i--)
+  {
+    a<<=1;
+    if(b<a)
+    {
+      z.value|=1UL<<i;
+      a-=b;
+    }
+  }
+  if(b<a<<1)
+    z.value++; //rounding
+  return sign?-z:z;
+//  if(sign==1)
+//    z.value=-z.value;
+//  return z;
+}
+
+const lfixed lfixed::operator<<(const byte y) const
+{
+  //return lfixed(*this)<<=y;
+  return lfixed(this->value<<y);
+}
+
+const lfixed lfixed::operator>>(const byte y) const
+{
+  //return lfixed(*this)>>=y;
+  return lfixed(this->value>>y);
+}
+
+
+
+const lfixed ldiv(const lfixed &x, const lfixed &y)
 {
   lfixed z;
   unsigned long long a,b;
@@ -1018,11 +1102,11 @@ lfixed ldiv(lfixed x, lfixed y)
     a<<=1;
   }
   if (b<a)
-    x.value++; //rounding
+    z.value++; //rounding
   return sign?-z:z;
 }
 
-inline fixed pow(fixed a, byte i)
+inline const fixed pow(const fixed &a, const byte i)
 {
   switch(i)
   {
@@ -1041,7 +1125,7 @@ inline fixed pow(fixed a, byte i)
   }
 }
 
-inline lfixed lsq(fixed x)
+inline const lfixed lsq(const fixed &x)
 {
   return x%x;
 }
@@ -1049,7 +1133,7 @@ inline lfixed lsq(fixed x)
 //   I used the following code to generate the below lookup table:
 void printSqrtTable(void)
 {
-  Serial.print("const unsigned char l_sqrt[192]={		// input: x (64-255), output: sqrt((x-64)<<8)\n");
+  Serial.print("const byte l_sqrt[192]={		// input: x (64-255), output: sqrt((x-64)<<8)\n");
   for(int i=64; i<256; i++)
   {
     Serial.print((unsigned byte)sqrt(i<<8));
@@ -1060,7 +1144,7 @@ void printSqrtTable(void)
   }
 }
 
-const unsigned char l_sqrt[192]={		// input: x (64-255), output: sqrt((x-64)<<8)
+const byte l_sqrt[192]={		// input: x (64-255), output: sqrt((x-64)<<8)
 128,128,129,130,131,132,133,134,135,136,137,138,139,140,141,142,143,144,144,145,146,147,148,149,150,150,151,152,153,154,155,155,
 156,157,158,159,160,160,161,162,163,163,164,165,166,167,167,168,169,170,170,171,172,173,173,174,175,176,176,177,178,178,179,180,
 181,181,182,183,183,184,185,185,186,187,187,188,189,189,190,191,192,192,193,193,194,195,195,196,197,197,198,199,199,200,201,201,
@@ -1069,7 +1153,7 @@ const unsigned char l_sqrt[192]={		// input: x (64-255), output: sqrt((x-64)<<8)
 239,240,240,241,241,242,242,243,243,244,244,245,245,246,246,247,247,248,248,249,249,250,250,251,251,252,252,253,253,254,254,255
 };
 
-unsigned long usqrt(lfixed x)
+const unsigned long usqrt(const lfixed &x)
 {
   char i;
   unsigned long a=0;
@@ -1086,7 +1170,7 @@ unsigned long usqrt(lfixed x)
   return (x.value/a+a)>>1;
 }
 
-fixed sqrt(lfixed x)
+const fixed sqrt(const lfixed &x)
 {
   char i;
   unsigned long a=0;
@@ -1106,7 +1190,7 @@ fixed sqrt(lfixed x)
 
 //void print(const char *name, lfixed val);
 
-lfixed lsqrt(lfixed x)
+const lfixed lsqrt(const lfixed &x)
 {
   char i;
   lfixed a=0;
