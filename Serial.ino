@@ -21,13 +21,13 @@
 
 #define cmdBufLen 127
 char cmdBuf[cmdBufLen]={0};
-unsigned char cmdPos=0;
+byte cmdPos=0;
 //char cmdBuf2[cmdBufLen]={0};
-//unsigned char cmdPos2=0;
+//byte cmdPos2=0;
 
 void serialEvent(void)
 {
-  unsigned char cmd;
+  byte cmd;
   int param=0;
   while(Serial.available())
   {
@@ -129,9 +129,9 @@ void serialEvent(void)
 
 void serialEvent2(void)
 {
-  static char cmdLen=0;
+  static byte cmdLen=0;
   static char cmdBuf2[cmdBufLen]={0};
-  unsigned char cmdPos2=0;
+  byte cmdPos2=0;
   char rc;
   
   while(Serial2.available())
@@ -187,7 +187,7 @@ void serialEvent3(void)
       gps_int();
 }
 
-unsigned char parse_cmd(int *param)
+byte parse_cmd(int *param)
 {
   if (!memcmp(cmdBuf,"ping",4))
     return CMDPING;
@@ -264,7 +264,7 @@ unsigned char parse_cmd(int *param)
   return CMDUNKNOWN;
 }
 
-int parse_cmd2(char *cmdBuf2, char cmdLen)
+int parse_cmd2(char *cmdBuf2, byte cmdLen)
 {
   if (!memcmp(cmdBuf2,"ping",4))
     return cmd_ping2();

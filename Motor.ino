@@ -104,35 +104,36 @@ void stopAllMotors(void)
     enable_sensor_interrupts();
 }
 
-void setMotorSpeed(unsigned char number, fixed rpm)
+void setMotorSpeed(byte number, const fixed &rpm)
 {
   const int baserange=120;
   int v=baserange+128;
+  fixed newrpm=rpm;
 
-  MotorSpeed[number]=rpm;
+  MotorSpeed[number]=newrpm;
 
-  if (rpm<-MotorAdjust[number])
+  if (newrpm<-MotorAdjust[number])
   {
 //    error("Motor rpm < 0");
-    rpm=-MotorAdjust[number];
+    newrpm=-MotorAdjust[number];
   }
   
-  if(rpm!=one)
+  if(newrpm!=one)
   {
-    rpm=rpm+MotorAdjust[number];
-    if(rpm<0)
+    newrpm+=MotorAdjust[number];
+    if(newrpm<0)
       if(MotorAdjust[number]<0)
         v=baserange;
       else
         v=baserange+128;
     else
-      v=(rpm.value>>24)+baserange; //our range is 120-248
+      v=(newrpm.value>>24)+baserange; //our range is 120-248
   }
   
   analogWrite(MotorPin[number], v);
 }
 
-void setMotorSpeed(fixed rpm)
+void setMotorSpeed(const fixed &rpm)
 {
   setMotorSpeed(0, rpm);
   setMotorSpeed(1, rpm);

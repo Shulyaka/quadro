@@ -3,7 +3,7 @@ bool manual_calibration(void)
   return accel_calibrate_manual() && calibrate_orientation();
 }
 
-void printpoint(fixed a[3])
+void printpoint(const fixed a[3])
 {
   print(a[0]);
   Serial.print(",");
@@ -13,14 +13,14 @@ void printpoint(fixed a[3])
   Serial.println("");
 }
 
-void printpoint(const char *name, fixed a[3])
+void printpoint(const char *name, const fixed a[3])
 {
   Serial.print(name);
   Serial.print(":");
   printpoint(a);
 }
 
-void printrow(fixed a[9])
+void printrow(const fixed a[9])
 {
   print(a[0]);
   Serial.print(",");
@@ -42,14 +42,14 @@ void printrow(fixed a[9])
   Serial.println("");
 }
 
-void printrow(const char *name, fixed a[9])
+void printrow(const char *name, const fixed a[9])
 {
   Serial.print(name);
   Serial.print(":");
   printrow(a);
 }
 
-void printmatrix(fixed a[9][9])
+void printmatrix(const fixed a[9][9])
 {
   const byte n=9;
   for(byte i=0; i<n; i++)
@@ -63,7 +63,7 @@ void printmatrix(fixed a[9][9])
     }
 }
 
-void printmatrix(const char *name, fixed a[9][9])
+void printmatrix(const char *name, const fixed a[9][9])
 {
   Serial.print(name);
   Serial.println(":");
@@ -72,28 +72,28 @@ void printmatrix(const char *name, fixed a[9][9])
 
 #define ACSQUARE
 #ifndef ACSQUARE
-fixed f(fixed newpoint[3])
+fixed f(const fixed newpoint[3])
 {
   return sqrt(lsq(newpoint[0])+lsq(newpoint[1])+lsq(newpoint[2]))-gravity;
 }
 
-fixed df(fixed point[3], fixed newpoint[3], byte i, byte l)
+fixed df(const fixed point[3], const fixed newpoint[3], const byte i, const byte l)
 {
   return (pow(point[i/l], i%l) % newpoint[i/l]) / (f(newpoint)+gravity);
 }
 #else
-fixed f(fixed newpoint[3])
+fixed f(const fixed newpoint[3])
 {
   return sq(newpoint[0])+sq(newpoint[1])+sq(newpoint[2])-sq(gravity);
 }
 
-fixed df(fixed point[3], fixed newpoint[3], byte i, byte l)
+fixed df(const fixed point[3], const fixed newpoint[3], const byte i, const byte l)
 {
   return (pow(point[i/l], i%l) * newpoint[i/l])<<1;
 }
 #endif
 
-bool math_magic(fixed point[20][3], byte n, fixed x[9])          //finds best calibration parameters using the least squares method and iterational Newton's method
+bool math_magic(const fixed point[20][3], const byte n, fixed x[9])          //finds best calibration parameters using the least squares method and iterational Newton's method
 {
   const byte l=3;
   fixed F[3*l][3*l];
@@ -115,7 +115,7 @@ bool math_magic(fixed point[20][3], byte n, fixed x[9])          //finds best ca
       {
         newpoint[i][j]=point[i][j];
         for(k=0; k<l; k++)
-          newpoint[i][j]=newpoint[i][j]+x[j*l+k]*pow(point[i][j], k);
+          newpoint[i][j]+=x[j*l+k]*pow(point[i][j], k);
       }
 
     for(i=0; i<3*l; i++)
@@ -125,7 +125,7 @@ bool math_magic(fixed point[20][3], byte n, fixed x[9])          //finds best ca
         for(k=0; k<n; k++)
         {
           //printf("df=%g\n", df(point[k], i));
-          F[i][j]=F[i][j]+df(point[k], newpoint[k], i, l)*df(point[k], newpoint[k], j, l)*d;
+          F[i][j]+=df(point[k], newpoint[k], i, l)*df(point[k], newpoint[k], j, l)*d;
         }
       }
 
@@ -133,7 +133,7 @@ bool math_magic(fixed point[20][3], byte n, fixed x[9])          //finds best ca
     {
       r[i]=0;
       for(k=0; k<n; k++)
-        r[i]=r[i]-df(point[k], newpoint[k], i, l)*f(newpoint[k])*d;
+        r[i]-=df(point[k], newpoint[k], i, l)*f(newpoint[k])*d;
     }
 
     if(!lsolve(F, r, dx))
@@ -145,8 +145,8 @@ bool math_magic(fixed point[20][3], byte n, fixed x[9])          //finds best ca
     norm=0;
     for(i=0; i<3*l; i++)
     {
-      norm=norm+sq(dx[i]);
-      x[i]=x[i]+dx[i];
+      norm+=sq(dx[i]);
+      x[i]+=dx[i];
     }
 
     if(++counter==0)
@@ -316,7 +316,7 @@ point[11][2]=-755563520;
 
   for(byte i=0; i<n; i++)
     for(byte j=0; j<3; j++)
-      point[i][j]=point[i][j]+accel_square[j]*sq(point[i][j])+accel_gain[j]*point[i][j]+accel_offset[j];
+      point[i][j]+=accel_square[j]*sq(point[i][j])+accel_gain[j]*point[i][j]+accel_offset[j];
 
   for(byte i=0; i<n; i++)
   {

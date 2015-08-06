@@ -155,11 +155,11 @@ const quaternion quaternion::operator-(void) const //see also conjugate()
 
 const quaternion quaternion::operator*(const quaternion &b) const
 {
-  //return quaternion(*this)*=b;
-  return quaternion(this->w*b.w - this->x*b.x - this->y*b.y - this->z*b.z,
-                    this->y*b.z - this->z*b.y  +this->w*b.x + this->x*b.w,
-                    this->z*b.x - this->x*b.z + this->w*b.y + this->y*b.w,
-                    this->x*b.y - this->y*b.x + this->w*b.z + this->z*b.w);
+  return quaternion(*this)*=b;
+  //return quaternion(this->w*b.w - this->x*b.x - this->y*b.y - this->z*b.z,
+  //                  this->y*b.z - this->z*b.y  +this->w*b.x + this->x*b.w,
+  //                  this->z*b.x - this->x*b.z + this->w*b.y + this->y*b.w,
+  //                  this->x*b.y - this->y*b.x + this->w*b.z + this->z*b.w);
 }
 
 const quaternion quaternion::operator*(const fixed &b) const

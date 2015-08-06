@@ -21,7 +21,7 @@
 //#define XBEE_DL "0000FFFF"
 //#define XBEE_DH "00000000"
 
-const unsigned char MotorPin[]={2, 3, 5, 6};
+const byte MotorPin[]={2, 3, 5, 6};
 
 // We use the following motor configuration: http://aeroquad.com/showwiki.php?title=Images:Quad+X.jpg
 
@@ -37,8 +37,8 @@ unsigned long gps_time=0, gps_date=0;
 #define ACCELCNT 4096
 #define ACCELCNTP 9 //to replace the above one
 
-const unsigned char gyrolowpass=2;
-const unsigned char accellowpass=7;
+const byte gyrolowpass=2;
+const byte accellowpass=7;
 
 fixed M[3]={0};
 const fixed Mmax=(one>>3);
@@ -145,7 +145,7 @@ int accel_interrupted=0;
 #define FSTATE_LAND    2
 #define FSTATE_FLY     3
 
-unsigned char flight_state=FSTATE_IDLE;
+byte flight_state=FSTATE_IDLE;
 
 bool manual_takeoff=false;
 

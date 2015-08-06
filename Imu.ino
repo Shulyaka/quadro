@@ -78,23 +78,23 @@ imu.tmp3=qt3.w;
 */
 }
 
-void imu_updatePosition(fixed i, fixed j, fixed k)
+void imu_updatePosition(const fixed &i, const fixed &j, const fixed &k)
 {
   quaternion acc=imu.q*quaternion(i+i*i*accel_square[0]+i*accel_gain[0]+accel_offset[0], j+j*j*accel_square[1]+j*accel_gain[1]+accel_offset[1], k+k*k*accel_square[2]+k*accel_gain[2]+accel_offset[2])*conjugate(imu.q);
-  imu.ax=imu.ax+((acc.x-imu.ax)>>accellowpass);
-  imu.ay=imu.ay+((acc.y-imu.ay)>>accellowpass);
-  imu.az=imu.az+((acc.z-gravity-imu.az)>>accellowpass);
+  imu.ax+=((acc.x-imu.ax)>>accellowpass);
+  imu.ay+=((acc.y-imu.ay)>>accellowpass);
+  imu.az+=((acc.z-gravity-imu.az)>>accellowpass);
   /*
   imu.ax=imu.x1*i+imu.x2*j+imu.x3*k;
   imu.ay=imu.y1*i+imu.y2*j+imu.y3*k;
   imu.az=imu.z1*i+imu.z2*j+imu.z3*k+gravity;
   */
-  imu.vx=imu.vx+imu.ax*fixed(accel_time<<8);
-  imu.vy=imu.vy+imu.ay*fixed(accel_time<<8);
-  imu.vz=imu.vz+imu.az*fixed(accel_time<<8);
-  imu.x=imu.x+imu.vx*fixed(accel_time<<8);
-  imu.y=imu.y+imu.vy*fixed(accel_time<<8);
-  imu.z=imu.z+imu.vz*fixed(accel_time<<8);
+  imu.vx+=imu.ax*fixed(accel_time<<8);
+  imu.vy+=imu.ay*fixed(accel_time<<8);
+  imu.vz+=imu.az*fixed(accel_time<<8);
+  imu.x+=imu.vx*fixed(accel_time<<8);
+  imu.y+=imu.vy*fixed(accel_time<<8);
+  imu.z+=imu.vz*fixed(accel_time<<8);
 }
 
 void imu_init(void)
@@ -186,7 +186,7 @@ void imu_init_orientation(void)
   enable_sensor_interrupts();
 }
 
-void imu_init_calibrate_orientation(int alpha, int beta, int gamma)
+void imu_init_calibrate_orientation(const int alpha, const int beta, const int gamma)
 {
   fixed sina=qsin(alpha<<gyrolowpass);
   fixed cosa=qcos(alpha<<gyrolowpass);
@@ -205,7 +205,7 @@ void imu_calibrate_orientation(void)
   
   imu.cql=imu.qg;
   
-  for(char p=0; p<GYROCNTP; p++)
+  for(byte p=0; p<GYROCNTP; p++)
   {
     imu.qg=sqrt(imu.qg);
     print("qg",imu.qg);
@@ -213,35 +213,36 @@ void imu_calibrate_orientation(void)
     //print("l",lnorm(imu.q));
   }
 
-  imu.cqs=imu.cqs*conjugate(imu.qg);
+  imu.cqs*=conjugate(imu.qg);
   imu.cqs.normalize();
   
-  for(char p=0; p<GYROCNTP; p++)
+  for(byte p=0; p<GYROCNTP; p++)
   {
-    imu.qg=imu.qg*imu.qg;
+    imu.qg*=imu.qg;
 //    print("qg",imu.qg);
   }
 
 //  print("1",imu.q*conjugate(imu.cql));
   imu.cql=imu.cqs;//*imu.q*conjugate(imu.cql).normalize();   //tbd
-  
+
   imu.qg=ident;
 }
 
-quaternion imu_control(quaternion heading)
+const quaternion imu_control(const quaternion &heading)
 {
   fixed top[3]={control_ax, control_ay, control_az};
+  quaternion h=heading;
   quaternion result;
   vectnorm(top);
   
-  if(heading.x!=0 || heading.y!=0)
+  if(h.x!=0 || h.y!=0)
   {
-    heading.x=0;
-    heading.y=0;
-    heading.normalize();
+    h.x=0;
+    h.y=0;
+    h.normalize();
   }
   
-  result=sqrt(quaternion(top[2], -top[1], top[0], 0)) * heading;   // (0,0,1)*top=(-top[1], top[0], 0)
+  result=sqrt(quaternion(top[2], -top[1], top[0], 0)) * h;   // (0,0,1)*top=(-top[1], top[0], 0)
 /*  if(abs(result.w)<sinpi4)
   {
     Serial.println("w<sinpi4==========================================================================================");
@@ -259,7 +260,7 @@ quaternion imu_control(quaternion heading)
   return result;
 }
 
-quaternion imu_get_orientation(void)       // to be called outside of gyro interrupt
+const quaternion imu_get_orientation(void)       // to be called outside of gyro interrupt
 {
   quaternion orientation;
   disable_sensor_interrupts();

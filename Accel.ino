@@ -200,7 +200,7 @@ void accel_int(void)
   enable_sensor_interrupts();
 }
 
-void printpoint(long *x)
+void printpoint(const long x[3])
 { Serial.println(x[0]);
   Serial.println(x[1]);
   Serial.println(x[2]);

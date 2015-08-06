@@ -90,7 +90,7 @@ void loop(void)
   {
     Serial2.write(2+sizeof(quaternion));
     Serial2.write("QU");
-    Serial2.write((unsigned char *)&imu_q, sizeof(quaternion));
+    Serial2.write((byte*)&imu_q, sizeof(quaternion));
     Serial2.write("\n\n\n");
   }
 
@@ -389,7 +389,7 @@ void error (const char *msg)
   Serial.println(msg);
 }
 
-void print(fixed val)
+void print(const fixed &val)
 {
   int v;
   if(val==one)
@@ -418,7 +418,7 @@ void print(fixed val)
   }
 }
 
-void print(const char *name, fixed val)
+void print(const char *name, const fixed &val)
 {
   Serial.print(name);
   Serial.print(" =");
@@ -426,7 +426,7 @@ void print(const char *name, fixed val)
   Serial.println("");
 }
 
-void print(const char *name, angle val)
+void print(const char *name, const angle val)
 {
   Serial.print(name);
   Serial.print(" =");
@@ -438,15 +438,16 @@ void print(const char *name, angle val)
   Serial.println(" )");
 }
 
-void print(const char *name, lfixed val)
+void print(const char *name, const lfixed &val)
 {
   int v;
+  long long int value=val.value;
   Serial.print(name);
   Serial.print(" =");
-  if(val>=0) Serial.print(" ");
-  Serial.print((int)(val.value/0x4000000000000000LL));
+  if(value>=0) Serial.print(" ");
+  Serial.print((int)(value/0x4000000000000000LL));
   Serial.print(".");
-  v=abs(val.value)/0x10624DD2F1A9FCLL - (abs(val.value)/0x4000000000000000LL)*1000;
+  v=abs(value)/0x10624DD2F1A9FCLL - (abs(value)/0x4000000000000000LL)*1000;
   if(v<10)
     Serial.print("00");
   else if(v<100)
@@ -455,30 +456,31 @@ void print(const char *name, lfixed val)
   Serial.print(" (");
   for(byte i=63;i!=255;i--)
   {
-    Serial.print((byte)(val.value>>i),BIN);
-    val.value=val.value-((val.value>>i)<<i);
+    Serial.print((byte)(value>>i),BIN);
+    value-=((value>>i)<<i);
   }
   Serial.println(")");
 }
 
-void print(lfixed val)
+void print(const lfixed &val)
 {
   int v;
-  if(val==0xFFFFFFFFFFFFFFFFLL)
+  long long int value=val.value;
+  if(value==0xFFFFFFFFFFFFFFFFLL)
   {
     Serial.print("-1.000");
     return;
   }
-  if(val>=0)
+  if(value>=0)
     Serial.print(" ");
   else
   {
     Serial.print("-");
-    val.value=-val.value;
+    value=-value;
   }
-  Serial.print((int)(val.value/0x4000000000000000LL));
+  Serial.print((int)(value/0x4000000000000000LL));
   Serial.print(".");
-  v=val.value/0x10624DD2F1A9FCLL - (val.value/0x4000000000000000LL)*1000;
+  v=value/0x10624DD2F1A9FCLL - (value/0x4000000000000000LL)*1000;
   if(v<10)
     Serial.print("00");
   else if(v<100)
@@ -486,7 +488,7 @@ void print(lfixed val)
   Serial.print(v);
 }
 
-void print(const char *name, quaternion val)
+void print(const char *name, const quaternion &val)
 {
   Serial.print(name);
   Serial.print(" = [");

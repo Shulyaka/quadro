@@ -797,7 +797,7 @@ const unsigned long long ufmult(const unsigned long x, const unsigned long y)
 
 lfixed& lfixed::operator*=(const lfixed &y)
 {
-  unsigned char sign=0;
+  byte sign=0;
   lfixed z;
   unsigned long a, b, c, d;
   unsigned long long r, m, xv, yv;
@@ -899,7 +899,7 @@ const lfixed lfixed::operator-(void) const
 const lfixed lfixed::operator*(const lfixed &y) const
 {
   //return lfixed(*this)*=y;
-  unsigned char sign=0;
+  byte sign=0;
   lfixed z;
   unsigned long a, b, c, d;
   unsigned long long r, m, xv, yv;
@@ -968,7 +968,7 @@ const lfixed lfixed::operator*(const lfixed &y) const
 
 /*const lfixed lfixed::operator*(const lfixed &y) const
 {
-  unsigned char sign=0;
+  byte sign=0;
   lfixed z=0;
   unsigned long long xv, yv;
   if(this->value<0)
@@ -986,7 +986,7 @@ const lfixed lfixed::operator*(const lfixed &y) const
   else
     yv=y.value;
 
-//  for(unsigned char i=62; i!=255; i--)
+//  for(byte i=62; i!=255; i--)
 //  {
 //    if(xv&(1ULL<<i))
   for(unsigned long long i=1ULL<<62; i!=0; i=i>>1)
@@ -1015,7 +1015,7 @@ const fixed lfixed::operator/(const lfixed &y) const
 {
   fixed z;
   unsigned long long a,b;
-  unsigned char sign=0;
+  byte sign=0;
 //  if(y.value==0)
 //    return one;
   if(this->value<0)
@@ -1036,7 +1036,7 @@ const fixed lfixed::operator/(const lfixed &y) const
     return one;
 
   z.value=0;
-  for(unsigned char i=30; i!=255; i--)
+  for(byte i=30; i!=255; i--)
   {
     a<<=1;
     if(b<a)
@@ -1071,7 +1071,7 @@ const lfixed ldiv(const lfixed &x, const lfixed &y)
 {
   lfixed z;
   unsigned long long a,b;
-  unsigned char sign=0;
+  byte sign=0;
 //  print("ldiv: a",a);
 //  print("ldiv: b",b);
   if(x.value<0)
@@ -1092,7 +1092,7 @@ const lfixed ldiv(const lfixed &x, const lfixed &y)
     return 0;
 
   z.value=0;
-  for(unsigned char i=62; i!=255; i--)
+  for(byte i=62; i!=255; i--)
   {
     if(b<a)
     {
