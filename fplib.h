@@ -572,7 +572,7 @@ lfixed::lfixed(const fixed &x)
   else if(x==-one)
     lfixed::value=-0x4000000000000000LL;
   else
-    lfixed::value= x>0? ((long long)x.value)<<31:-(((long long)x.value)<<31);
+    lfixed::value= x>0? ((long long)x.value)<<31:-(((long long)-x.value)<<31);
 }
 
 
