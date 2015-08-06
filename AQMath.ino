@@ -158,16 +158,16 @@ const angle getangle(const fixed &sinx, const fixed &cosx)
 //{return lsinbylcos(x);}
 
 const fixed vectlen(const fixed &a, const fixed &b, const fixed &c)
-{return sqrt(a%a+b%b+c%c);}
+{return sqrt(lsq(a)+lsq(b)+lsq(c));}
 
 const fixed vectlen(const fixed &a, const fixed &b)
-{return sqrt(a%a+b%b);}
+{return sqrt(lsq(a)+lsq(b));}
 
 const lfixed lvectlen(const fixed &a, const fixed &b, const fixed &c)
-{return lsqrt(a%a+b%b+c%c);}
+{return lsqrt(lsq(a)+lsq(b)+lsq(c));}
 
 const lfixed lvectlen(const fixed &a, const fixed &b)
-{return lsqrt(a%a+b%b);}
+{return lsqrt(lsq(a)+lsq(b));}
 
 inline const fixed sinbycos(const fixed &x)
 {return (x==one) ? 0 : sqrt(lfixed(0x4000000000000000ULL)-lsq(x));}
@@ -183,16 +183,16 @@ const int vectnorm(fixed x[3])
     return -1;
   if(l>0)
   {
-    x[0]=x[0]%one/l;
-    x[1]=x[1]%one/l;
-    x[2]=x[2]%one/l;
+    x[0]=lfixed(x[0])/l;
+    x[1]=lfixed(x[1])/l;
+    x[2]=lfixed(x[2])/l;
   }
   else
   {
-    l=l+l*l+l*l*l; //should be enough
-    x[0]=x[0]+x[0]*l;
-    x[1]=x[1]+x[1]*l;
-    x[2]=x[2]+x[2]*l;
+    l+=sq(l)+pow(l,3); //should be enough
+    x[0]+=x[0]*l;
+    x[1]+=x[1]*l;
+    x[2]+=x[2]*l;
   }
   return 0;
 }
