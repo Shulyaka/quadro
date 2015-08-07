@@ -188,10 +188,10 @@ const quaternion quaternion::operator<<(const byte b) const
 
 
 const fixed norm(const quaternion &a)
-{return a.w*a.w+a.x*a.x+a.y*a.y+a.z*a.z;}
+{return sq(a.w)+sq(a.x)+sq(a.y)+sq(a.z);}
 
 const lfixed lnorm(const quaternion &a)
-{return a.w%a.w+a.x%a.x+a.y%a.y+a.z%a.z;}
+{return lsq(a.w)+lsq(a.x)+lsq(a.y)+lsq(a.z);}
 
 const lfixed lmagnitude(const quaternion &a)
 {return lsqrt(lnorm(a));}

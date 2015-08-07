@@ -123,10 +123,7 @@ bool math_magic(const fixed point[20][3], const byte n, fixed x[9])          //f
       {
         F[i][j]=0;
         for(k=0; k<n; k++)
-        {
-          //printf("df=%g\n", df(point[k], i));
           F[i][j]+=df(point[k], newpoint[k], i, l)*df(point[k], newpoint[k], j, l)*d;
-        }
       }
 
     for(i=0; i<3*l; i++)
@@ -138,7 +135,7 @@ bool math_magic(const fixed point[20][3], const byte n, fixed x[9])          //f
 
     if(!lsolve(F, r, dx))
     {
-      printf("Unable to solve\n");
+      error("Unable to solve");
       return false;
     }
 

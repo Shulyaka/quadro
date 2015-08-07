@@ -207,7 +207,7 @@ void loop(void)
         else if(control_az>=cosg)
           az=one; //we are almost 90 degree rotated, not enough to hold altitude but do what we can with full acceleration
         else
-          az=control_az%one/cosg;   //normal operation
+          az=lfixed(control_az)/cosg;   //normal operation
 
         cntrl_h.w=desired_q.w;
         cntrl_h.x=0;
@@ -340,8 +340,8 @@ void print_debug_info(void)
 //    print("angv.y",imu_angv.y);
 //    print("angv.z",imu_angv.z);
     
-//    print(" s",t1%t1+t2%t2+t3%t3);
-//    print("ss",lsqrt(t1%t1+t2%t2+t3%t3));
+//    print(" s",lsq(t1)+lsq(t2)+lsq(t3));
+//    print("ss",lsqrt(lsq(t1)+lsq(t2)+lsq(t3)));
 //    print("v1",lvectlen(t1,t2,t3));
 //    print("v2",vectlen(t1,t2,t3));
 //    print("tm",tm);
@@ -383,7 +383,7 @@ void print_debug_info(void)
 //  Serial.println(accel_time);  
 }
 
-void error (const char *msg)
+void error(const char *msg)
 {
   Serial.print("Error: ");
   Serial.println(msg);
