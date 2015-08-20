@@ -77,6 +77,8 @@ typedef struct {
 
 Imu imu;
 
+int sonarADC[6]={0,0,0,0,0,0};
+
 //defines current desired waypoint
 quaternion desired_q=ident; //only heading is currently supported
 fixed desired_x=0;

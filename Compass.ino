@@ -18,7 +18,7 @@ void compass_init(void)
   enable_sensor_interrupts();
 }
 
-void compass_measure() //warning: you must call disable_sensor_interrupts() and interrupts() before attempting to call this function
+void compass_measure(void) //warning: you must call disable_sensor_interrupts() and interrupts() before attempting to call this function
 {
   sendByteI2C(compassAddress, 0x03);
   Wire.requestFrom(compassAddress, 6);

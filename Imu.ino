@@ -104,6 +104,7 @@ void imu_init(void)
   accel_init();
   gyro_init();
   compass_init();
+  sonar_init();
 }
 
 void imu_init_position(void)

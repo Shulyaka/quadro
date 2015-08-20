@@ -56,7 +56,7 @@ void setup(void)
   Serial.print("Accel time is ");
   Serial.println(accel_time);
 
-  manual_calibration();
+  //manual_calibration();
 }
 
 void loop(void)
@@ -70,6 +70,8 @@ void loop(void)
   quaternion imu_q, imu_angv;
   quaternion cntrl_h;
   fixed imu_x, imu_y, imu_z, imu_vx, imu_vy, imu_vz, imu_az;
+  
+  sonar_measure();
   
   disable_sensor_interrupts();
   imu_q=imu.q;
@@ -381,6 +383,8 @@ void print_debug_info(void)
 
 //  cmd_gyro();
 //  Serial.println(accel_time);  
+  for(int i=0; i<6; i++)
+    print("Sonar", sonarADC[i]);
 }
 
 void error(const char *msg)
