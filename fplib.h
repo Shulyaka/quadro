@@ -70,7 +70,7 @@ class lfixed
   const lfixed operator>>(const byte) const;
 };
 
-const fixed one = fixed(((signed long)((1UL<<31)-1))+1, true);
+const fixed one = fixed(0x80000000UL, true);
 
 fixed::fixed(void)
 {
@@ -96,11 +96,11 @@ fixed::fixed(const lfixed &x)
   fixed::isone=false;
   if (x.value>=0x4000000000000000LL)
   {
-    fixed::value=((signed long)((1UL<<31)-1))+1;
+    fixed::value=one.value;
     fixed::isone=true;
   }
   else if (x.value<=-0x3FFFFFFF80000000LL)
-    fixed::value=((signed long)((1UL<<31)-1))+2;
+    fixed::value=(-one).value;
   else
     fixed::value=x.value>0?(x.value+0x40000000)>>31:-((-x.value+0x40000000)>>31);
 }
@@ -348,7 +348,7 @@ const fixed fixed::operator-(const fixed &y) const
 
 const fixed fixed::operator-(void) const
 {
-  return fixed((*this==one)? ((signed long)((1UL<<31)-1))+2 : -this->value);
+  return fixed((*this==one)? 0x80000001UL : -this->value);
 }
 
 const fixed fixed::operator*(const fixed &y) const //multiply and conquer!

@@ -264,7 +264,7 @@ void print_debug_info(void)
 //    angle f,p,t;
     quaternion qt, imu_angv, myangv;
     quaternion heading;
-    int a,b,c;
+//    int a,b,c;
     int battery=analogRead(BattMonPin);
     
     static unsigned int j=0;
@@ -288,9 +288,9 @@ void print_debug_info(void)
     qt=imu.q;
     imu_angv=imu.angv;
 //    myangv=quaternion(imu_cosa*imu_cosb*imu_cosc, imu_sina*imu_cosb*imu_cosc, imu_sinb*imu_cosa*imu_cosc, imu_sinc*imu_cosa*imu_cosb);
-    a=gyroalpha;
-    b=gyrobeta;
-    c=gyrogamma;
+//    a=gyroalpha;
+//    b=gyrobeta;
+//    c=gyrogamma;
     enable_sensor_interrupts();
     
 //    qt=imu_get_orientation();
@@ -470,7 +470,7 @@ void print(const lfixed &val)
 {
   int v;
   long long int value=val.value;
-  if(value==0xFFFFFFFFFFFFFFFFLL)
+  if(value==-1LL)
   {
     Serial.print("-1.000");
     return;
