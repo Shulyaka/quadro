@@ -122,9 +122,9 @@ void cmd_setc(int c)
 
 void cmd_usr1(int x)
 {
-  accel_offset[0]=(long)x*10000L;
-  print("accel_offset[0]", accel_offset[0]);
-  imu_init_orientation();
+  //accel_offset[0]=(long)x*10000L;
+  //print("accel_offset[0]", accel_offset[0]);
+  //imu_init_orientation();
 }
 
 void cmd_usr2(void)
@@ -141,9 +141,9 @@ void cmd_usr3(void)
 
 void cmd_usr4(int x)
 {
-  accel_offset[1]=(long)x*10000L;
-  print("accel_offset[1]", accel_offset[1]);
-  imu_init_orientation();
+  //accel_offset[1]=(long)x*10000L;
+  //print("accel_offset[1]", accel_offset[1]);
+  //imu_init_orientation();
 }
 
 void cmd_usr5(void)

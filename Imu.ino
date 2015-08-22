@@ -78,9 +78,9 @@ imu.tmp3=qt3.w;
 */
 }
 
-void imu_updatePosition(const fixed &i, const fixed &j, const fixed &k)
+void imu_updatePosition(const fixed acceleration[3])
 {
-  quaternion acc=imu.q*quaternion(i+sq(i)*accel_square[0]+i*accel_gain[0]+accel_offset[0], j+sq(j)*accel_square[1]+j*accel_gain[1]+accel_offset[1], k+sq(k)*accel_square[2]+k*accel_gain[2]+accel_offset[2])*conjugate(imu.q);
+  quaternion acc=imu.q*quaternion(acceleration[0], acceleration[1], acceleration[2])*conjugate(imu.q);
   imu.ax+=((acc.x-imu.ax)>>accellowpass);
   imu.ay+=((acc.y-imu.ay)>>accellowpass);
   imu.az+=((acc.z-gravity-imu.az)>>accellowpass);

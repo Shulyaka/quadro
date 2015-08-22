@@ -114,7 +114,7 @@ void accel_int(void)
 
 void accel_int(void)
 {
-  int oldval[3];
+  int oldval[3]={0};
   static int icount=0;
   static int dcount=0;
   static unsigned long int accel_oldtime=0;
@@ -126,6 +126,7 @@ void accel_int(void)
     digitalWrite(StatusLEDPin, LOW);
   accel_time=micros()-accel_oldtime;
   accel_oldtime=micros();
+  fixed acceleration[3];
 
   if(accel_capture_flag)
     for (byte axis = 0; axis < 3; axis++)
@@ -136,7 +137,16 @@ void accel_int(void)
   accel_measure();
   
   if(gyro_ready)
-    imu_updatePosition((long)accelADC[0]<<18, (long)accelADC[1]<<18, (long)accelADC[2]<<18);
+  {
+    for (byte axis = 0; axis < 3; axis++)
+    {
+      acceleration[axis]=accelBuf[axis]<<18;
+      for(byte m=0; m<accel_calibration_magnitude; m++)
+        acceleration[axis]+=accel_calibration[axis][m]*pow(acceleration[axis], m);
+    }
+
+    imu_updatePosition(acceleration);
+  }
 
   if(accel_capture_flag)
   {
@@ -183,7 +193,8 @@ void accel_int(void)
       for (byte axis = 0; axis < 3; axis++)
       {
         accel_captured[axis]=accelBuf[axis]<<(18-ACCELCNTP);
-        accel_captured[axis]=accel_captured[axis]+accel_captured[axis]*accel_captured[axis]*accel_square[axis]+accel_captured[axis]*accel_gain[axis]+accel_offset[axis];
+        for(byte m=0; m<accel_calibration_magnitude; m++)
+          accel_captured[axis]+=accel_calibration[axis][m]*pow(accel_captured[axis], m);
       }
       Serial.println("");
     }

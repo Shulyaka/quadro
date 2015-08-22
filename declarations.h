@@ -118,9 +118,10 @@ const fixed horizontal_speed_factor=0;//one>>1;
 quaternion gyro_orientation=quaternion(2147277277, -26095309, -13909796, -3444716);//ident;   //gyro misalignment compensation               //const
 quaternion accel_orientation=ident;   //accel misalignment compensation
 
-fixed accel_offset[3]={-12722665, -14048154, 9398797};
-fixed accel_gain[3]={67496085, -39999028, -3279456};
-fixed accel_square[3]={415606326, 223912544, -31681941};
+fixed accel_calibration[3][3]={{-12722665, 67496085, 415606326},
+                               {-14048154, -39999028, 223912544},
+                               {9398797, -3279456, -31681941}};
+const byte accel_calibration_magnitude=sizeof(accel_calibration)/3/sizeof(accel_calibration[0][0]);
 
 fixed landx=one;
 fixed landy=one;

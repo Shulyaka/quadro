@@ -93,9 +93,9 @@ fixed df(const fixed point[3], const fixed newpoint[3], const byte i, const byte
 }
 #endif
 
-bool math_magic(const fixed point[20][3], const byte n, fixed x[9])          //finds best calibration parameters using the least squares method and iterational Newton's method
+bool math_magic(const fixed point[20][3], const byte n, fixed x[accel_calibration_magnitude*3])          //finds best calibration parameters using the least squares method and iterational Newton's method
 {
-  const byte l=3;
+  const byte l=accel_calibration_magnitude;
   fixed F[3*l][3*l];
   fixed r[3*l];
   fixed dx[3*l];
@@ -162,7 +162,7 @@ bool accel_calibrate_manual(void)
 {
   const byte n=12;
   fixed point[20][3];
-  fixed k[9];
+  fixed k[accel_calibration_magnitude*3];
   
 //  Serial.println("Manual accel calibration\nThis algorithm will estimate accel zero values\nby measuring gravity in several different positions.\nThe more the positions differ, the better estimation.\nThe positions are not required to be exactly aligned to gravity in any way.\nPlease do not move your quadro while position is being measured.");
 /*
@@ -257,11 +257,8 @@ point[11][1]=773597696;
 point[11][2]=-755563520;
 
   for(byte i=0; i<3; i++)
-  {
-    accel_offset[i]=0;
-    accel_gain[i]=0;
-    accel_square[i]=0;
-  }
+    for(byte j=0; j<accel_calibration_magnitude; j++)
+      accel_calibration[i][j]=0;
 
 /*  for(byte i=0;i<n;i++)
   {
@@ -296,7 +293,7 @@ point[11][2]=-755563520;
   if(!math_magic(point, n, k)) // find gain to be applied for the n points to be on a sphere
   {
     enable_sensor_interrupts();
-    error("Cannot find calibration parameters. Possible reasons: programmer was drunk. Please try again.");
+    error("Cannot find calibration parameters. Try capturing more points.");
     delay(5000);
     return false;
   }
@@ -305,15 +302,13 @@ point[11][2]=-755563520;
   printrow("math_magic result", k);
 
   for(byte i=0; i<3; i++)
-  {
-    accel_offset[i]=k[i*3];
-    accel_gain[i]=k[i*3+1];
-    accel_square[i]=k[i*3+2];
-  }
+    for(byte j=0; j<accel_calibration_magnitude; j++)
+      accel_calibration[i][j]=k[i*3+j];
 
   for(byte i=0; i<n; i++)
     for(byte j=0; j<3; j++)
-      point[i][j]+=accel_square[j]*sq(point[i][j])+accel_gain[j]*point[i][j]+accel_offset[j];
+      for(byte m=0; m<accel_calibration_magnitude; m++)
+        point[i][j]+=accel_calibration[j][m]*pow(point[i][j], m);
 
   for(byte i=0; i<n; i++)
   {
