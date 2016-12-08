@@ -1,5 +1,6 @@
 language: arduino
 dist: trusty
+sudo: required
 addons:
   apt:
     packages:
