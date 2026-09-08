@@ -361,11 +361,12 @@ const fixed fixed::operator*(const fixed &y) const //multiply and conquer!
     return *this;
   else if(*this==one)
     return y;
-  else if(*this==-one && y==-one)
-    return one;
+  else if(y==-one)
+    return (*this==-one) ? one : -*this;
+  else if(*this==-one)
+    return -y;
   else
-    //z.value=(this->value>0) ? ((long long)(y.value)*((unsigned long)(this->value)<<1)+0x80000000)>>32 : -(((long long)(y.value)*((unsigned long)(-this->value)<<1)+0x80000000)>>32);
-    asm (    // 160 cycles (10 usec)
+    asm (
     "clr %[Z] \n\t"
     "fmuls %D[X], %D[Y] \n\t"
     "movw %C[R], r0 \n\t"
@@ -507,6 +508,30 @@ const fixed fixed::operator*(const fixed &y) const //multiply and conquer!
     "adc %B[R], %[Z]  \n\t"
     "adc %C[R], %[Z]  \n\t"
     "adc %D[R], %[Z]  \n\t"
+    // Round to the nearest representable value.  The discarded half-LSB
+    // is bit 7 of D[T]; ties are rounded away from zero, matching
+    // fixed(const lfixed&).
+    "lsl %D[T]  \n\t"
+    "brcc 2f  \n\t"
+    "mov r1, %D[X]  \n\t"
+    "eor r1, %D[Y]  \n\t"
+    "sbrs r1, 7  \n\t"
+    "rjmp 1f  \n\t"
+    "tst %D[T]  \n\t"
+    "brne 1f  \n\t"
+    "tst %C[T]  \n\t"
+    "brne 1f  \n\t"
+    "tst %B[T]  \n\t"
+    "brne 1f  \n\t"
+    "tst r0  \n\t"
+    "breq 2f  \n\t"
+    "1:  \n\t"
+    "sec  \n\t"
+    "adc %A[R], %[Z]  \n\t"
+    "adc %B[R], %[Z]  \n\t"
+    "adc %C[R], %[Z]  \n\t"
+    "adc %D[R], %[Z]  \n\t"
+    "2:  \n\t"
     "clr r1  \n\t"
     : [R]"=&r"(z.value), [T]"=&r"(tmp), [Z]"=&r"(zero)
     : [X]"a"(this->value), [Y]"a"(y.value)
@@ -1133,7 +1158,7 @@ inline const lfixed lsq(const fixed &x)
 //   I used the following code to generate the below lookup table:
 void printSqrtTable(void)
 {
-  Serial.print("const byte l_sqrt[192]={		// input: x (64-255), output: sqrt((x-64)<<8)\n");
+  Serial.print("const byte l_sqrt[192]={\t\t// input: x (64-255), output: sqrt((x-64)<<8)\n");
   for(int i=64; i<256; i++)
   {
     Serial.print((unsigned byte)sqrt(i<<8));
@@ -1144,7 +1169,7 @@ void printSqrtTable(void)
   }
 }
 
-const byte l_sqrt[192]={		// input: x (64-255), output: sqrt((x-64)<<8)
+const byte l_sqrt[192]={\t\t// input: x (64-255), output: sqrt((x-64)<<8)
 128,128,129,130,131,132,133,134,135,136,137,138,139,140,141,142,143,144,144,145,146,147,148,149,150,150,151,152,153,154,155,155,
 156,157,158,159,160,160,161,162,163,163,164,165,166,167,167,168,169,170,170,171,172,173,173,174,175,176,176,177,178,178,179,180,
 181,181,182,183,183,184,185,185,186,187,187,188,189,189,190,191,192,192,193,193,194,195,195,196,197,197,198,199,199,200,201,201,
