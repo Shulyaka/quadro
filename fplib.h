@@ -649,7 +649,7 @@ void ufmult_asm(struct ufmultparams *p)
     "clr %[Z] \n\t"
     "fmul %D[X], %D[Y] \n\t"
     "movw %C[R], r0 \n\t"
-    "fmulsu %B[X], %D[Y]  \n\t"
+    "fmul %B[X], %D[Y]  \n\t"
     "adc %C[R], %[Z]  \n\t"
     "adc %D[R], %[Z]  \n\t"
     "movw %A[R], r0  \n\t"
