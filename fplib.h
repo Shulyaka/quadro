@@ -361,11 +361,13 @@ const fixed fixed::operator*(const fixed &y) const //multiply and conquer!
     return *this;
   else if(*this==one)
     return y;
-  else if(*this==-one && y==-one)
-    return one;
+  else if(y==-one)
+    return (*this==-one) ? one : -*this;
+  else if(*this==-one)
+    return -y;
   else
     //z.value=(this->value>0) ? ((long long)(y.value)*((unsigned long)(this->value)<<1)+0x80000000)>>32 : -(((long long)(y.value)*((unsigned long)(-this->value)<<1)+0x80000000)>>32);
-    asm (    // 160 cycles (10 usec)
+    asm (    // 163-179 cycles (10.2-11.2 usec @ 16 MHz)
     "clr %[Z] \n\t"
     "fmuls %D[X], %D[Y] \n\t"
     "movw %C[R], r0 \n\t"
@@ -507,6 +509,30 @@ const fixed fixed::operator*(const fixed &y) const //multiply and conquer!
     "adc %B[R], %[Z]  \n\t"
     "adc %C[R], %[Z]  \n\t"
     "adc %D[R], %[Z]  \n\t"
+    // Round to the nearest representable value.  The discarded half-LSB
+    // is bit 7 of D[T]; ties are rounded away from zero, matching
+    // fixed(const lfixed&).
+    "lsl %D[T]  \n\t"
+    "brcc 2f  \n\t"
+    "mov r1, %D[X]  \n\t"
+    "eor r1, %D[Y]  \n\t"
+    "sbrs r1, 7  \n\t"
+    "rjmp 1f  \n\t"
+    "tst %D[T]  \n\t"
+    "brne 1f  \n\t"
+    "tst %C[T]  \n\t"
+    "brne 1f  \n\t"
+    "tst %B[T]  \n\t"
+    "brne 1f  \n\t"
+    "tst r0  \n\t"
+    "breq 2f  \n\t"
+    "1:  \n\t"
+    "sec  \n\t"
+    "adc %A[R], %[Z]  \n\t"
+    "adc %B[R], %[Z]  \n\t"
+    "adc %C[R], %[Z]  \n\t"
+    "adc %D[R], %[Z]  \n\t"
+    "2:  \n\t"
     "clr r1  \n\t"
     : [R]"=&r"(z.value), [T]"=&r"(tmp), [Z]"=&r"(zero)
     : [X]"a"(this->value), [Y]"a"(y.value)
