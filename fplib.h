@@ -366,7 +366,8 @@ const fixed fixed::operator*(const fixed &y) const //multiply and conquer!
   else if(*this==-one)
     return -y;
   else
-    asm (
+    //z.value=(this->value>0) ? ((long long)(y.value)*((unsigned long)(this->value)<<1)+0x80000000)>>32 : -(((long long)(y.value)*((unsigned long)(-this->value)<<1)+0x80000000)>>32);
+    asm (    // 163-179 cycles (10.2-11.2 usec @ 16 MHz)
     "clr %[Z] \n\t"
     "fmuls %D[X], %D[Y] \n\t"
     "movw %C[R], r0 \n\t"
